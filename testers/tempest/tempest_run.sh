@@ -3,9 +3,9 @@
 # This script is meant for running tempest quickly on a Ubuntu machine
 # Checkout Juniper tempest code; cd tempest ; Then, 
 #
-#   'curl -sSL https://raw.githubusercontent.com/Juniper/contrail-tools/tempest/tempest_run.sh | sh'
+#   'curl -sSL https://raw.githubusercontent.com/Juniper/contrail-tools/testers/tempest/tempest_run.sh | sh'
 # or:
-#   'wget -qO- https://raw.githubusercontent.com/Juniper/contrail-tools/tempest/tempest_run.sh | sh'
+#   'wget -qO- https://raw.githubusercontent.com/Juniper/contrail-tools/testers/tempest/tempest_run.sh | sh'
 #
 # By default, it assumes that openstack, contrail is running on local node
 # Target node where Openstack/Contrail is setup can be any node(local/remote)
