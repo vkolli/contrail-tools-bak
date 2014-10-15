@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # This script is meant for running tempest quickly on a Ubuntu machine
+# Checkout Juniper tempest code; cd tempest ; Then, 
 #
 #   'curl -sSL https://raw.githubusercontent.com/Juniper/contrail-tools/tempest/tempest_run.sh | sh'
 # or:
@@ -19,7 +20,7 @@ export PUBLIC_NETWORK_NAME=${PUBLIC_NETWORK_NAME:-public_net}
 export PUBLIC_NETWORK_SUBNET=${PUBLIC_NETWORK_SUBNET:-10.1.1.0/24}
 export PUBLIC_NETWORK_RI_FQ_NAME=${PUBLIC_NETWORK_RI_FQ_NAME:-"default-domain:admin:$PUBLIC_NETWORK_NAME:$PUBLIC_NETWORK_NAME"}
 export PUBLIC_NETWORK_RT=${PUBLIC_NETWORK_RT:-10003}
-export ROUTER_ASN=${ROUTER_ASN:-64510}
+export ROUTER_ASN=${ROUTER_ASN:-64512}
 export PUBLIC_ACCESS_AVAILABLE=${PUBLIC_ACCESS_AVAILABLE:-0}
 
 export HTTP_IMAGE_PATH=${HTTP_IMAGE_PATH:-http://10.204.216.51/images/cirros/cirros-0.3.1-x86_64-disk.img}
