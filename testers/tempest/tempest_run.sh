@@ -52,6 +52,11 @@ function command_exists() {
 
 #Get current Contrail Build version from the node 
 
+if ! command_exists sshpass 
+then
+    apt-get -y install sshpass
+fi
+
 build_string_cmd="contrail-version |grep contrail-install |head -1| awk '{print \$2}'"
 CONTRAIL_BUILD_STRING=`/usr/bin/sshpass -p $KEYSTONE_SERVICE_HOST_PASSWORD ssh $SSHOPT -t ${KEYSTONE_SERVICE_HOST_USER}@${KEYSTONE_SERVICE_HOST} "$build_string_cmd" 2>/dev/null` || echo "Unable to detect Build Id"
 
