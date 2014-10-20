@@ -11,9 +11,9 @@
 # Target node where Openstack/Contrail is setup can be any node(local/remote)
 # If remote, set the below environment variables appropriately
 
-export WORKSPACE=${WORKSPACE:-$(pwd)}
+export TEMPEST_WS=${TEMPEST_WS:-$(pwd)}
 BUILD_STRING_FILE="build_id.txt"
-export TEMPEST_DIR=$WORKSPACE
+export TEMPEST_DIR=$TEMPEST_WS
 export KEYSTONE_SERVICE_HOST=${KEYSTONE_SERVICE_HOST:-127.0.0.1}
 
 export PUBLIC_NETWORK_NAME=${PUBLIC_NETWORK_NAME:-public_net}
@@ -68,7 +68,7 @@ export CONTRAIL_BUILD_STRING
 api_server_distro=`get_api_server_distro` 
 echo $api_server_distro $CONTRAIL_BUILD_STRING > ${BUILD_STRING_FILE}
 
-rm -f $WORKSPACE/result*.xml
+rm -f $TEMPEST_DIR/result*.xml
 
 # Run Tempest tests
 if [ -n $PUBLIC_ACCESS_AVAILABLE ];
@@ -78,5 +78,5 @@ else
     tests="tempest.api.network.test_networks tempest.api.network.test_routers tempest.api.network.test_ports.PortsTestJSON tempest.api.network.test_ports.PortsTestXML tempest.scenario.test_network_advanced_server_ops tempest.scenario.test_network_basic_ops tempest.api.network.test_security_groups tempest.api.network.test_floating_ips tempest.api.network.test_security_groups_negative tempest.api.network.test_extra_dhcp_options  tempest.api.network.test_networks_negative tempest.api.network.test_routers_negative tempest.api.compute.servers.test_attach_interfaces tempest.api.compute.servers.test_server_metadata tempest.api.compute.servers.test_server_addresses tempest.api.compute.servers.test_server_addresses_negative tempest.api.compute.servers.test_multiple_create tempest.api.network.admin.test_load_balancer_admin_actions"
 fi
 
-cd $WORKSPACE 
-bash -x $WORKSPACE/run_contrail_tempest.sh -p -V -r $WORKSPACE/result.xml -t -- $tests
+cd $TEMPEST_DIR 
+bash -x $TEMPEST_DIR/run_contrail_tempest.sh -p -V -r $TEMPEST_DIR/result.xml -t -- $tests
