@@ -39,10 +39,11 @@ export OS_NO_CACHE=1
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function get_api_server_distro () {
-    /usr/bin/sshpass -p $API_SERVER_HOST_PASSWORD ssh $SSHOPT ${API_SERVER_HOST_USER}@${API_SERVER_IP} "if [ -f /etc/lsb-release ]; then (cat /etc/lsb-release | grep DISTRIB_DESCRIPTION | cut -d "=" -f2 )
-else
-    cat /etc/redhat-release | sed s/\(Final\)//
-fi"
+    /usr/bin/sshpass -p $API_SERVER_HOST_PASSWORD ssh $SSHOPT ${API_SERVER_HOST_USER}@${API_SERVER_IP} "
+            if [ -f /etc/lsb-release ]; then (cat /etc/lsb-release | grep DISTRIB_DESCRIPTION | cut -d "=" -f2 )
+            else
+                cat /etc/redhat-release | sed s/\(Final\)//
+            fi"
 
 }
 
@@ -71,11 +72,11 @@ echo $api_server_distro $CONTRAIL_BUILD_STRING > ${BUILD_STRING_FILE}
 rm -f $TEMPEST_DIR/result*.xml
 
 # Run Tempest tests
-if [ -n $PUBLIC_ACCESS_AVAILABLE ];
+if [ $PUBLIC_ACCESS_AVAILABLE -eq 1 ];
 then
     tests="tempest.api.network.test_networks tempest.api.network.test_routers tempest.api.network.test_ports.PortsTestJSON tempest.api.network.test_ports.PortsTestXML tempest.scenario.test_network_advanced_server_ops tempest.scenario.test_network_basic_ops tempest.api.network.test_security_groups tempest.api.network.test_floating_ips tempest.api.network.test_security_groups_negative tempest.api.network.test_extra_dhcp_options  tempest.api.network.test_networks_negative tempest.api.network.test_routers_negative tempest.api.compute.servers.test_attach_interfaces tempest.api.compute.servers.test_server_metadata tempest.api.compute.servers.test_server_addresses tempest.api.compute.servers.test_server_addresses_negative tempest.api.compute.servers.test_multiple_create tempest.api.network.admin.test_load_balancer_admin_actions"
 else
-    tests="tempest.api.network.test_networks tempest.api.network.test_routers tempest.api.network.test_ports.PortsTestJSON tempest.api.network.test_ports.PortsTestXML tempest.scenario.test_network_advanced_server_ops tempest.scenario.test_network_basic_ops tempest.api.network.test_security_groups tempest.api.network.test_floating_ips tempest.api.network.test_security_groups_negative tempest.api.network.test_extra_dhcp_options  tempest.api.network.test_networks_negative tempest.api.network.test_routers_negative tempest.api.compute.servers.test_attach_interfaces tempest.api.compute.servers.test_server_metadata tempest.api.compute.servers.test_server_addresses tempest.api.compute.servers.test_server_addresses_negative tempest.api.compute.servers.test_multiple_create tempest.api.network.admin.test_load_balancer_admin_actions"
+    tests="tempest.api.network.test_networks tempest.api.network.test_ports.PortsTestJSON tempest.api.network.test_ports.PortsTestXML  tempest.api.network.test_security_groups tempest.api.network.test_floating_ips tempest.api.network.test_security_groups_negative tempest.api.network.test_extra_dhcp_options  tempest.api.network.test_networks_negative tempest.api.network.test_routers_negative tempest.api.compute.servers.test_attach_interfaces tempest.api.compute.servers.test_server_metadata tempest.api.compute.servers.test_server_addresses tempest.api.compute.servers.test_server_addresses_negative tempest.api.compute.servers.test_multiple_create tempest.api.network.admin.test_load_balancer_admin_actions tempest.api.network.test_routers.RoutersTest.test_add_multiple_router_interfaces tempest.api.network.test_routers.RoutersTest.test_add_remove_router_interface_with_port_id tempest.api.network.test_routers.RoutersTest.test_add_remove_router_interface_with_subnet_id tempest.api.network.test_routers.RoutersTest.test_create_router_setting_tenant_id tempest.api.network.test_routers.RoutersTest.test_create_show_list_update_delete_router tempest.api.network.test_routers.RoutersTest.test_update_router_admin_state tempest.api.network.test_routers.RoutersTest.test_update_router_unset_gateway"
 fi
 
 cd $TEMPEST_DIR 
