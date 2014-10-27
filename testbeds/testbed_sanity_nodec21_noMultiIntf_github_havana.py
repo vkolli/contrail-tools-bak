@@ -7,7 +7,7 @@ os_tenant_name = 'demo'
 host1 = 'root@10.204.217.6'
 host2 = 'root@10.204.217.4'
 host3 = 'root@10.204.217.5'
-host4 = 'root@10.204.216.101'
+host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
 host6 = 'root@10.204.217.3'
 
