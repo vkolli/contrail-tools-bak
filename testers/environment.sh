@@ -5,7 +5,7 @@ export BRANCH=${BRANCH:-mainline}
 export BUILDID=${BUILDID:-LATEST}
 export DISTRO=${DISTRO:-"ubuntu-12-04"}
 export SKU=${SKU:-icehouse}
-export WORKSPACE=${WORKSPACE:-$PWD}
+export TOOLS_WS=${TOOLS_WS:-$PWD}
 
 # If BRANCH, BUILID, DISTRO, SKU are not defined,
 # PKG_FILE path needs to be set
@@ -35,8 +35,8 @@ export SVL_HOST_PASSWORD=${SVL_HOST_PASSWORD:-c0ntrail123}
 export FAB_GIT_BRANCH=${BRANCH:-master}
 export PARAMS_FILE=${NODEHOME}/contrail-test/scripts/sanity_params.ini
 export SCRIPT_PATH=${NODEHOME}/contrail-test
-export BUILD_SCRIPT_PATH=$WORKSPACE/contrail-test
-export FABRIC_SCRIPT_PATH='$WORKSPACE/contrail-fabric-utils'
+export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
+export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0
 export SANITY_TEST_TYPE="serial"
 export LOCK_FILE_DIR=${LOCK_FILE_DIR:-/cs-shared/test_runs}

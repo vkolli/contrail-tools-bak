@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-WORKSPACE=${WORKSPACE:-$(pwd)}
+TOOLS_WS=${TOOLS_WS:-$(pwd)}
 
-source $WORKSPACE/testers/utils
+source $TOOLS_WS/testers/utils
 
 source available_testbeds
 type1_tbs=${AVAILABLE_TESTBEDS}

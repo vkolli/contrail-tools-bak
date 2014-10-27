@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-WORKSPACE=${WORKSPACE:-$(pwd)}
-source $WORKSPACE/testers/environment.sh
+TOOLS_WS=${TOOLS_WS:-$(pwd)}
+source $TOOLS_WS/testers/environment.sh
 
 ##
 # try
@@ -112,7 +112,7 @@ function copy_testbedfile_cfgm {
         return 0
     fi
     tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
-    ${WORKSPACE}/contrail-fabric-utils/fabfile/testbeds
+    ${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath:/testbed.py 
 #    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
@@ -144,18 +144,18 @@ function copy_fabric_test_artifacts {
 ##
 # checkout_repo 
 function checkout_repo {
-    cd $WORKSPACE
+    cd $TOOLS_WS
     if [ $NEW_TEST_INFRA -eq 1 ]
     then
         echo "This is new Test infra, will checkout bhushana/contrail-test "
         echo "This is new Test infra, will checkout bhushana/contrail-fabric-utils "
         git clone git@github.com:bhushana/contrail-fabric-utils.git
-        ( cd $WORKSPACE/contrail-fabric-utils
+        ( cd $TOOLS_WS/contrail-fabric-utils
           git stash
           git checkout master
           git pull
         )
-        ( cd $WORKSPACE/contrail-test
+        ( cd $TOOLS_WS/contrail-test
           git stash
           git checkout master
           git pull
@@ -163,12 +163,12 @@ function checkout_repo {
     else
         git clone git@github.com:Juniper/contrail-fabric-utils.git
         git clone git@github.com:Juniper/contrail-test.git
-        ( cd $WORKSPACE/contrail-fabric-utils
+        ( cd $TOOLS_WS/contrail-fabric-utils
           git stash
           git checkout ${FAB_GIT_BRANCH}
           git pull 
         )
-        ( cd $WORKSPACE/contrail-test
+        ( cd $TOOLS_WS/contrail-test
           git stash
           git checkout ${FAB_GIT_BRANCH}
           git pull
@@ -193,20 +193,20 @@ function use_testbed_file {
     export ABS_PATH_TBFILE
     TBFILE_NAME=`basename $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
-        folder_path=${WORKSPACE}/contrail-fabric-utils/fabfile/testbeds
+        folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
     else
         folder_path=`dirname $ABS_PATH_TBFILE`
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
     fi
-    dest_folder_path=${WORKSPACE}/contrail-fabric-utils/fabfile/testbeds
+    dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
     cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
-    rm -f $WORKSPACE/contrail-fabric-utils/testbed_env
-    ( cd ${WORKSPACE}/contrail-fabric-utils;
+    rm -f $TOOLS_WS/contrail-fabric-utils/testbed_env
+    ( cd ${TOOLS_WS}/contrail-fabric-utils;
       fab export_testbed_details:testbed_env || echo "fab export_testbed_details failed")
-    if [ -f ${WORKSPACE}/contrail-fabric-utils/testbed_env ]; then
-        source ${WORKSPACE}/contrail-fabric-utils/testbed_env
-        source $WORKSPACE/testers/environment.sh
+    if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
+        source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
+        source $TOOLS_WS/testers/environment.sh
     fi
 }
 
@@ -220,13 +220,13 @@ function bringup_setup {
     need_reboot=0
     search_package
     copy_fabric_test_artifacts
-    cd ${WORKSPACE}/contrail-fabric-utils
+    cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE}
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "find /opt/contrail -name "setup.sh" -exec {} \;"
 
     # upgrade kernel to latest if its ubuntu
-    cd ${WORKSPACE}/contrail-fabric-utils
+    cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ ${DISTRO} =~ ubuntu ]]; then
         if [ ${BRANCH} == 'mainline' ] || [ ${BRANCH} == 'R1.10' ]; then
             fab upgrade_kernel_all
@@ -253,7 +253,7 @@ function bringup_setup {
     # reboot compute nodes after intf rename package install
     if [[ ${need_reboot} == 1 ]]
     then
-        cd ${WORKSPACE}/contrail-fabric-utils
+        cd ${TOOLS_WS}/contrail-fabric-utils
         fab compute_reboot
     fi
 
@@ -261,7 +261,7 @@ function bringup_setup {
     # provision contrail
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd fabric-utils; fab setup_interface ; fab setup_all:False"
     # reboot compute nodes after setup
-    cd ${WORKSPACE}/contrail-fabric-utils
+    cd ${TOOLS_WS}/contrail-fabric-utils
     fab compute_reboot
 
 }
@@ -279,7 +279,7 @@ function reimage_setup {
     then 
         return 0
     fi
-    cd ${WORKSPACE}/contrail-fabric-utils
+    cd ${TOOLS_WS}/contrail-fabric-utils
     # server-manager reimage
     fab all_sm_reimage:$REIMAGE_PARAM
     fab wait_till_all_up:attempts=120
@@ -306,7 +306,7 @@ function run_sanity {
 
     # setup test environment
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        (cd $WORKSPACE/contrail-fabric-utils; fab setup_test_env)
+        (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env)
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd ~/fabric-utils;fab setup_test_env"
     fi
@@ -347,7 +347,7 @@ function run_sanity {
 function collect_tech_support {
     NODENAME=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c  "hostname -s"`
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
-    (cd $WORKSPACE/contrail-fabric-utils
+    (cd $TOOLS_WS/contrail-fabric-utils
     fab attach_logs_cores:$LOCK_FILE_DIR/${NODENAME},${SCRIPT_TIMESTAMP})
 }
 
@@ -380,15 +380,15 @@ function run_tempest {
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             apt-get -y install git
             git clone https://github.com/Juniper/tempest.git"
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $WORKSPACE/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $WORKSPACE/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd tempest; 
             source testbed_env
             bash -x tempest_run.sh"
         # Fetch results.xml 
-        mkdir -p $WORKSPACE/results
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $WORKSPACE/results
+        mkdir -p $TOOLS_WS/results
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
             
     fi
 }
