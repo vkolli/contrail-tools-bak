@@ -27,6 +27,7 @@ export SKIP_SANITY=${SKIP_SANITY:-0}
 export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
 
 export NEW_TEST_INFRA=0
+export ADD_IMAGES=0
 export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 export NODEHOME=${NODEHOME:-/root}
