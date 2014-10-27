@@ -333,7 +333,7 @@ function run_sanity {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
-                                                         export EMAIL_SUBJECT=${EMAIL_SUBJECT}
+                                                         export EMAIL_SUBJECT='${EMAIL_SUBJECT}'
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export MX_GW_TEST=${run_mx_tests};
                                                          $cd_str 
