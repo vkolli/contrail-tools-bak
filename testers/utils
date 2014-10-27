@@ -112,8 +112,7 @@ function copy_testbedfile_cfgm {
         return 0
     fi
     tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
-    ${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
-    sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath:/testbed.py 
+    sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
 #    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
@@ -195,15 +194,18 @@ function use_testbed_file {
     if [ ! -f $ABS_PATH_TBFILE ] ; then
         folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
+        export ABS_PATH_TBFILE=$folder_path/$TBFILE_NAME
     else
         folder_path=`dirname $ABS_PATH_TBFILE`
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
     fi
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
     cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
+
     rm -f $TOOLS_WS/contrail-fabric-utils/testbed_env
     ( cd ${TOOLS_WS}/contrail-fabric-utils;
       fab export_testbed_details:testbed_env || echo "fab export_testbed_details failed")
+
     if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
         source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
         source $TOOLS_WS/testers/environment.sh
