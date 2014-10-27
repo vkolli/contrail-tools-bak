@@ -4,13 +4,14 @@ TOOLS_WS=${TOOLS_WS:-$(pwd)}
 
 source $TOOLS_WS/testers/utils
 
-source available_testbeds
-type1_tbs=${AVAILABLE_TESTBEDS}
-echo "AVAILABLE TESTBEDS : ${type1_tbs[@]}"
+# AVAILABLE_TESTBEDS is a comma separated list of testbed filenames or paths
+testbeds=(${AVAILABLE_TESTBEDS//,/ })
+echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
+
 test_ran=0
 while :
 do
-    for i in "${type1_tbs[@]}"
+    for i in "${testbeds[@]}"
     do 
         tb_filename=`basename $i`
         lock_file=$LOCK_FILE_DIR/$tb_filename
