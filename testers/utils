@@ -230,10 +230,8 @@ function bringup_setup {
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ ${DISTRO} =~ ubuntu ]]; then
-        if [ ${BRANCH} == 'mainline' ] || [ ${BRANCH} == 'R1.10' ]; then
-            fab upgrade_kernel_all
-            fab wait_till_all_up:attempts=30
-        fi
+        fab upgrade_kernel_all
+        fab wait_till_all_up:attempts=30
     fi
 
     # install contrail packages on all node
@@ -325,8 +323,7 @@ function run_sanity {
         if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
             sanity_cmd="source /opt/contrail/api-venv/bin/activate && python sanity_tests_with_setup.py"
         else
-            #sanity_cmd="python sanity_tests_with_setup.py"
-            sanity_cmd="python ci_sanity_suite.py"
+            sanity_cmd="python sanity_tests_with_setup.py"
         fi
         cd_str="cd $SCRIPT_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${SCRIPT_PATH}/fixtures/:${SCRIPT_PATH}/scripts/ ;"
