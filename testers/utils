@@ -229,7 +229,6 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
-    copy_fabric_test_artifacts
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE}
@@ -315,8 +314,6 @@ function run_sanity {
     then 
         return 0
     fi
-    search_package
-    copy_fabric_test_artifacts
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
     
     # run sanity in parallel/serial branch, default serial
@@ -424,6 +421,7 @@ function create_testbed {
     search_package
     checkout_repo
     use_testbed_file
+    copy_fabric_test_artifacts
 }
 
 function lock_testbed() {
