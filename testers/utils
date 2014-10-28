@@ -196,11 +196,10 @@ function die
 function use_testbed_file {
     set -x
     folder_path=''
-    ABS_PATH_TBFILE=`readlink -f $TBFILE`
-    export ABS_PATH_TBFILE
+    export ABS_PATH_TBFILE=`readlink -f $TBFILE`
     export TBFILE_NAME=`basename $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
-        folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
+        folder_path=${TOOLS_WS}/contrail-tools/testbeds
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
         export ABS_PATH_TBFILE=$folder_path/$TBFILE_NAME
     else
