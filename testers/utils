@@ -118,7 +118,17 @@ function copy_testbedfile_cfgm {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
 }
 
- 
+function be_ready_to_reimage_remotely {
+    if [ $TESTBED_LOCATION == "US" ]; then
+        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
+         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir /tmp/$TBFILE_NAME"
+         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/
+         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "
+            cd /tmp/$TBFILE_NAME/;
+            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar"
+    fi
+} 
+
 ##
 # copy_fabric_test_artifacts 
 # Copy fabric-utils and contrail-test from artifacts to cfgm host
@@ -138,15 +148,6 @@ function copy_fabric_test_artifacts {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     copy_testbedfile_cfgm
-
-    if [ $TESTBED_LOCATION == "US" ]; then
-        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
-         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir /tmp/$TBFILE_NAME"
-         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/
-         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "
-            cd /tmp/$TBFILE_NAME/;
-            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar"
-    fi
                                                     
 }
 
@@ -231,6 +232,7 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
+    copy_fabric_test_artifacts
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE}
@@ -323,6 +325,8 @@ function run_sanity {
         sanitytype="serial" 
     fi
 
+    search_package
+    copy_fabric_test_artifacts
     # setup test environment
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env)
@@ -423,7 +427,7 @@ function create_testbed {
     search_package
     checkout_repo
     use_testbed_file
-    copy_fabric_test_artifacts
+    be_ready_to_reimage_remotely
 }
 
 function lock_testbed() {
