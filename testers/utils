@@ -154,9 +154,10 @@ function checkout_repo {
     cd $TOOLS_WS
     if [ $NEW_TEST_INFRA -eq 1 ]
     then
-        echo "This is new Test infra, will checkout bhushana/contrail-test "
         echo "This is new Test infra, will checkout bhushana/contrail-fabric-utils "
+        echo "This is new Test infra, will checkout bhushana/contrail-test "
         git clone git@github.com:bhushana/contrail-fabric-utils.git
+        git clone git@github.com:bhushana/contrail-test.git
         ( cd $TOOLS_WS/contrail-fabric-utils
           git stash
           git checkout master
