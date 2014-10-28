@@ -138,6 +138,14 @@ function copy_fabric_test_artifacts {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     copy_testbedfile_cfgm
+
+    if [ $TESTBED_LOCATION == "US" ]; then
+        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;
+         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir /tmp/$TBFILE_NAME"
+         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/
+         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar"
+    fi
+                                                    
 }
 
 ##
@@ -190,7 +198,7 @@ function use_testbed_file {
     folder_path=''
     ABS_PATH_TBFILE=`readlink -f $TBFILE`
     export ABS_PATH_TBFILE
-    TBFILE_NAME=`basename $TBFILE`
+    export TBFILE_NAME=`basename $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
         folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
@@ -284,12 +292,20 @@ function reimage_setup {
     then 
         return 0
     fi
-    cd ${TOOLS_WS}/contrail-fabric-utils
-    # server-manager reimage
-    fab all_sm_reimage:$REIMAGE_PARAM
-    fab wait_till_all_up:attempts=120
-    # verify reimage is successful or failure
-    fab check_reimage_state
+    if [ $TESTBED_LOCATION == "US" ]; then
+        exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "
+            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            fab all_sm_reimage:$REIMAGE_PARAM ;
+            fab wait_till_all_up:attempts=120;
+            fab check_reimage_state"
+    else
+        cd ${TOOLS_WS}/contrail-fabric-utils
+        # server-manager reimage
+        fab all_sm_reimage:$REIMAGE_PARAM
+        fab wait_till_all_up:attempts=120
+        # verify reimage is successful or failure
+        fab check_reimage_state
+    fi
 }
 
 ##
@@ -302,7 +318,6 @@ function run_sanity {
     search_package
     copy_fabric_test_artifacts
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
-    run_mx_tests=${MX_GW_TEST:-0}
     
     # run sanity in parallel/serial branch, default serial
     if [ "${sanitytype}" = "" ]; then
@@ -321,7 +336,10 @@ function run_sanity {
 
 #    if [ "${SANITY_TEST_TYPE}" = "parallel" ]; then
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        sanity_cmd="bash -x run_tests.sh -m -U -s"
+        sanity_cmd="bash -x run_tests.sh -m -U -s "
+        if [ $SERIAL_RUN -eq 1 ]; then
+            sanity_cmd="$sanity_cmd -t "
+        fi
         cd_str="cd $SCRIPT_PATH ;"
         pythonpath=""
     else
@@ -339,7 +357,7 @@ function run_sanity {
                                                          export BUILD_ID=${BUILDID};
                                                          export EMAIL_SUBJECT='${EMAIL_SUBJECT}'
                                                          export PARAMS_FILE=${PARAMS_FILE};
-                                                         export MX_GW_TEST=${run_mx_tests};
+                                                         export MX_GW_TEST=${MX_GW_TEST};
                                                          $cd_str 
                                                          $pythonpath
                                                          ${sanity_cmd};"

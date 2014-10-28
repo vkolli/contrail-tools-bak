@@ -26,8 +26,11 @@ export SKIP_BRINGUP=${SKIP_BRINGUP:-0}
 export SKIP_SANITY=${SKIP_SANITY:-0}
 export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
 
-export NEW_TEST_INFRA=0
-export ADD_IMAGES=0
+export NEW_TEST_INFRA=${NEW_TEST_INFRA:-0}
+export MX_GW_TEST=${MX_GW_TEST:-0}
+export SERIAL_RUN=${SERIAL_RUN:-0}
+export ADD_IMAGES=${ADD_IMAGES:-0}
+export TESTBED_LOCATION=${TESTBED_LOCATION:-INDIA}
 export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 export NODEHOME=${NODEHOME:-/root}
