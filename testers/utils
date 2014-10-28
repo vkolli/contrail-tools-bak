@@ -221,8 +221,8 @@ function use_testbed_file {
         source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
         source $TOOLS_WS/testers/environment.sh
     fi
-    sed -i '/env.test_repo_dir/d' $folder_path/testbed.py
-    echo "env.test_repo_dir='$CFGM_TEST_CODE_PATH'" >> $folder_path/testbed.py
+    sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
+    echo "env.test_repo_dir='$CFGM_TEST_CODE_PATH'" >> $dest_folder_path/testbed.py
 }
 
 
