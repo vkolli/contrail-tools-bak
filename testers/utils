@@ -140,7 +140,7 @@ function copy_fabric_test_artifacts {
     copy_testbedfile_cfgm
 
     if [ $TESTBED_LOCATION == "US" ]; then
-        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;
+        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
          sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir /tmp/$TBFILE_NAME"
          sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/
          sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar"
