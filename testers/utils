@@ -433,7 +433,7 @@ function run_task() {
     echo "Running tests on $1.."
     create_testbed
     reimage_and_bringup
-    bringup_setup 
+    #bringup_setup 
     sleep 120
     run_sanity
     run_tempest
