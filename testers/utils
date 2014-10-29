@@ -113,7 +113,9 @@ function copy_testbedfile_cfgm {
     fi
     tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
     test_repo_dir=${TOOLS_WS}/contrail-test
-    export CFGM_TEST_CODE_PATH=`[[ "$test_repo_dir" =~ ^$HOME(.*) ]] && echo $NODEHOME/${BASH_REMATCH[1]}`
+    if [ $NEW_TEST_INFRA -eq 1 ]; then
+        export CFGM_TEST_CODE_PATH=`[[ "$test_repo_dir" =~ ^$HOME(.*) ]] && echo $NODEHOME/${BASH_REMATCH[1]}`
+    fi
 
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
 #    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
@@ -336,11 +338,14 @@ function run_sanity {
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env)
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd $CFGM_TEST_CODE_PATH/fabric-utils;fab setup_test_env"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd ~/fabric-utils;fab setup_test_env"
     fi
 
     # check venv exist before running test
     check_venv_exists
+
+    PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
+    TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
 #    if [ "${SANITY_TEST_TYPE}" = "parallel" ]; then
     if [ $NEW_TEST_INFRA -eq 1 ]; then
@@ -348,7 +353,7 @@ function run_sanity {
         if [ $SERIAL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
         fi
-        cd_str="cd $SCRIPT_PATH ;"
+        cd_str="cd $CFGM_TEST_CODE_PATH ;"
         pythonpath=""
     else
         if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
@@ -356,8 +361,8 @@ function run_sanity {
         else
             sanity_cmd="python sanity_tests_with_setup.py"
         fi
-        cd_str="cd $SCRIPT_PATH/scripts ; export BRANCH=${BRANCH}"
-        pythonpath="export PYTHONPATH=$PATH:${SCRIPT_PATH}/fixtures/:${SCRIPT_PATH}/scripts/ ;"
+        cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
+        pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
     fi
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
