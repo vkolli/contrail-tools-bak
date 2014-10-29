@@ -206,7 +206,6 @@ function use_testbed_file {
     set -x
     folder_path=''
     export ABS_PATH_TBFILE=`readlink -f $TBFILE`
-    export TBFILE_NAME=`basename $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
         folder_path=${TOOLS_WS}/testbeds
         [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
@@ -443,6 +442,7 @@ function create_testbed {
 function lock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
     (
+        set -x
         touch $tb_lock_file
         flock 201
         echo "Locking testbed $tb_lock_file"
@@ -452,8 +452,8 @@ function lock_testbed() {
 
 function unlock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
-    set -x
     (
+        set -x
         touch $tb_lock_file
         flock 201
         echo "Unlocking testbed $tb_lock_file"
@@ -463,6 +463,7 @@ function unlock_testbed() {
 
 function run_task() {
     echo "Running tests on $1.."
+    export TBFILE_NAME=`basename $TBFILE`
     create_testbed
     reimage_and_bringup
     #bringup_setup 
