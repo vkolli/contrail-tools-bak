@@ -112,6 +112,9 @@ function copy_testbedfile_cfgm {
         return 0
     fi
     tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
+    test_repo_dir=${TOOLS_WS}/contrail-test
+    export CFGM_TEST_CODE_PATH=`[[ "$test_repo_dir" =~ ^$HOME(.*) ]] && echo $NODEHOME/${BASH_REMATCH[1]}`
+
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
 #    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
@@ -333,7 +336,7 @@ function run_sanity {
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env)
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd ~/fabric-utils;fab setup_test_env"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd $CFGM_TEST_CODE_PATH/fabric-utils;fab setup_test_env"
     fi
 
     # check venv exist before running test
