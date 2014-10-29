@@ -126,11 +126,11 @@ function copy_testbedfile_cfgm {
 function be_ready_to_reimage_remotely {
     if [ $TESTBED_LOCATION == "US" ]; then
         (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
-         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir /tmp/$TBFILE_NAME"
-         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/
+         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir -p /tmp/$TBFILE_NAME"
+         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/ || die "Copying contrail-fabric-utils.tar to $SVL_HOST_STRING failed"
          sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "
             cd /tmp/$TBFILE_NAME/;
-            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar"
+            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar" || die "Extracting contrail-fabric-utils.tar failed on $SVL_HOST_STRING"
     fi
 } 
 
@@ -147,10 +147,10 @@ function copy_fabric_test_artifacts {
     fi
     search_package
 
-    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:"
-    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:"
+    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
     
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     copy_testbedfile_cfgm
                                                     
@@ -238,17 +238,18 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
-    copy_fabric_test_artifacts
+    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
-    fab install_pkg_all:${PKG_FILE}
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "find /opt/contrail -name "setup.sh" -exec {} \;"
+    fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        find /opt/contrail -name "setup.sh" -exec {} \;"  || die "Failed while running setup.sh"
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ ${DISTRO} =~ ubuntu ]]; then
-        fab upgrade_kernel_all
-        fab wait_till_all_up:attempts=30
+        fab upgrade_kernel_all || die "Upgrading Kernel failed"
+        fab wait_till_all_up:attempts=30 || die "Failed waiting for nodes to come up"
     fi
 
     # install contrail packages on all node
@@ -258,13 +259,19 @@ function bringup_setup {
         shopt -s nocasematch
         if [[ ${intf_rename} =~ False ]]
         then
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd fabric-utils;fab install_contrail"
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                cd fabric-utils;
+                fab install_contrail" || die "fab install_contrail failed"
         else
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd fabric-utils;fab install_contrail:False"
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                cd fabric-utils;
+                fab install_contrail:False" || die "fab install_contrail failed"
             need_reboot=1
         fi
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd fabric-utils;fab install_contrail"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils;
+            fab install_contrail" || die "fab install_contrail failed"
     fi
 
     # reboot compute nodes after intf rename package install
@@ -276,7 +283,10 @@ function bringup_setup {
 
     # setup multi interface, if any
     # provision contrail
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd fabric-utils; fab setup_interface ; fab setup_all:False"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils; 
+            fab setup_interface || exit 1;
+            fab setup_all:False" || die "fab setup_interface or setup_all task failed"
 
     if [ $ADD_IMAGES -eq 1 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
@@ -335,9 +345,11 @@ function run_sanity {
     copy_fabric_test_artifacts
     # setup test environment
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env)
+        (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env || die "Failed to setup test env")
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cd ~/fabric-utils;fab setup_test_env"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd ~/fabric-utils;
+            fab setup_test_env" || die "Failed to setup test env"
     fi
 
     # check venv exist before running test
@@ -372,7 +384,7 @@ function run_sanity {
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          $cd_str 
                                                          $pythonpath
-                                                         ${sanity_cmd};"
+                                                         ${sanity_cmd};" || die "Task to run sanity failed"
 }
 
 ##
@@ -428,25 +440,25 @@ function run_tempest {
 }
             
 function reimage_and_bringup {
-    reimage_setup
-    bringup_setup
+    reimage_setup || die "Reimage failed!"
+    bringup_setup || die "Bringup failed!"
 }
 
 function create_testbed {
-    search_package
-    checkout_repo
-    use_testbed_file
-    be_ready_to_reimage_remotely
+    search_package || die "Unable to locate package"
+    checkout_repo || die "Unable to checkout fab/test repos"
+    use_testbed_file || die "Unable to set the testbed properly for use"
+    be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
 
 function lock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
     (
         set -x
-        touch $tb_lock_file
+        touch $tb_lock_file || die "touch $tb_lock_file failed"
         flock 201
         echo "Locking testbed $tb_lock_file"
-        echo "Occupied!!" > $tb_lock_file
+        echo "Occupied!!" > $tb_lock_file || die "Unable to properly lock $tb_lock_file"
     ) 201>$tb_lock_file
 }
 
@@ -454,26 +466,26 @@ function unlock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
     (
         set -x
-        touch $tb_lock_file
+        touch $tb_lock_file || die "touch $tb_lock_file failed"
         flock 201
         echo "Unlocking testbed $tb_lock_file"
-        sed -i '$ d' $tb_lock_file
+        sed -i '$ d' $tb_lock_file || die "Unable to properly free up $tb_lock_file"
     ) 201>$tb_lock_file
 }
 
 function run_task() {
     echo "Running tests on $1.."
     export TBFILE_NAME=`basename $TBFILE`
-    create_testbed
-    reimage_and_bringup
-    #bringup_setup 
+    create_testbed || die "Failed to create required testbed details"
+    reimage_and_bringup || die "Reimage,bringup failed"
+    #bringup_setup || die "Bringup failed"
     sleep 120
-    run_sanity
-    run_tempest
-    collect_tech_support
+    run_sanity || die "Run_sanity step failed"
+    run_tempest || die "Run_Tempest step failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $1"
 }
 
 function cleanup() {
-    unlock_testbed $TBFILE_NAME
+    unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
 }
