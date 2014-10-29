@@ -43,6 +43,7 @@ export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
 export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0
 export SANITY_TEST_TYPE="serial"
+export EMAIL_SUBJECT=${EMAIL_SUBJECT:-"Sanity Report"}
 export LOCK_FILE_DIR=${LOCK_FILE_DIR:-/cs-shared/test_runs}
 if [ ${BRANCH} == "mainline" ]; then
     FAB_GIT_BRANCH='master'
