@@ -345,7 +345,9 @@ function run_sanity {
     copy_fabric_test_artifacts
     # setup test environment
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        (cd $TOOLS_WS/contrail-fabric-utils; fab setup_test_env || die "Failed to setup test env")
+        (cd $TOOLS_WS/contrail-fabric-utils; 
+         find . -type f -name "*.pyc" -delete;
+         fab setup_test_env || die "Failed to setup test env")
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd ~/fabric-utils;
