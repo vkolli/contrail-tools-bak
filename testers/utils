@@ -358,7 +358,6 @@ function run_sanity {
     PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
-#    if [ "${SANITY_TEST_TYPE}" = "parallel" ]; then
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         sanity_cmd="bash -x run_tests.sh -m -U -s "
         if [ $SERIAL_RUN -eq 1 ]; then
