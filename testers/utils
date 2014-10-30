@@ -205,15 +205,25 @@ function die
 function use_testbed_file {
     set -x
     folder_path=''
+    tbfile=''
     export ABS_PATH_TBFILE=`readlink -f $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
         folder_path=${TOOLS_WS}/testbeds
-        [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
+        tbfile=$folder_path/$TBFILE_NAME
+        [ -f $tbfile ] || die "Testbed file $tbfile not found"
         export ABS_PATH_TBFILE=$folder_path/$TBFILE_NAME
     else
         folder_path=`dirname $ABS_PATH_TBFILE`
-        [ -f $folder_path/$TBFILE_NAME ] || die "Testbed file $folder_path/$TBFILE_NAME not found"
+        tbfile=$folder_path/$TBFILE_NAME
+        [ -f $tbfile ] || die "Testbed file $tbfile not found"
     fi
+    
+    if [ -f $tbfile.ubuntu ]; then
+        cp -f ${tbfile}.ubuntu ${tbfile}
+    elif [ -f ${tbfile}.centos ]; then
+        cp -f ${tbfile}.centos ${tbfile}
+    fi
+
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
     cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
 

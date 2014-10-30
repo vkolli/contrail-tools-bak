@@ -34,19 +34,19 @@ env.hostnames = {
 }
 
 control_data = {
-    host1 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'eth3' },
-    host2 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'eth3' },
-    host3 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'eth3' },
-    host4 : { 'ip': '192.168.192.4/24', 'gw' : '192.168.192.254', 'device':'eth3' },
-    host5 : { 'ip': '192.168.192.5/24', 'gw' : '192.168.192.254', 'device':'eth3' },
+    host1 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'eth1' },
+    host2 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'eth1' },
+    host3 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'eth1' },
+    host4 : { 'ip': '192.168.192.4/24', 'gw' : '192.168.192.254', 'device':'p4p0p1' },
+    host5 : { 'ip': '192.168.192.5/24', 'gw' : '192.168.192.254', 'device':'p4p0p1' },
 }
 
 env.ostypes = {
-    host1:'ubuntu',
-    host2:'ubuntu',
-    host3:'ubuntu',
-    host4:'ubuntu',
-    host5:'ubuntu',
+    host1:'centos65',
+    host2:'centos65',
+    host3:'centos65',
+    host4:'centos65',
+    host5:'centos65',
 }
 env.password = 'c0ntrail123'
 env.passwords = {
@@ -62,6 +62,7 @@ env.passwords = {
 env.test_repo_dir='/home/stack/multi_interface_parallel/ubuntu/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
+env.log_scenario='Ubuntu five-Node Parallel Sanity-multi-interface'
 multi_tenancy=True
-env.interface_rename = False
+env.interface_rename = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"

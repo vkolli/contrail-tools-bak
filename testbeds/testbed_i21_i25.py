@@ -6,10 +6,10 @@ host3 = 'root@10.204.217.135'
 host4 = 'root@10.204.217.136'
 host5 = 'root@10.204.217.137'
 
-ext_routers = []
+ext_routers = ['hooper','192.168.193.253']
 router_asn = 64512
-#public_vn_rtgt = 10000
-#public_vn_subnet = '10.1.1.0/24'
+public_vn_rtgt = 2224
+public_vn_subnet = '10.204.221.144/28'
 
 host_build = 'stack@10.204.216.49'
 
@@ -28,14 +28,14 @@ env.roledefs = {
 env.hostnames = {
     'all': ['nodei21', 'nodei22', 'nodei23', 'nodei24', 'nodei25']
 }
-env.interface_rename = True
+env.interface_rename = False
 
-control = {
+control_data = {
     host1 : { 'ip': '192.168.193.1/24', 'gw' : '192.168.193.254', 'device':'eth1' },
-    host2 : { 'ip': '192.168.193.2/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
-    host3 : { 'ip': '192.168.193.3/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
-    host4 : { 'ip': '192.168.193.4/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
-    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
+    host2 : { 'ip': '192.168.193.2/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+    host3 : { 'ip': '192.168.193.3/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+    host4 : { 'ip': '192.168.193.4/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'eth1' },
 }
 
 env.openstack_admin_password = 'contrail123'
@@ -50,13 +50,13 @@ env.passwords = {
 }
 
 env.ostypes = {
-    host1:'centos65',
-    host2:'centos65',
-    host3:'centos65',
-    host4:'centos65',
-    host5:'centos65',
+    host1:'ubuntu',
+    host2:'ubuntu',
+    host3:'ubuntu',
+    host4:'ubuntu',
+    host5:'ubuntu',
 }
-env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
+env.test_repo_dir='/home/stack/multi_interface_parallel/ubuntu/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
