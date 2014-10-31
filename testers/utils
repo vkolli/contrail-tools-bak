@@ -218,9 +218,9 @@ function use_testbed_file {
         [ -f $tbfile ] || die "Testbed file $tbfile not found"
     fi
     
-    if [ -f $tbfile.ubuntu ]; then
+    if [[ ${DISTRO} =~ ubuntu ]]; then
         cp -f ${tbfile}.ubuntu ${tbfile}
-    elif [ -f ${tbfile}.centos ]; then
+    if [[ ${DISTRO} =~ centos ]]; then
         cp -f ${tbfile}.centos ${tbfile}
     fi
 
