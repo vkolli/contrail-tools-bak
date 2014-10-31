@@ -68,3 +68,4 @@ env.mail_server='10.84.24.64'
 env.mail_port='4000'
 env.mx_gw_test=False
 env.testbed_location='US'
+env.interface_rename = False
