@@ -220,7 +220,7 @@ function use_testbed_file {
     
     if [[ ${DISTRO} =~ ubuntu ]]; then
         cp -f ${tbfile}.ubuntu ${tbfile}
-    if [[ ${DISTRO} =~ centos ]]; then
+    elif [[ ${DISTRO} =~ centos ]]; then
         cp -f ${tbfile}.centos ${tbfile}
     fi
 
