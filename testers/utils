@@ -15,6 +15,7 @@ function try {
 ##
 # search_package
 function search_package {
+    BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos6.5_iso )
     if [ -z $PKG_FILE ]
     then 
         PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail*`
@@ -28,11 +29,12 @@ function search_package {
             export pkg_type=${BASH_REMATCH[3]}
         fi 
         if [[ $pkg_type == 'deb' ]]; then
-            export DISTRO=${DISTRO:-ubuntu}
+            export DISTRO=${DISTRO:-ubuntu-12.04.3}
         else
-            export DISTRO=${DISTRO:-centos}
+            export DISTRO=${DISTRO:-centos65}
         fi
     fi
+    export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
     export PKG_FILE_DIR=`dirname $PKG_FILE`
 }
 
