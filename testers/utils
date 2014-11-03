@@ -18,7 +18,7 @@ function search_package {
     BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos6.5_iso )
     if [ -z $PKG_FILE ]
     then 
-        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail*`
+        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail*` || die "Unable to find install package"
         export PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
