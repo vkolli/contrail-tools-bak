@@ -120,7 +120,6 @@ function copy_testbedfile_cfgm {
     fi
 
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
-#    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
 }
@@ -137,11 +136,11 @@ function be_ready_to_reimage_remotely {
 } 
 
 ##
-# copy_fabric_test_artifacts 
-# Copy fabric-utils and contrail-test from artifacts to cfgm host
+# copy_test_artifacts 
+# Copy contrail-test from artifacts to cfgm host
 # Needs variables to be exported 
 # Not needed if JUNIPER_INTRANET is 0
-function copy_fabric_test_artifacts {
+function copy_test_artifacts {
     if [ $JUNIPER_INTRANET -eq 0 ]
     then
         echo "Not in Juniper Intranet..skipping copying fab files"
@@ -150,10 +149,10 @@ function copy_fabric_test_artifacts {
     search_package
 
     exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
-    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+    #exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
     
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
+    #exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     copy_testbedfile_cfgm
                                                     
 }
@@ -250,7 +249,7 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
-    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
+    copy_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
@@ -267,22 +266,23 @@ function bringup_setup {
     # install contrail packages on all node
     if [[ ${DISTRO} =~ centos ]]
     then
-        intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename fabric-utils/fabfile/testbeds/testbed.py"`
+#        intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename fabric-utils/fabfile/testbeds/testbed.py"`
+        intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename ${CFGM_FAB_PATH}/fabfile/testbeds/testbed.py"`
         shopt -s nocasematch
         if [[ ${intf_rename} =~ False ]]
         then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                cd fabric-utils;
+                cd $CFGM_FAB_PATH;
                 fab install_contrail" || die "fab install_contrail failed"
         else
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                cd fabric-utils;
+                cd $CFGM_FAB_PATH;
                 fab install_contrail:False" || die "fab install_contrail failed"
             need_reboot=1
         fi
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd fabric-utils;
+            cd $CFGM_FAB_PATH;
             fab install_contrail" || die "fab install_contrail failed"
     fi
 
@@ -296,7 +296,7 @@ function bringup_setup {
     # setup multi interface, if any
     # provision contrail
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd fabric-utils; 
+            cd $CFGM_FAB_PATH; 
             fab setup_interface || exit 1;
             fab setup_all:False" || die "fab setup_interface or setup_all task failed"
 
@@ -354,7 +354,7 @@ function run_sanity {
     fi
 
     search_package
-    copy_fabric_test_artifacts
+    copy_test_artifacts
     # setup test environment
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         (cd $TOOLS_WS/contrail-fabric-utils; 
@@ -362,7 +362,7 @@ function run_sanity {
          fab setup_test_env || die "Failed to setup test env")
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd ~/fabric-utils;
+            cd $CFGM_FAB_PATH;
             fab setup_test_env" || die "Failed to setup test env"
     fi
 
