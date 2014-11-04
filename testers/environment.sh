@@ -73,14 +73,14 @@ lsb_dist=''
 
 ###########
 # For usage outside Juniper, they need to make sure 
-# a) test code is copied to cfgm node 
+# a) fab and test code are copied to cfgm node 
 # b) testbed.py should have env.test_repo_dir populated to point to contrail-test code
 # c) CFGM_FAB_PATH and CFGM_TEST_CODE_PATH are updated
 # d) JUNIPER_INTRANET is set to 0
 #
-# The default path for fab code is /opt/contrail/utils
+# The default path for fab code is ~/fabric-utils
 
-export CFGM_FAB_PATH=${CFGM_FAB_PATH:-/opt/contrail/utils}
+export CFGM_FAB_PATH=${CFGM_FAB_PATH:-${NODEHOME}/fabric-utils}
 export CFGM_TEST_CODE_PATH=${CFGM_TEST_CODE_PATH:-${NODEHOME}/contrail-test}
 export JUNIPER_INTRANET=${JUNIPER_INTRANET:-1}
 
