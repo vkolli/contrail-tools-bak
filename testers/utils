@@ -477,7 +477,7 @@ function lock_testbed() {
         touch $tb_lock_file || die "touch $tb_lock_file failed"
         flock 201
         echo "Locking testbed $tb_lock_file"
-        echo "Occupied!!" > $tb_lock_file || die "Unable to properly lock $tb_lock_file"
+        echo "Occupied! ($BUILD_TAG)" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
     ) 201>$tb_lock_file
 }
 
