@@ -67,7 +67,7 @@ if [ ${BRANCH} == "mainline" ]; then
 fi
 
 declare -A BUILD_MAP
-BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos6.5_iso [ubuntu-14-04]=ubuntu-14.04)
+BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos6.5 [ubuntu-14-04]=ubuntu-14.04)
 export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
 lsb_dist=''
 
