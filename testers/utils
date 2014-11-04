@@ -29,7 +29,7 @@ function search_package {
             export pkg_type=${BASH_REMATCH[3]}
         fi 
         if [[ $pkg_type == 'deb' ]]; then
-            export DISTRO=${DISTRO:-ubuntu-12.04.3}
+            export DISTRO=${DISTRO:-ubuntu-12-04}
         else
             export DISTRO=${DISTRO:-centos65}
         fi
@@ -259,7 +259,7 @@ function bringup_setup {
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
-    if [[ ${DISTRO} =~ ubuntu ]]; then
+    if [ "${DISTRO}" = "ubuntu-12-04" ]; then
         fab upgrade_kernel_all || die "Upgrading Kernel failed"
         fab wait_till_all_up:attempts=30 || die "Failed waiting for nodes to come up"
     fi
