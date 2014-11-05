@@ -22,17 +22,21 @@ function search_package {
         export PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
-        re="contrail-install-packages_(.*)-(.*)~.*\.(.*$)"
+        re="contrail-install-packages_(.*)-(.*)~.*\.(.deb)"
         if [[ $pkg_file_name =~ $re ]] ; then
-            export BRANCH=${BRANCH:-BASH_REMATCH[1]}
-            export BUILDID=${BUILDID:-BASH_REMATCH[2]}
+            export BRANCH=${BASH_REMATCH[1]}
+            export BUILDID=${BASH_REMATCH[2]}
             export pkg_type=${BASH_REMATCH[3]}
-        fi 
-        if [[ $pkg_type == 'deb' ]]; then
             export DISTRO=${DISTRO:-ubuntu-12-04}
         else
+            # Centos
+            export BRANCH=`rpm -qp --queryformat "%{VERSION}\n" $PKG_FILE`
+            release_string=`rpm -qp --queryformat "%{RELEASE}\n" $PKG_FILE`
+            if [[ $release_string =~ ^(.*)~.*$ ]]; then
+                export BUILDID=${BASH_REMATCH[1]}
+            fi
             export DISTRO=${DISTRO:-centos65}
-        fi
+        fi 
     fi
     export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
     export PKG_FILE_DIR=`dirname $PKG_FILE`
@@ -405,12 +409,26 @@ function run_sanity {
 
 ##
 # collect_tech_support
-# Usage : collect_tech_support -w <workspace> -n <cfgm_node_name> 
 function collect_tech_support {
     NODENAME=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c  "hostname -s"`
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
-    (cd $TOOLS_WS/contrail-fabric-utils
-    fab attach_logs_cores:$LOCK_FILE_DIR/${NODENAME},${SCRIPT_TIMESTAMP})
+    for i in {1..3}; do
+        (cd $TOOLS_WS/contrail-fabric-utils;
+        fab attach_logs_cores:$LOCK_FILE_DIR/${NODENAME},${SCRIPT_TIMESTAMP} && 
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
+        cp fabfile/testbeds/testbed.py $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
+        cp *.log $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} &&
+        break)
+    done
+}
+
+function debug_and_die
+{
+    local message=$1
+    collect_tech_support 
+    [ -z "$message" ] && message="Died"
+    echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
+    exit 1
 }
 
 function get_node_distro {
@@ -457,7 +475,7 @@ function run_tempest {
             
 function reimage_and_bringup {
     reimage_setup || die "Reimage failed!"
-    bringup_setup || die "Bringup failed!"
+    bringup_setup || debug_and_die "Bringup failed!"
 }
 
 function create_testbed {
@@ -498,7 +516,7 @@ function run_task() {
     echo "Running tests on $1.."
     export TBFILE_NAME=`basename $TBFILE`
     create_testbed || die "Failed to create required testbed details"
-    reimage_and_bringup || die "Reimage,bringup failed"
+    reimage_and_bringup
     #bringup_setup || die "Bringup failed"
     sleep 120
     run_sanity || die "Run_sanity step failed"
