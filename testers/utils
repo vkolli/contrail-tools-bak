@@ -496,9 +496,15 @@ function lock_testbed() {
         set -x
         touch $tb_lock_file || die "touch $tb_lock_file failed"
         flock 201
+        # if file is non-zero ; then it is occupied
+        if [[ -s $tb_lock_file ]]; then
+            cat $tb_lock_file
+            return 1
+        fi 
         echo "Locking testbed $tb_lock_file"
         echo "Occupied! ($BUILD_TAG)" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
-    ) 201>$tb_lock_file
+        return 0
+    ) 201>${LOCK_FILE_DIR}/lockfile
 }
 
 function unlock_testbed() {
@@ -509,12 +515,11 @@ function unlock_testbed() {
         flock 201
         echo "Unlocking testbed $tb_lock_file"
         sed -i '$ d' $tb_lock_file || die "Unable to properly free up $tb_lock_file"
-    ) 201>$tb_lock_file
+    ) 201>${LOCK_FILE_DIR}/lockfile
 }
 
 function run_task() {
     echo "Running tests on $1.."
-    export TBFILE_NAME=`basename $TBFILE`
     create_testbed || die "Failed to create required testbed details"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
