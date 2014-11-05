@@ -337,6 +337,8 @@ function reimage_setup {
         # verify reimage is successful or failure
         fab check_reimage_state
     fi
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
 }
 
 ##
