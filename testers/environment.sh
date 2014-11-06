@@ -62,6 +62,9 @@ export EMAIL_SUBJECT=${EMAIL_SUBJECT:-"Sanity Report"}
 # Location where locks are maintained for testbeds
 export LOCK_FILE_DIR=${LOCK_FILE_DIR:-${HOME}/testbed_locks}
 
+# Folder where debug logs/cores etc. are put
+export DEBUG_LOG_DIR=${DEBUG_LOG_DIR:-/cs-shared/test_runs}
+
 if [ ${BRANCH} == "mainline" ]; then
     FAB_GIT_BRANCH='master'
 fi
