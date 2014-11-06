@@ -414,10 +414,10 @@ function collect_tech_support {
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
     for i in {1..3}; do
         (cd $TOOLS_WS/contrail-fabric-utils;
-        fab attach_logs_cores:$LOCK_FILE_DIR/${NODENAME},${SCRIPT_TIMESTAMP} && 
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
-        cp fabfile/testbeds/testbed.py $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
-        cp *.log $LOCK_FILE_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} &&
+        fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} && 
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
+        cp fabfile/testbeds/testbed.py $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
+        cp *.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} &&
         break)
     done
 }
