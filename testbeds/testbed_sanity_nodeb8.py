@@ -1,7 +1,7 @@
 from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
-host1 = 'root@10.204.216.1'
+host1 = 'root@10.204.216.201'
 
 #External routers if any
 #for eg. 
