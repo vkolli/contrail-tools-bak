@@ -379,7 +379,7 @@ function run_sanity {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        sanity_cmd="bash -x run_tests.sh -m -U -s "
+        sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
         if [ $SERIAL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
         fi
@@ -502,7 +502,9 @@ function lock_testbed() {
             return 1
         fi 
         echo "Locking testbed $tb_lock_file"
+        cat $tb_lock_file
         echo "Occupied! ($BUILD_TAG)" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
+        cat $tb_lock_file
         return 0
     ) 201>${LOCK_FILE_DIR}/lockfile
 }
@@ -514,7 +516,9 @@ function unlock_testbed() {
         touch $tb_lock_file || die "touch $tb_lock_file failed"
         flock 201
         echo "Unlocking testbed $tb_lock_file"
-        sed -i '$ d' $tb_lock_file || die "Unable to properly free up $tb_lock_file"
+        cat $tb_lock_file
+        sed -i "/Occupied! ($BUILD_TAG)/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
+        cat $tb_lock_file
     ) 201>${LOCK_FILE_DIR}/lockfile
 }
 
