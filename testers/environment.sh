@@ -31,8 +31,7 @@ export SKIP_SANITY=${SKIP_SANITY:-0}
 # Skip running tempest by default
 export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
 
-# Set NEW_TEST_INFRA to 1 to use the contrail-test code from bhushana/contrail-test
-export NEW_TEST_INFRA=${NEW_TEST_INFRA:-0}
+# Enable tests which depend on public network connectivity
 export MX_GW_TEST=${MX_GW_TEST:-0}
 
 # By default, new test infra enables parallel run. To force it to run serially  
