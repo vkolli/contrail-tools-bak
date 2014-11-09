@@ -119,12 +119,8 @@ function copy_testbedfile_cfgm {
     fi
     tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
     test_repo_dir=${TOOLS_WS}/contrail-test
-    if [ $NEW_TEST_INFRA -eq 1 ]; then
-        export CFGM_TEST_CODE_PATH=`[[ "$test_repo_dir" =~ ^$HOME(.*) ]] && echo $NODEHOME/${BASH_REMATCH[1]}`
-    fi
 
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
-#    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cp -f $tbpath/$TBFILE_NAME $tbpath/testbed.py;" || die "Failed to copy $tbpath/$TBFILE_NAME to $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
 }
@@ -166,36 +162,18 @@ function copy_fabric_test_artifacts {
 # checkout_repo 
 function checkout_repo {
     cd $TOOLS_WS
-    if [ $NEW_TEST_INFRA -eq 1 ]
-    then
-        echo "This is new Test infra, will checkout bhushana/contrail-fabric-utils "
-        echo "This is new Test infra, will checkout bhushana/contrail-test "
-        git clone git@github.com:bhushana/contrail-fabric-utils.git
-        git clone git@github.com:bhushana/contrail-test.git
-        ( cd $TOOLS_WS/contrail-fabric-utils
-          git stash
-          git checkout master
-          git pull
-        )
-        ( cd $TOOLS_WS/contrail-test
-          git stash
-          git checkout master
-          git pull
-        )
-    else
-        git clone git@github.com:Juniper/contrail-fabric-utils.git
-        git clone git@github.com:Juniper/contrail-test.git
-        ( cd $TOOLS_WS/contrail-fabric-utils
-          git stash
-          git checkout ${FAB_GIT_BRANCH}
-          git pull 
-        )
-        ( cd $TOOLS_WS/contrail-test
-          git stash
-          git checkout ${FAB_GIT_BRANCH}
-          git pull
-        )
-    fi
+    git clone git@github.com:Juniper/contrail-fabric-utils.git
+    git clone git@github.com:Juniper/contrail-test.git
+    ( cd $TOOLS_WS/contrail-fabric-utils
+      git stash
+      git checkout ${FAB_GIT_BRANCH}
+      git pull 
+    )
+    ( cd $TOOLS_WS/contrail-test
+      git stash
+      git checkout ${FAB_GIT_BRANCH}
+      git pull
+    )
 }
 
 function die
@@ -240,6 +218,7 @@ function use_testbed_file {
     if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
         source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
         source $TOOLS_WS/testers/environment.sh
+        sed 's/export //' ${TOOLS_WS}/contrail-fabric-utils/testbed_env > ${TOOLS_WS}/contrail-fabric-utils/plain_testbed_env
     fi
     sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
     echo "env.test_repo_dir='${TOOLS_WS}/contrail-test'" >> $dest_folder_path/testbed.py
@@ -361,16 +340,15 @@ function run_sanity {
 
     search_package
     copy_fabric_test_artifacts
-    # setup test environment
-    if [ $NEW_TEST_INFRA -eq 1 ]; then
-        (cd $TOOLS_WS/contrail-fabric-utils; 
-         find . -type f -name "*.pyc" -delete;
-         fab setup_test_env || die "Failed to setup test env")
+    if [ -f ${TOOLS_WS}/contrail-test/scripts/sanity_tests_with_setup.py ]; then 
+        export NEW_TEST_INFRA=0
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd ~/fabric-utils;
-            fab setup_test_env" || die "Failed to setup test env"
+        export NEW_TEST_INFRA=1
     fi
+    # setup test environment
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        cd ~/fabric-utils;
+        fab setup_test_env" || die "Failed to setup test env"
 
     # check venv exist before running test
     check_venv_exists
