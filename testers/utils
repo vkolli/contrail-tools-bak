@@ -396,7 +396,7 @@ function collect_tech_support {
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
         cp fabfile/testbeds/testbed.py $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
         cp *.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} &&
-        break)
+        break) && break
     done
 }
 
