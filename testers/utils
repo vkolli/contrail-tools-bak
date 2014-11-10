@@ -447,6 +447,7 @@ function run_tempest {
         # Fetch results.xml 
         mkdir -p $TOOLS_WS/results
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build.txt $TOOLS_WS/results
             
     fi
 }
