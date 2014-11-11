@@ -22,19 +22,18 @@ function search_package {
         export PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
-        re="contrail-install-packages_(.*)-(.*)~.*\.(.deb)"
-        if [[ $pkg_file_name =~ $re ]] ; then
-            export BRANCH=${BASH_REMATCH[1]}
-            export BUILDID=${BASH_REMATCH[2]}
+        re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
+        re_centos="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
+        if [[ $pkg_file_name =~ $re_ubuntu ]] ; then
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
             export pkg_type=${BASH_REMATCH[3]}
             export DISTRO=${DISTRO:-ubuntu-12-04}
-        else
+        elif [[ $pkg_file_name =~ $re_centos ]]; then
             # Centos
-            export BRANCH=`rpm -qp --queryformat "%{VERSION}\n" $PKG_FILE`
-            release_string=`rpm -qp --queryformat "%{RELEASE}\n" $PKG_FILE`
-            if [[ $release_string =~ ^(.*)~.*$ ]]; then
-                export BUILDID=${BASH_REMATCH[1]}
-            fi
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
+            export pkg_type=${BASH_REMATCH[3]}
             export DISTRO=${DISTRO:-centos65}
         fi 
     fi
@@ -380,6 +379,7 @@ function run_sanity {
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export BRANCH=$BRANCH; 
                                                          $cd_str 
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
