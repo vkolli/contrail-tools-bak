@@ -241,9 +241,10 @@ function bringup_setup {
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
-    if [ "${DISTRO}" = "ubuntu-12-04" ]; then
+    if [ "${DISTRO}" =~ "ubuntu" ]; then
         fab upgrade_kernel_all || die "Upgrading Kernel failed"
-        fab wait_till_all_up:attempts=30 || die "Failed waiting for nodes to come up"
+        sleep 60
+        fab wait_till_all_up:waitdown=False,attempts=30 || die "Failed waiting for nodes to come up"
     fi
 
     # install contrail packages on all node
