@@ -82,3 +82,4 @@ multi_tenancy = True
 #haproxy = True
 env.test_repo_dir='/home/stack/github_ubuntu_single_node/havana/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
+env.log_scenario='Single Node Sanity'
