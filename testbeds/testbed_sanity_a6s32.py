@@ -7,9 +7,9 @@ host4 = 'root@10.84.13.19'
 host5 = 'root@10.84.13.22'
 host6 = 'root@10.84.13.44'
 
-# if there is no multi-interface - use ip 10.84.13.200
+#If there is only single interface,  MX ip is 10.84.13.200
 #ext_routers = [('a5-mx80-2', '10.84.13.200')]
-#for multi-interface setup-mx ip is 192.168.10.200
+#For multi-interface setup, mx ip is 192.168.10.200
 
 ext_routers = [('a5-mx80-2', '192.168.10.200')]
 router_asn = 64512
@@ -71,8 +71,8 @@ multi_tenancy=True
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.mail_server='10.84.24.64'
 env.mail_port='4000'
-env.mx_gw_test=False
+env.mx_gw_test=True
 env.testbed_location='US'
-env.interface_rename = True
+env.interface_rename = False 
 env.image_web_server = '10.84.5.100'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
