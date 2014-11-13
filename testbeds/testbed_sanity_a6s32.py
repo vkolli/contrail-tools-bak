@@ -6,10 +6,15 @@ host3 = 'root@10.84.13.38'
 host4 = 'root@10.84.13.19'
 host5 = 'root@10.84.13.22'
 host6 = 'root@10.84.13.44'
-ext_routers = []
+
+# if there is no multi-interface - use ip 10.84.13.200
+#ext_routers = [('a5-mx80-2', '10.84.13.200')]
+#for multi-interface setup-mx ip is 192.168.10.200
+
+ext_routers = [('a5-mx80-2', '192.168.10.200')]
 router_asn = 64512
-#public_vn_rtgt = 10003
-#public_vn_subnet = "10.204.219.32/29"
+public_vn_rtgt = 10000
+public_vn_subnet = "10.84.51.96/27"
 
 host_build = 'stack@10.84.24.64'
 
@@ -68,5 +73,5 @@ env.mail_server='10.84.24.64'
 env.mail_port='4000'
 env.mx_gw_test=False
 env.testbed_location='US'
-env.interface_rename = False
+env.interface_rename = True
 env.image_web_server = '10.84.5.100'
