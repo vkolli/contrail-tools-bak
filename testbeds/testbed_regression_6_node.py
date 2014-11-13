@@ -51,3 +51,4 @@ env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename=True
+env.log_scenario='MultiNode Regression'
