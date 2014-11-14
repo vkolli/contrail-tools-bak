@@ -58,7 +58,7 @@ export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0
 
 # Location where locks are maintained for testbeds
-export LOCK_FILE_DIR=${LOCK_FILE_DIR:-${HOME}/testbed_locks}
+export LOCK_FILE_DIR=${LOCK_FILE_DIR:-/cs-shared/testbed_locks}
 
 # Folder where debug logs/cores etc. are put
 export DEBUG_LOG_DIR=${DEBUG_LOG_DIR:-/cs-shared/test_runs}
