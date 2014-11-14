@@ -311,14 +311,14 @@ function reimage_setup {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             fab all_sm_reimage:$REIMAGE_PARAM ;
             fab wait_till_all_up:attempts=120;
-            fab check_reimage_state"
+            fab check_reimage_state" || die "reimage_setup failed"
     else
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
-        fab all_sm_reimage:$REIMAGE_PARAM
-        fab wait_till_all_up:attempts=120
+        fab all_sm_reimage:$REIMAGE_PARAM || die "Failed to initiate reimage"
+        fab wait_till_all_up:attempts=120  || die "Not all nodes are up after reimage"
         # verify reimage is successful or failure
-        fab check_reimage_state
+        fab check_reimage_state  || die "Check to validate reimaging failed"
     fi
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
