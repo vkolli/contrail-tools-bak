@@ -87,4 +87,6 @@ export JUNIPER_INTRANET=${JUNIPER_INTRANET:-1}
 
 export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER:-"10.204.216.51"}
 
-
+# Choose whether to release the testbed on completion or not
+# Default is to release
+export RELEASE_TESTBED=${RELEASE_TESTBED:-1}
