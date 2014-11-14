@@ -490,6 +490,11 @@ function lock_testbed() {
 
 function unlock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
+    if [ $RELEASE_TESTBED -ne 1 ]
+    then
+        echo "Skipping unlocking the testbed $tb_lock_file" 
+        return 0
+    fi
     (
         set -x
         touch $tb_lock_file || die "touch $tb_lock_file failed"
