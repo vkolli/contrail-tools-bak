@@ -201,10 +201,18 @@ function use_testbed_file {
         [ -f $tbfile ] || die "Testbed file $tbfile not found"
     fi
     
-    if [[ ${DISTRO} =~ ubuntu ]]; then
-        cp -f ${tbfile}.ubuntu ${tbfile}
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
+        if [ -f ${tbfile}.ubuntu-14-04 ]; then
+            cp -f ${tbfile}.ubuntu-14-04 ${tbfile}
+        fi
+    elif [[ ${DISTRO} =~ ubuntu ]]; then
+        if [ -f ${tbfile}.ubuntu ]; then
+            cp -f ${tbfile}.ubuntu ${tbfile}
+        fi
     elif [[ ${DISTRO} =~ centos ]]; then
-        cp -f ${tbfile}.centos ${tbfile}
+        if [ -f ${tbfile}.centos ]; then
+            cp -f ${tbfile}.centos ${tbfile}
+        fi
     fi
 
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
