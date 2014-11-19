@@ -366,7 +366,7 @@ function run_sanity {
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
         sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
-        if [ $SERIAL_RUN -eq 1 ]; then
+        if [ $PARALLEL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
         fi
         cd_str="cd $CFGM_TEST_CODE_PATH ;"
@@ -529,3 +529,4 @@ function run_task() {
 function cleanup() {
     unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
 }
+
