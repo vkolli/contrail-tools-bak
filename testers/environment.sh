@@ -34,8 +34,8 @@ export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
 # Enable tests which depend on public network connectivity
 export MX_GW_TEST=${MX_GW_TEST:-0}
 
-# By default, new test infra enables parallel run. To force it to run serially  
-export SERIAL_RUN=${SERIAL_RUN:-0}
+# By default, new test infra enables serial run. To force it to run in parallel 
+export PARALLEL_RUN=${PARALLEL_RUN:-0}
 
 # Knob to add basic images (fab add_basic_images) before the test run
 export ADD_IMAGES=${ADD_IMAGES:-0}
@@ -90,3 +90,7 @@ export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER:-"10.204.216.51"}
 # Choose whether to release the testbed on completion or not
 # Default is to release
 export RELEASE_TESTBED=${RELEASE_TESTBED:-1}
+
+# Set test type to be one of daily/regression.
+# Used by contrail-test/tools/upload_to_webserver.py
+export TEST_TYPE=${TEST_TYPE:-daily}
