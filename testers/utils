@@ -385,6 +385,7 @@ function run_sanity {
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
                                                          export PARAMS_FILE=${PARAMS_FILE};
+                                                         export TEST_TYPE=${TEST_TYPE}
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export BRANCH=$BRANCH; 
