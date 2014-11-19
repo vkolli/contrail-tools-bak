@@ -56,6 +56,7 @@ export TEST_CONFIG_FILE=${TEST_CONFIG_FILE:-${NODEHOME}/contrail-test/sanity_par
 export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
 export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0
+export EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-""}
 
 # Location where locks are maintained for testbeds
 export LOCK_FILE_DIR=${LOCK_FILE_DIR:-/cs-shared/testbed_locks}
