@@ -24,6 +24,7 @@ function run_ui_task() {
     create_testbed || die "Failed to create required testbed details"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
+    sleep 120
     run_ui_sanity || die "Run_sanity step failed"
     unlock_testbed $TBFILE_NAME
     echo "Test Done" 
