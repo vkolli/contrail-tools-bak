@@ -1,4 +1,5 @@
 from fabric.api import env
+import os
 
 host1 = 'root@10.84.13.32'
 host2 = 'root@10.84.13.33'
@@ -18,17 +19,30 @@ public_vn_subnet = "10.84.51.96/27"
 
 host_build = 'stack@10.84.24.64'
 
-env.roledefs = {
-    'all': [host1, host2, host3, host4, host5, host6],
-    'cfgm': [host1, host2],
-    'openstack': [host6],
-    'control': [host1, host3],
-    'compute': [host4, host5],
-    'collector': [host1],
-    'webui': [host1],
-    'database': [host1, host2, host3],
-    'build': [host_build],
-}
+if os.getenv('HA_TEST',None) == 'True':
+    env.roledefs = {
+        'all': [host1, host2, host3, host4, host5, host6],
+        'cfgm': [host1, host2, host3],
+        'openstack': [host1, host2, host3],
+        'control': [host1, host2, host3],
+        'compute': [host4, host5],
+        'collector': [host1, host2, host3],
+        'webui': [host1, host2, host3],
+        'database': [host1, host2, host3],
+        'build': [host_build],
+    }
+else:
+    env.roledefs = {
+        'all': [host1, host2, host3, host4, host5, host6],
+        'cfgm': [host1, host2],
+        'openstack': [host6],
+        'control': [host1, host3],
+        'compute': [host4, host5],
+        'collector': [host1],
+        'webui': [host1],
+        'database': [host1, host2, host3],
+        'build': [host_build],
+    }
 
 env.hostnames = {
     'all': ['a6s32', 'a6s33', 'a6s38', 'a6s19', 'a6s22', 'a6s44']
@@ -63,6 +77,25 @@ control_data= {
     host5 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'eth0' },
     host6 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'eth0' },
 }
+
+# VIP cofiguration for HA
+if os.getenv('HA_TEST',None) == 'True':
+    env.ha = {
+        'internal_vip' : '192.168.10.210'
+        'external_vip' : '10.84.13.201'
+    }
+# HA Test configuration
+    ha_setup = 'True'
+    ipmi_username = 'ADMIN'
+    ipmi_password = 'ADMIN'
+    env.hosts_ipmi = {
+        '10.84.13.32': '10.84.6.82',
+        '10.84.13.33': '10.84.6.83',
+        '10.84.13.38': '10.84.6.88',
+        '10.84.13.19': '10.84.6.69',
+        '10.84.13.22': '10.84.6.22',
+        '10.84.13.44': '10.84.6.94',
+    }
 
 env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
 env.mail_from='vjoshi@juniper.net'
