@@ -3,11 +3,11 @@
 #################################################################################
 #                                                                               #
 #                      25th August 2014                                         #
-#                      track_bugs.py                                            #
+#                      track_opencontrail_bugs.py                               #
 #                                                                               #
 #       This script is used to get the list of bugs without official tags       #
 #                                                                               #
-#       Usage: track_bugs.py				                        #
+#       Usage: track_opencontrail_bugs.py		                        #
 #                                                                               #
 #                                                                               #
 #################################################################################
@@ -18,10 +18,8 @@ lp = Launchpad.login_with(
 'testing', service_root='https://api.launchpad.net',
 version='devel')
 project = lp.projects['opencontrail']
-#project.official_bug_tags
 bug_tasks = project.searchTasks(tags=[])
 official_tags = project.official_bug_tags
-#official_tags = [ 'config', 'neutronapi' , 'blocker', 'vrouter', 'openstack', 'ui', 'releasenote', 'analytics', 'tempest', 'horizon', 'api', 'provisioning', 'contrail-control', 'automation', 'security-group', 'bgp', 'packaging', 'discovery', 'base', 'ci', 'vdns', 'regression', 'cli', 'storage', 'xmpp', 'neutron', 'cloudstack', 'vpc', 'customer', 'syslog', 'server-manager', 'sanity', 'lbaas', 'ha', 'keystone', 'nova' ]
 len_off_tags = len(official_tags)
 check_flag = 'true'
 truth_table = list()
