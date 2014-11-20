@@ -95,3 +95,7 @@ export RELEASE_TESTBED=${RELEASE_TESTBED:-1}
 # Set test type to be one of daily/regression.
 # Used by contrail-test/tools/upload_to_webserver.py
 export TEST_TYPE=${TEST_TYPE:-daily}
+
+# Incase reimage/bringup fails, locks the testbed for debugging 
+# if the below variable is set. Default behavior is not to lock
+export LOCK_TESTBED_ON_FAILURE=${LOCK_TESTBED_ON_FAILURE:-0}
