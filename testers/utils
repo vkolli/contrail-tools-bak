@@ -240,19 +240,19 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
-    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
+    copy_fabric_test_artifacts || debug_and_die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
-    fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
+    fab install_pkg_all:${PKG_FILE} || debug_and_die "fab install_pkg_all:${PKG_FILE} failed"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        find /opt/contrail -name "setup.sh" -exec {} \;"  || die "Failed while running setup.sh"
+        find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
-        fab upgrade_kernel_all || die "Upgrading Kernel failed"
+        fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
         sleep 60
-        fab wait_till_all_up:waitdown=False,attempts=30 || die "Failed waiting for nodes to come up"
+        fab wait_till_all_up:waitdown=False,attempts=30 || debug_and_die "Failed waiting for nodes to come up"
     fi
 
     # install contrail packages on all node
@@ -264,17 +264,17 @@ function bringup_setup {
         then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
-                fab install_contrail" || die "fab install_contrail failed"
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
         else
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
-                fab install_contrail:False" || die "fab install_contrail failed"
+                fab install_contrail:False" || debug_and_die "fab install_contrail failed"
             need_reboot=1
         fi
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd fabric-utils;
-            fab install_contrail" || die "fab install_contrail failed"
+            fab install_contrail" || debug_and_die "fab install_contrail failed"
     fi
 
     # reboot compute nodes after intf rename package install
@@ -289,7 +289,7 @@ function bringup_setup {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd fabric-utils; 
             fab setup_interface || exit 1;
-            fab setup_all:False" || die "fab setup_interface or setup_all task failed"
+            fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
 
     if [ $ADD_IMAGES -eq 1 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
@@ -319,14 +319,14 @@ function reimage_setup {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             fab all_sm_reimage:$REIMAGE_PARAM ;
             fab wait_till_all_up:attempts=120;
-            fab check_reimage_state" || die "reimage_setup failed"
+            fab check_reimage_state" || debug_and_die "reimage_setup failed"
     else
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
-        fab all_sm_reimage:$REIMAGE_PARAM || die "Failed to initiate reimage"
-        fab wait_till_all_up:attempts=120  || die "Not all nodes are up after reimage"
+        fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
+        fab wait_till_all_up:attempts=120  || debug_and_die "Not all nodes are up after reimage"
         # verify reimage is successful or failure
-        fab check_reimage_state  || die "Check to validate reimaging failed"
+        fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
     fi
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
@@ -423,8 +423,9 @@ function debug_and_die
             echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
             cat $tb_lock_file
         ) 5>${LOCK_FILE_DIR}/lockfile
+    else:
+        collect_tech_support
     fi
-    collect_tech_support 
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
     cat $tb_lock_file
