@@ -7,7 +7,7 @@
 #                                                                               #
 #       This script is used to get the list of bugs without official tags       #
 #                                                                               #
-#       Usage: track_juniperopenstack_bugs.py		                        #
+#       Usage: ./track_juniperopenstack_bugs.py		                        #
 #                                                                               #
 #                                                                               #
 #################################################################################
