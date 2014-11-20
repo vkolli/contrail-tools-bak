@@ -2,6 +2,11 @@
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
 
+# AVAILABLE_TESTBEDS is a comma separated list of testbed filenames or paths
+testbeds=(${AVAILABLE_TESTBEDS//,/ })
+echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
+TBFILE_NAME=''
+TBFILE=''
 ##
 # try
 function try {
@@ -333,12 +338,32 @@ function reimage_setup {
 }
 
 ##
+
+function run_fab() {
+    # setup test environment  
+    fab_cmd=$1
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
+        cd ~/fabric-utils;
+        fab ${fab_cmd}" || die "Failed to setup $fab_cmd"
+    # check venv exist before running test   
+}
+
 # run_sanity serial/parallel
 function run_sanity {
-    if [ $SKIP_SANITY -ne 0 ] 
-    then 
+    if [ $SKIP_SANITY -ne 0 ]
+    then
         return 0
     fi
+    search_package
+    copy_fabric_test_artifacts
+    run_fab "setup_test_env"
+    # check venv exist before running test
+    check_venv_exists
+    setup_sanity_base
+}
+
+# base setup for sanity 
+function setup_sanity_base {
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
     
     # run sanity in parallel/serial branch, default serial
@@ -346,20 +371,11 @@ function run_sanity {
         sanitytype="serial" 
     fi
 
-    search_package
-    copy_fabric_test_artifacts
     if [ -f ${TOOLS_WS}/contrail-test/scripts/sanity_tests_with_setup.py ]; then 
         export NEW_TEST_INFRA=0
     else
         export NEW_TEST_INFRA=1
     fi
-    # setup test environment
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        cd ~/fabric-utils;
-        fab setup_test_env" || die "Failed to setup test env"
-
-    # check venv exist before running test
-    check_venv_exists
 
     PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
@@ -373,9 +389,9 @@ function run_sanity {
         pythonpath=""
     else
         if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
-            sanity_cmd="source /opt/contrail/api-venv/bin/activate && python sanity_tests_with_setup.py"
+            sanity_cmd="source /opt/contrail/api-venv/bin/activate && $TEST_RUN_CMD"
         else
-            sanity_cmd="python sanity_tests_with_setup.py"
+            sanity_cmd=$TEST_RUN_CMD
         fi
         cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
@@ -492,6 +508,39 @@ function create_testbed {
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
 
+function get_testbed(){
+locked=0
+while :
+do
+    for i in "${testbeds[@]}"
+    do
+        tb_filename=`basename $i`
+        if lock_testbed $tb_filename ; then
+            trap cleanup EXIT
+            TBFILE=$i
+            TBFILE_NAME=`basename $TBFILE`
+            echo "Locked testbed $tb_filename"
+            echo $TBFILE 
+            echo $TBFILE_NAME
+            locked=1
+            sleep 10
+            echo $tb_filename
+            break
+        else
+            echo "Testbed $tb_filename is not yet available"
+            continue
+        fi
+    done
+    if [[ $locked -eq 1 ]]
+    then
+        break
+    fi
+    echo "Waiting for testbeds..retrying in 60 sec"
+    sleep 60
+done
+      
+}
+
 function lock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
     export tb_lock_file
@@ -532,15 +581,18 @@ function unlock_testbed() {
 }
 
 function run_task() {
-    echo "Running tests on $1.."
+    get_testbed
+    echo "Running tests on $TBFILE_NAME .." 
     create_testbed || die "Failed to create required testbed details"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
     sleep 120
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
+    unlock_testbed $TBFILE_NAME
+    echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
-    echo "Ending test on $1"
+    echo "Ending test on $TBFILE_NAME"
 }
 
 function cleanup() {
