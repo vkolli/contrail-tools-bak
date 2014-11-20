@@ -333,8 +333,28 @@ function reimage_setup {
 }
 
 ##
+
+function run_fab() {
+    # setup test environment  
+    fab_cmd=$1
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
+        cd ~/fabric-utils;
+        fab ${fab_cmd}" || die "Failed to setup $fab_cmd"
+    # check venv exist before running test   
+}
+
 # run_sanity serial/parallel
 function run_sanity {
+    search_package
+    copy_fabric_test_artifacts
+    run_fab "setup_test_env"
+    # check venv exist before running test
+    check_venv_exists
+    setup_sanity_base
+}
+
+# base setup for sanity 
+function setup_sanity_base {
     if [ $SKIP_SANITY -ne 0 ] 
     then 
         return 0
@@ -346,20 +366,11 @@ function run_sanity {
         sanitytype="serial" 
     fi
 
-    search_package
-    copy_fabric_test_artifacts
     if [ -f ${TOOLS_WS}/contrail-test/scripts/sanity_tests_with_setup.py ]; then 
         export NEW_TEST_INFRA=0
     else
         export NEW_TEST_INFRA=1
     fi
-    # setup test environment
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        cd ~/fabric-utils;
-        fab setup_test_env" || die "Failed to setup test env"
-
-    # check venv exist before running test
-    check_venv_exists
 
     PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
@@ -373,9 +384,9 @@ function run_sanity {
         pythonpath=""
     else
         if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
-            sanity_cmd="source /opt/contrail/api-venv/bin/activate && python sanity_tests_with_setup.py"
+            sanity_cmd="source /opt/contrail/api-venv/bin/activate && $TEST_RUN_CMD"
         else
-            sanity_cmd="python sanity_tests_with_setup.py"
+            sanity_cmd=$TEST_RUN_CMD
         fi
         cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
