@@ -240,10 +240,10 @@ function bringup_setup {
     fi
     need_reboot=0
     search_package
-    copy_fabric_test_artifacts || debug_and_die "Failed to copy fab/test code from artifacts to destination"
+    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
-    fab install_pkg_all:${PKG_FILE} || debug_and_die "fab install_pkg_all:${PKG_FILE} failed"
+    fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
         find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 
