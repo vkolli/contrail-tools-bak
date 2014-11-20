@@ -413,9 +413,21 @@ function collect_tech_support {
 function debug_and_die
 {
     local message=$1
+    if [ $LOCK_TESTBED_ON_FAILURE = 1 ]; then
+        echo "Testbed is set to be locked on failure"
+        export RELEASE_TESTBED=0
+        (  
+            set -x
+            flock 5
+            echo "Locking testbed $tb_lock_file for debugging"
+            echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
+            cat $tb_lock_file
+        ) 5>${LOCK_FILE_DIR}/lockfile
+    fi
     collect_tech_support 
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
+    cat $tb_lock_file
     exit 1
 }
 
@@ -463,7 +475,7 @@ function run_tempest {
 }
             
 function reimage_and_bringup {
-    reimage_setup || die "Reimage failed!"
+    reimage_setup || debug_and_die "Reimage failed!"
     bringup_setup || debug_and_die "Bringup failed!"
 }
 
@@ -481,6 +493,7 @@ function create_testbed {
 
 function lock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
+    export tb_lock_file
     (
         set -x
         touch $tb_lock_file || die "touch $tb_lock_file failed"
@@ -500,6 +513,7 @@ function lock_testbed() {
 
 function unlock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
+    export tb_lock_file
     if [ $RELEASE_TESTBED -ne 1 ]
     then
         echo "Skipping unlocking the testbed $tb_lock_file" 
