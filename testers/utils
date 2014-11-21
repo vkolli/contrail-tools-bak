@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
-TBFILE_NAME=''
-TBFILE=''
 ##
 # try
 function try {
@@ -490,6 +488,7 @@ function run_tempest {
 function reimage_and_bringup {
     reimage_setup || debug_and_die "Reimage failed!"
     bringup_setup || debug_and_die "Bringup failed!"
+    sleep 120
 }
 
 function create_testbed {
@@ -513,8 +512,8 @@ do
         tb_filename=`basename $i`
         if lock_testbed $tb_filename ; then
             trap cleanup EXIT
-            TBFILE=$i
-            TBFILE_NAME=`basename $TBFILE`
+            export TBFILE=$i
+            export TBFILE_NAME=`basename $TBFILE`
             echo "Locked testbed $tb_filename"
             echo $TBFILE 
             echo $TBFILE_NAME
@@ -577,10 +576,10 @@ function unlock_testbed() {
 }
 
 function run_task() {
+    create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
-    sleep 120
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 

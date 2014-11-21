@@ -21,10 +21,10 @@ function run_ui_sanity {
 }
 
 function run_ui_task() {
+    create_testbed || die "Failed to create required testbed details" 
     echo "running on testbed $TBFILE_NAME"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
-    sleep 120
     run_ui_sanity || die "Run_sanity step failed"
     echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
@@ -32,6 +32,5 @@ function run_ui_task() {
 }
 
 get_testbed
-create_testbed || die "Failed to create required testbed details"
 run_ui_task
 unlock_testbed $TBFILE_NAME 
