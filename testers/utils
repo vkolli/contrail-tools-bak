@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
-
-# AVAILABLE_TESTBEDS is a comma separated list of testbed filenames or paths
-testbeds=(${AVAILABLE_TESTBEDS//,/ })
-echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 TBFILE_NAME=''
 TBFILE=''
 ##
@@ -581,15 +577,12 @@ function unlock_testbed() {
 }
 
 function run_task() {
-    get_testbed
     echo "Running tests on $TBFILE_NAME .." 
-    create_testbed || die "Failed to create required testbed details"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
     sleep 120
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
-    unlock_testbed $TBFILE_NAME
     echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
