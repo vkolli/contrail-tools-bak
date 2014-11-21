@@ -80,7 +80,7 @@ control_data= {
 # VIP cofiguration for HA
 if os.getenv('HA_TEST',None) == 'True':
     env.ha = {
-        'internal_vip' : '192.168.10.210'
+        'internal_vip' : '192.168.10.210',
         'external_vip' : '10.84.13.201'
     }
 # HA Test configuration
