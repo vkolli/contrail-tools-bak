@@ -320,6 +320,7 @@ function reimage_setup {
     if [ $TESTBED_LOCATION == "US" ]; then
         exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            export HA_TEST=$HA_TEST;
             fab all_sm_reimage:$REIMAGE_PARAM ;
             fab wait_till_all_up:attempts=120;
             fab check_reimage_state" || debug_and_die "reimage_setup failed"
@@ -341,6 +342,7 @@ function run_fab() {
     # setup test environment  
     fab_cmd=$1
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
+        export HA_TEST=$HA_TEST;
         cd ~/fabric-utils;
         fab ${fab_cmd}" || die "Failed to setup $fab_cmd"
     # check venv exist before running test   
