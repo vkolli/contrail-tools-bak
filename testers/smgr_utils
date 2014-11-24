@@ -1,0 +1,244 @@
+#!/usr/bin/env bash
+TOOLS_WS=${TOOLS_WS:-$(pwd)}
+multi_node=0
+
+#upgrade/install SM on either cenots/ubuntu server.
+#Multi-node setup will refer to SM running on ubuntu
+#Single-node setup will refer to SM running on centos
+function bringup_SM_setup() {
+    echo "Bringup/upgrade SM setup"
+    if [ -z "$SM_SERVER_IP" ]
+    then
+        echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
+        exit 1
+    fi
+
+    #SM pkg name is different for centos & ubuntu, so set it accordingly.
+    #multi-node uses ubuntu SM and single node uses centos SM.
+    if [ $multi_node -eq 1 ] #if multi node refer to ubuntu folder
+    then
+        pkg_dir="/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
+        cd $pkg_dir
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager_*${BUILDID}*`
+    else
+        pkg_dir="/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
+        cd $pkg_dir
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-[0-9]*${BUILDID}*`
+    fi
+    SM_CLIENT_PKG_FILE=`ls contrail-server-manager-client*${BUILDID}*`
+    pkg_name="$pkg_dir/contrail-server-manager*"
+
+    #copy the SM PKGs to SM server.
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:/root/sm_files
+
+    echo "Connect to SM_SERVER to install/upgrade SM packages"
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+
+        if [ -e /root/sm_files/$SM_SERVER_PKG_FILE ] && 
+           [ -e /root/sm_files/$SM_CLIENT_PKG_FILE ]
+        then
+            echo "file exists, upgrading Server manager"
+            cd /root/sm_files; 
+            if [ $multi_node -eq 1 ]
+            then
+                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+            else
+                ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+            fi
+            if [ $? != 0 ] 
+            then
+                echo "upgrade/installation of server-manager failed, aborting the process"
+                exit 1
+            fi
+
+            sleep 1
+            if [ $multi_node -eq 1 ]
+            then
+                ./ubuntu_smgr_client_upgrade.sh $SM_CLIENT_PKG_FILE
+            else 
+                ./centos_smgr_client_upgrade.sh $SM_CLIENT_PKG_FILE
+            fi
+            if [ $? != 0 ] 
+            then
+                echo "installation of SM client failed, aborting the process"
+                exit 1
+            fi
+            sleep 1
+            echo "check if SM has been installed by following checks"
+            sleep 30
+            netstat -nap | grep 9001
+            if [ $? != 0 ]
+            then
+                echo "Server Manager pkg nstallation failed!!!"
+                exit 1
+            else
+                echo "Server Manager pkg installed successfully"
+            fi
+
+            echo "check if SM client installed"
+            if [ -e /usr/bin/server-manager ]
+            then
+                echo "SM client installed successfully"
+            else
+                echo "SM client pkg installion failed"
+                exit 1
+            fi
+            sleep 1
+        else
+            echo "SM PKGs not present in the folder, aborting the process"
+            exit 1
+        fi
+        echo "Installation is fine, delete the images from the server"
+        rm $SM_SERVER_PKG_FILE
+        rm $SM_CLIENT_PKG_FILE
+    ) "
+}
+
+# This function will reimage and provision the provided setup.
+# Performs the following steps:
+# Adds the iso and contrail packages to SM database
+# Adds cluster and servers to SM database
+# Does reimage and provision of the setup.
+function reimage_and_provision_using_SM() {
+    # set the parameters required for reimage/provision.
+    SMID=$DISTRO$SKU
+    if [[ $DISTRO =~ ubuntu-12.04 ]]; then
+        image="/root/images/ubuntu-12.04.3-server-amd64.iso" 
+        pkg_type="contrail-ubuntu-package"
+        iso_type="ubuntu"
+    elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
+        image="/root/images/ubuntu-14.04.1-server-amd64.iso"
+        pkg_type="contrail-ubuntu-package"
+        iso_type="ubuntu"
+    elif [[ $DISTRO =~ centos64 ]]; then 
+        image="/root/images/CentOS-6.4-x86_64-minimal.iso"
+        pkg_type="contrail-centos-package"
+        iso_type="centos"
+    elif [[ $DISTRO =~ centos65 ]]; then 
+        image="/root/images/CentOS-6.5-x86_64-minimal.iso"
+        pkg_type="contrail-centos-package"
+        iso_type="centos"
+    fi
+
+    #set the parameters for multi/single node setup
+    if [ $multi_node -eq 1 ]
+    then
+        cluster_json="/root/sm_files/cluster5sanity.json"
+        server_json="/root/sm_files/server5sanity.json"
+        cluster_name="cluster5sanity"
+    else 
+        cluster_json="/root/sm_files/clusterc50.json"
+        server_json="/root/sm_files/serverc50.json"
+        cluster_name="clusterc50"
+    fi
+
+    echo "Connect to SM_SERVER to reimage and provision the targets"
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "add required image/server/cluster for reimage and provision of the target"
+
+        echo "delete iso image if it exists"
+        server-manager delete image ${DISTRO}
+
+        echo "add base ISO image to server manager database"
+        server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
+        if [ $? != 0 ] 
+        then
+            echo "Adding Base ISO image failed"
+            exit 1
+        fi
+
+        echo "delete contrail package if it exists"
+        server-manager delete image $SMID
+
+        echo "add contrail package to the SM database"
+        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE
+        if [ $? != 0 ] 
+        then
+            echo "Adding Contrail-packages $SMID failed"
+            exit 1
+        fi
+        server-manager show image
+
+        echo "add cluster to SM database"
+        server-manager add cluster -f $cluster_json
+        if [ $? != 0 ] 
+        then
+            echo "Adding cluster to server-manager failed"
+            exit 1
+        fi
+        server-manager show cluster --detail
+
+        echo "add server to SM database"
+        server-manager add server -f $server_json
+        if [ $? != 0 ] 
+        then
+            echo "Adding server to server-manager failed"
+            exit 1
+        fi
+        server-manager show server --detail
+
+        echo "reimage the target setup"
+        server-manager reimage -F --cluster_id $cluster_name $DISTRO
+        if [ $? != 0 ] 
+        then
+            echo "reimage of target nodes failed"
+            exit 1
+        fi
+        echo "reimage in progress please wait ..."
+        sleep 700
+        /root/sm_files/check_reimage.sh $cluster_name
+        if [ $? != 0 ]
+        then
+            echo "reimage of target $cluster_name failed!!!"
+            exit 1
+        else
+            echo "reimaged the target $cluster_name successfully"
+        fi
+        sleep 150 
+
+        echo "provision the target setup"
+        server-manager provision -F --cluster_id $cluster_name $SMID
+        if [ $? != 0 ] 
+        then
+            echo "Server-manager provision command failed, aborting the process"
+            exit 1
+        fi
+        echo "provisioning in progress please wait ..."
+        sleep 100
+        /root/sm_files/check_provision.sh $cluster_name
+        if [ $? != 0 ]
+        then
+            echo "Provisioning of the target failed!!!"
+            exit 1
+        fi
+
+        server-manager status server --cluster_id $cluster_name --detail
+        sleep 1
+        echo "Reimage and Provisioning of target completed successfully"
+    ) "
+}
+
+
+function run_smgr_task() {
+    echo "Running tests on $1.."
+
+    if [ ${TEST_SETUP} == "SINGLENODE" ]
+    then
+        multi_node=0
+    elif [ ${TEST_SETUP} == "MULTINODE" ]
+    then
+        multi_node=1
+    else
+        echo "TEST_SETUP is not defined, abort the process"
+        exit 1
+    fi
+    create_testbed || die "Failed to create required testbed details"
+    bringup_SM_setup || die "Failed to bringup SM setup" 
+    reimage_and_provision_using_SM || die "reimage or provision failed"
+    sleep 120
+    run_sanity || die "Run_sanity step failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
+    echo "Ending test on $1"
+}
