@@ -2,9 +2,9 @@
 #
 #################################################################################
 #                                                                               #
-#                      25th August 2014                                         #
-#                      track_opencontrail_bugs.py                               #
-#                                                                               #
+#       25th August 2014                                                        #
+#       track_opencontrail_bugs.py                                              #
+#       Author: Vinay Mahuli                                                    #
 #       This script is used to get the list of bugs without official tags       #
 #                                                                               #
 #       Usage: ./track_opencontrail_bugs.py		                        #
