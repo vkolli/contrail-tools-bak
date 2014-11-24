@@ -262,16 +262,19 @@ function bringup_setup {
         if [[ ${intf_rename} =~ False ]]
         then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
                 cd fabric-utils;
                 fab install_contrail" || debug_and_die "fab install_contrail failed"
         else
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
                 cd fabric-utils;
                 fab install_contrail:False" || debug_and_die "fab install_contrail failed"
             need_reboot=1
         fi
     else
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            export HA_TEST=$HA_TEST;
             cd fabric-utils;
             fab install_contrail" || debug_and_die "fab install_contrail failed"
     fi
@@ -287,6 +290,7 @@ function bringup_setup {
     # provision contrail
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd fabric-utils; 
+            export HA_TEST=$HA_TEST;
             fab setup_interface || exit 1;
             fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
 
