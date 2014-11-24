@@ -386,6 +386,7 @@ function setup_sanity_base {
         cd_str="cd $CFGM_TEST_CODE_PATH ;"
         pythonpath=""
     else
+        TEST_RUN_CMD=${TEST_RUN_CMD:-"python sanity_tests_with_setup.py"}
         if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
             sanity_cmd="source /opt/contrail/api-venv/bin/activate && $TEST_RUN_CMD"
         else
