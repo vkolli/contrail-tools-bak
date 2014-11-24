@@ -58,6 +58,5 @@ multi_tenancy = True
 #haproxy = True
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_single_node/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
-env.mail_to='dl-contrail-server-manager@juniper.net'
-env.log_scenario='Server Manager Ubuntu-Icehouse Single-Node Sanity'
+env.log_scenario='Server Manager Single-Node Sanity'
 

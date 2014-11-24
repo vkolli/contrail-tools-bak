@@ -79,10 +79,8 @@ multi_tenancy = True
 #do_parallel = True
 #haproxy = True
 env.test_repo_dir='/home/stack/sudhee/19Nov/contrail-test'
-env.mail_to='sudheendra@juniper.net'
-#env.mail_to='dl-contrail-server-manager@juniper.net'
-#env.mail_to='pbharat@juniper.net'
-env.log_scenario='Server Manager Ubuntu-Icehouse Multi-Node Sanity'
+env.mail_to='dl-contrail-sw@juniper.net'
+env.log_scenario='Server Manager Multi-Node Sanity'
 
 
                                                                    
