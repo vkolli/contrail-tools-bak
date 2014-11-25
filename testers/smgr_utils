@@ -139,7 +139,12 @@ function reimage_and_provision_using_SM() {
         echo "add required image/server/cluster for reimage and provision of the target"
 
         echo "delete iso image if it exists"
-        server-manager delete image ${DISTRO}
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image ${DISTRO}
+        else
+            server-manager delete image --image_id ${DISTRO}
+        fi
 
         echo "add base ISO image to server manager database"
         server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
@@ -150,8 +155,12 @@ function reimage_and_provision_using_SM() {
         fi
 
         echo "delete contrail package if it exists"
-        server-manager delete image $SMID
-
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image $SMID
+        else
+            server-manager delete image --image_id $SMID
+        fi
         echo "add contrail package to the SM database"
         server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE
         if [ $? != 0 ] 
