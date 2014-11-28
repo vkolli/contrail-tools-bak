@@ -441,7 +441,7 @@ function debug_and_die
             echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
             cat $tb_lock_file
         ) 5>${LOCK_FILE_DIR}/lockfile
-    else:
+    else
         collect_tech_support
     fi
     [ -z "$message" ] && message="Died"
