@@ -246,6 +246,10 @@ function bringup_setup {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
         find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 
+    # Upgrade biosdevname if ubuntu-14-04
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
+        fab upgrade_biosdevname_all:reboot=no
+    fi
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
