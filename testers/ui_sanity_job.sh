@@ -16,6 +16,7 @@ function run_ui_sanity {
     copy_fabric_test_artifacts
     run_fab "setup_test_env"
     run_fab "install_webui_packages:~"
+    run_fab "update_config_option:openstack,/etc/keystone/keystone.conf,token,expiration,86400,keystone"
     check_venv_exists
     setup_sanity_base
 }
