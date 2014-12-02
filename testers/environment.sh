@@ -69,7 +69,7 @@ if [ ${BRANCH} == "mainline" ]; then
 fi
 
 declare -A BUILD_MAP
-BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04)
+BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0)
 export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
 lsb_dist=''
 
@@ -99,3 +99,6 @@ export TEST_TYPE=${TEST_TYPE:-daily}
 # Incase reimage/bringup fails, locks the testbed for debugging 
 # if the below variable is set. Default behavior is not to lock
 export LOCK_TESTBED_ON_FAILURE=${LOCK_TESTBED_ON_FAILURE:-0}
+
+# Kernel package for setting up Redhat nodes
+export REDHAT_KERNEL_PACKAGE=${REDHAT_KERNEL_PACKAGE:-"/cs-shared/builder/cache/redhatenterpriselinuxserver70/icehouse/kernel-3.10.0-123.el7.0contrail.x86_64.rpm"}
