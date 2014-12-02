@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
+export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0)
 ##
 # try
 function try {
@@ -11,10 +12,10 @@ function try {
     fi
 }
 
+
 ##
 # search_package
 function search_package {
-    BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 )
     if [ -z $PKG_FILE ]
     then 
         PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
@@ -38,6 +39,10 @@ function search_package {
     fi
     export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
     export PKG_FILE_DIR=`dirname $PKG_FILE`
+}
+
+function search_third_party_package {
+    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*`
 }
 
 ##
@@ -163,7 +168,7 @@ function checkout_repo {
     git clone git@github.com:Juniper/contrail-fabric-utils.git
     git clone git@github.com:Juniper/contrail-test.git
     ( cd $TOOLS_WS/contrail-fabric-utils
-      git stash
+#      git stash
       git checkout ${FAB_GIT_BRANCH}
       git pull 
     )
@@ -200,18 +205,12 @@ function use_testbed_file {
         [ -f $tbfile ] || die "Testbed file $tbfile not found"
     fi
     
-    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
-        if [ -f ${tbfile}.ubuntu-14-04 ]; then
-            cp -f ${tbfile}.ubuntu-14-04 ${tbfile}
-        fi
-    elif [[ ${DISTRO} =~ ubuntu ]]; then
-        if [ -f ${tbfile}.ubuntu ]; then
-            cp -f ${tbfile}.ubuntu ${tbfile}
-        fi
-    elif [[ ${DISTRO} =~ centos ]]; then
-        if [ -f ${tbfile}.centos ]; then
-            cp -f ${tbfile}.centos ${tbfile}
-        fi
+    image_name=${BUILD_MAP[${DISTRO}]}
+    base_distro=`echo $image_name | cut -d - -f1`
+    if [ -f ${tbfile}.$image_name ]; then
+            cp -f ${tbfile}.$image_name ${tbfile}
+    elif [ -f ${tbfile}.${base_distro} ]; then
+            cp -f ${tbfile}.${base_distro} ${tbfile}
     fi
 
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
@@ -230,6 +229,10 @@ function use_testbed_file {
     echo "env.test_repo_dir='${TOOLS_WS}/contrail-test'" >> $dest_folder_path/testbed.py
 }
 
+function run_setup_shell_script {
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
+}
 
 # bringup_setup
 function bringup_setup {
@@ -243,8 +246,7 @@ function bringup_setup {
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
+    run_setup_shell_script
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
@@ -347,6 +349,13 @@ function run_fab() {
         fab ${fab_cmd}" || die "Failed to setup $fab_cmd"
     # check venv exist before running test   
 }
+
+function run_build_fab {
+    fab_cmd=$1
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab ${fab_cmd} || die "Failed while running fab cmd ${fab_cmd}"
+    )
+} 
 
 # run_sanity serial/parallel
 function run_sanity {
