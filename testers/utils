@@ -248,6 +248,10 @@ function bringup_setup {
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
 
+    # Upgrade biosdevname if ubuntu-14-04
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
+        fab upgrade_biosdevname_all:reboot=no
+    fi
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
@@ -413,6 +417,7 @@ function setup_sanity_base {
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export TEST_TYPE=${TEST_TYPE};
                                                          export EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX};
+                                                         export EMAIL_SUBJECT="${EMAIL_SUBJECT}";
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export BRANCH=$BRANCH; 
@@ -449,7 +454,7 @@ function debug_and_die
             echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
             cat $tb_lock_file
         ) 5>${LOCK_FILE_DIR}/lockfile
-    else:
+    else
         collect_tech_support
     fi
     [ -z "$message" ] && message="Died"
