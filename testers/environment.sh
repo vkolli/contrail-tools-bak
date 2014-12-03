@@ -40,15 +40,13 @@ export PARALLEL_RUN=${PARALLEL_RUN:-0}
 # Knob to add basic images (fab add_basic_images) before the test run
 export ADD_IMAGES=${ADD_IMAGES:-0}
 
-# Location can be US or INDIA
-# If US, reimage command will be triggered from SVL_HOST_STRING
-export TESTBED_LOCATION=${TESTBED_LOCATION:-INDIA}
+# Location can be REMOTE or LOCAL 
+# If REMOTE, reimage command will be triggered from TASK_RUNNER_HOST_STRING
+export TESTBED_LOCATION=${TESTBED_LOCATION:-"LOCAL"}
 
 export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 export NODEHOME=${NODEHOME:-/root}
-export SVL_HOST_STRING=${SVL_HOST_STRING:-stack@10.84.24.64}
-export SVL_HOST_PASSWORD=${SVL_HOST_PASSWORD:-c0ntrail123}
 export FAB_GIT_BRANCH=${BRANCH:-master}
 export PARAMS_FILE=${PARAMS_FILE:-${NODEHOME}/contrail-test/scripts/sanity_params.ini}
 export TEST_CONFIG_FILE=${TEST_CONFIG_FILE:-${NODEHOME}/contrail-test/sanity_params.ini}
@@ -102,3 +100,9 @@ export LOCK_TESTBED_ON_FAILURE=${LOCK_TESTBED_ON_FAILURE:-0}
 
 # Kernel package for setting up Redhat nodes
 export REDHAT_KERNEL_PACKAGE=${REDHAT_KERNEL_PACKAGE:-"/cs-shared/builder/cache/redhatenterpriselinuxserver70/icehouse/kernel-3.10.0-123.el7.0contrail.x86_64.rpm"}
+
+# Choose whether to use the task-runner node for running fab cmds
+# Typically used when we want to invoke tasks locally on a remote testbed
+export USE_TASK_RUNNER_HOST=${USE_TASK_RUNNER_HOST:-0}
+export TASK_RUNNER_HOST_STRING=${TASK_RUNNER_HOST_STRING:-stack@10.84.24.64}
+export TASK_RUNNER_HOST_PASSWORD=${TASK_RUNNER_HOST_PASSWORD:-c0ntrail123}

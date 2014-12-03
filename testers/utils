@@ -129,13 +129,13 @@ function copy_testbedfile_cfgm {
 }
 
 function be_ready_to_reimage_remotely {
-    if [ $TESTBED_LOCATION == "US" ]; then
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
         (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
-         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir -p /tmp/$TBFILE_NAME"
-         sshpass -p $SVL_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $SVL_HOST_STRING:/tmp/$TBFILE_NAME/ || die "Copying contrail-fabric-utils.tar to $SVL_HOST_STRING failed"
-         sshpass -p $SVL_HOST_PASSWORD ssh ${SSHOPT} $SVL_HOST_STRING "
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD ssh ${SSHOPT} $TASK_RUNNER_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir -p /tmp/$TBFILE_NAME"
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $TASK_RUNNER_HOST_STRING:/tmp/$TBFILE_NAME/ || die "Copying contrail-fabric-utils.tar to $TASK_RUNNER_HOST_STRING failed"
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD ssh ${SSHOPT} $TASK_RUNNER_HOST_STRING "
             cd /tmp/$TBFILE_NAME/;
-            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar" || die "Extracting contrail-fabric-utils.tar failed on $SVL_HOST_STRING"
+            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar" || die "Extracting contrail-fabric-utils.tar failed on $TASK_RUNNER_HOST_STRING"
     fi
 } 
 
@@ -152,8 +152,8 @@ function copy_fabric_test_artifacts {
     fi
     search_package
 
-    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
-    exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
     
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
@@ -227,6 +227,9 @@ function use_testbed_file {
     fi
     sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
     echo "env.test_repo_dir='${TOOLS_WS}/contrail-test'" >> $dest_folder_path/testbed.py
+    if [ $TESTBED_LOCATION != "LOCAL" ]; then
+        export USE_TASK_RUNNER_HOST=1
+    fi
 }
 
 function run_setup_shell_script {
@@ -323,8 +326,8 @@ function reimage_setup {
     then 
         return 0
     fi
-    if [ $TESTBED_LOCATION == "US" ]; then
-        exec_cmds -s ${SVL_HOST_STRING} -p ${SVL_HOST_PASSWORD} -c "
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
             fab all_sm_reimage:$REIMAGE_PARAM ;
@@ -431,14 +434,18 @@ function setup_sanity_base {
 function collect_tech_support {
     NODENAME=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c  "hostname -s"`
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
-    for i in {1..3}; do
-        (cd $TOOLS_WS/contrail-fabric-utils;
-        fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} && 
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
-        cp fabfile/testbeds/testbed.py $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} && 
-        cp *.log $DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP} &&
-        break) && break
-    done
+    dest_dir_folder=$DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP}
+    cp_log_cmd="sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $dest_dir_folder"
+    debug_cmds="export HA_TEST=$HA_TEST && fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} ; $cp_log_cmd ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
+          
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            $debug_cmds"
+    else
+        cd $TOOLS_WS/contrail-fabric-utils;
+        eval "$debug_cmds"
+    fi
 }
 
 function debug_and_die
