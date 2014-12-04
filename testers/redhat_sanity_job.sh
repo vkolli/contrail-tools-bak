@@ -16,12 +16,14 @@ run_build_fab "install_pkg_all:${REDHAT_KERNEL_PACKAGE}"
 run_build_fab "setup_rhosp_node"
 run_build_fab "update_keystone_admin_token"
 run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}" 
-run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}"
-copy_fabric_test_artifacts
-run_fab "update_keystone_admin_token"
-#run_setup_shell_script
 
-run_build_fab "install_without_openstack"
+copy_fabric_test_artifacts
+run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}"
+run_setup_shell_script
+
+run_fab "install_without_openstack"
+run_fab "update_keystone_admin_token"
+run_fab "setup_interface"
 run_fab "setup_without_openstack" 
 sleep 120
 run_fab "install_test_repo"
