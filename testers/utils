@@ -353,7 +353,7 @@ function run_fab() {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
         export HA_TEST=$HA_TEST;
         cd ~/fabric-utils;
-        fab ${fab_cmd}" || die "Failed to setup $fab_cmd"
+        fab ${fab_cmd}"
     # check venv exist before running test   
 }
 
