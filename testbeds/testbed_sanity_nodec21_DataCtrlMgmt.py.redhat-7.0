@@ -11,10 +11,10 @@ host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
 host6 = 'root@10.204.217.3'
 
-ext_routers = [('blr-mx2', '192.168.10.254')]
-router_asn = 64512
-public_vn_rtgt = 33333
-public_vn_subnet = '10.204.219.48/29'
+ext_routers = [('blr-mx1', '10.204.216.253')]
+router_asn = 64510
+public_vn_rtgt = 10003
+public_vn_subnet = '10.204.219.16/29'
 
 host_build = 'stack@10.204.216.49'
 
@@ -64,7 +64,7 @@ env.passwords = {
 }
 
 env.keystone = {
-    'keystone_ip'   : '192.168.10.5',
+    'keystone_ip'   : '10.204.217.4',
     'auth_protocol' : 'http',                  #Default is http
     'auth_port'     : '35357',                 #Default is 35357
     'admin_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
@@ -78,7 +78,7 @@ env.keystone = {
 
 env.openstack = {
     'service_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
-    'amqp_host' : '192.168.10.5',
+    'amqp_host' : '10.204.217.4',
 }
 
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'
