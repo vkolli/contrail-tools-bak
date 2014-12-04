@@ -21,10 +21,10 @@ copy_fabric_test_artifacts
 run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}"
 run_setup_shell_script
 
-run_fab "install_without_openstack"
+run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
 run_fab "update_keystone_admin_token"
-run_fab "setup_interface"
-run_fab "setup_without_openstack" 
+#run_fab "setup_interface"
+run_fab "setup_without_openstack"  || debug_and_die "Setup failed!"
 sleep 120
 run_fab "install_test_repo"
 
