@@ -533,6 +533,9 @@ function create_testbed {
 
 function get_testbed(){
 locked=0
+if [[ ${#testbeds[@]} -eq 0 ]]; then
+    die "No Testbed details supplied!!"
+fi
 while :
 do
     for i in "${testbeds[@]}"
