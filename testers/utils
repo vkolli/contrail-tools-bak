@@ -419,7 +419,7 @@ function setup_sanity_base {
                                                          export BUILD_ID=${BUILDID};
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export TEST_TYPE=${TEST_TYPE};
-                                                         export EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX};
+                                                         export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
                                                          export EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
@@ -432,6 +432,11 @@ function setup_sanity_base {
 ##
 # collect_tech_support
 function collect_tech_support {
+    if [ $SKIP_LOGS_COLLECTION -ne 0 ]
+    then
+        return 0
+    fi
+
     NODENAME=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c  "hostname -s"`
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
     dest_dir_folder=$DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP}
