@@ -381,7 +381,11 @@ function run_sanity {
 # base setup for sanity 
 function setup_sanity_base {
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
-    
+    OTHER_OPTS=""
+    if [ ! -z $OS_TEST_PATH ] ; then
+        OTHER_OPTS="$OTHER_OPTS export OS_TEST_PATH=$OS_TEST_PATH ; "
+    fi 
+
     # run sanity in parallel/serial branch, default serial
     if [ "${sanitytype}" = "" ]; then
         sanitytype="serial" 
@@ -424,6 +428,7 @@ function setup_sanity_base {
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export BRANCH=$BRANCH; 
+                                                         $OTHER_OPTS
                                                          $cd_str 
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
