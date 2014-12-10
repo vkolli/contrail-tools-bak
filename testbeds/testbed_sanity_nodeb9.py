@@ -37,3 +37,4 @@ multi_tenancy=True
 env.interface_rename=True 
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Single Node Sanity'
+env.enable_lbaas = True
