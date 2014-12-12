@@ -152,11 +152,19 @@ function copy_fabric_test_artifacts {
     fi
     search_package
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
+    if [ $USE_LATEST_TEST_CODE -eq 1 ]; then
+        (cd $TOOLS_WS/
+        tar cf contrail-test.tar contrail-test)
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-test.tar  ${API_SERVER_HOST_STRING}:
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            tar xf contrail-test.tar"
+    else
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
+    fi
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
-    
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
+    
     copy_testbedfile_cfgm
                                                     
 }
@@ -168,13 +176,13 @@ function checkout_repo {
     git clone git@github.com:Juniper/contrail-fabric-utils.git
     git clone git@github.com:Juniper/contrail-test.git
     ( cd $TOOLS_WS/contrail-fabric-utils
-#      git stash
-      git checkout ${FAB_GIT_BRANCH}
+      git stash
+      git checkout -b ${FAB_GIT_BRANCH} origin/${FAB_GIT_BRANCH}
       git pull 
     )
     ( cd $TOOLS_WS/contrail-test
       git stash
-      git checkout ${FAB_GIT_BRANCH}
+      git checkout -b ${FAB_GIT_BRANCH} origin/${FAB_GIT_BRANCH}
       git pull
     )
 }

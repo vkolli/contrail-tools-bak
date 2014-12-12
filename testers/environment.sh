@@ -106,3 +106,8 @@ export REDHAT_KERNEL_PACKAGE=${REDHAT_KERNEL_PACKAGE:-"/cs-shared/builder/cache/
 export USE_TASK_RUNNER_HOST=${USE_TASK_RUNNER_HOST:-0}
 export TASK_RUNNER_HOST_STRING=${TASK_RUNNER_HOST_STRING:-stack@10.84.24.64}
 export TASK_RUNNER_HOST_PASSWORD=${TASK_RUNNER_HOST_PASSWORD:-c0ntrail123}
+
+# Set this flag if you need to pick latest contrail-test code instead of 
+# the contrail-test artifact from the build
+# Default is to pick test code from build-artifacts path
+export USE_LATEST_TEST_CODE=${USE_LATEST_TEST_CODE:-0}
