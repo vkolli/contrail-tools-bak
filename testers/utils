@@ -533,8 +533,10 @@ function run_tempest {
             
 function reimage_and_bringup {
     reimage_setup || debug_and_die "Reimage failed!"
+    fab cleanup_repo
     bringup_setup || debug_and_die "Bringup failed!"
     sleep 120
+    fab restore_repo
 }
 
 function create_testbed {
