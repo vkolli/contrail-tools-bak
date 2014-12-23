@@ -384,6 +384,53 @@ function run_sanity {
     # check venv exist before running test
     check_venv_exists
     setup_sanity_base
+    stop_on_failure
+}
+
+#Lock testbed if the test failures are more than the 
+#expected limit ,set through the shell varibale limit
+#export TEST_FAILURE_THRESHOLD needs to be set through jenkins
+
+function stop_on_failure {
+    echo 'inside stop_on_failure'
+    files='result*'
+    limit=0
+    if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
+        limit=$TEST_FAILURE_THRESHOLD
+    else
+        limit=$(set_threshold) 
+    fi
+    cd_str="cd $CFGM_TEST_CODE_PATH/"
+    cmd_str="python tools/stop_on_fail.py --files $files --threshold $limit"
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cd_str;
+                              $cmd_str;" || debug_and_die "Test failures exceed the threshold of $limit percent"
+    
+}
+
+function set_threshold {
+
+    case "$DISTRO" in
+        'ubuntu-12-04')
+            echo 15
+            ;;
+        'centos64_os')
+            echo 25
+            ;;
+        'centos65')
+            echo 25
+            ;;
+        'ubuntu-14-04')
+            echo 15
+            ;;
+        'redhat70')
+            echo 25
+            ;;
+         *)
+            echo 30
+            ;;
+    esac
+
 }
 
 # base setup for sanity 
