@@ -384,7 +384,7 @@ function run_sanity {
     # check venv exist before running test
     check_venv_exists
     setup_sanity_base
-    stop_on_failure
+    #stop_on_failure
 }
 
 #Lock testbed if the test failures are more than the 
