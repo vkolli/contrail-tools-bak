@@ -9,7 +9,7 @@ host5 = 'root@10.204.217.137'
 ext_routers = [('hooper','192.168.193.253')]
 router_asn = 64512
 public_vn_rtgt = 2224
-public_vn_subnet = '10.204.221.144/28'
+public_vn_subnet = '10.204.221.192/28'
 
 host_build = 'stack@10.204.216.49'
 
