@@ -13,12 +13,12 @@ reimage_setup || debug_and_die "Reimage failed!"
 search_third_party_package
 run_build_fab "cleanup_repo"
 run_build_fab "install_pkg_all:${REDHAT_KERNEL_PACKAGE}"
-run_build_fab "setup_rhosp_node"
+run_build_fab "setup_rhosp_node" || die "Failed during setup_rhosp_node"
 run_build_fab "update_keystone_admin_token"
-run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}" 
+run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}"  || die "Task install_pkg_all_without_openstack failed!!"
 
 copy_fabric_test_artifacts
-run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}"
+run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}" || die "Task install_pkg_all_without_openstack failed!!"
 run_setup_shell_script
 
 run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
