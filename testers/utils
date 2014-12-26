@@ -392,7 +392,6 @@ function run_sanity {
 #export TEST_FAILURE_THRESHOLD needs to be set through jenkins
 
 function stop_on_failure {
-    echo 'inside stop_on_failure'
     files='result*'
     limit=0
     if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
@@ -518,6 +517,9 @@ function debug_and_die
     local message=$1
     if [ $LOCK_TESTBED_ON_FAILURE = 1 ]; then
         echo "Testbed is set to be locked on failure"
+        if [[ $message =~ 'Test failures exceed' ]]; then
+            collect_tech_support 
+        fi
         export RELEASE_TESTBED=0
         (  
             set -x
