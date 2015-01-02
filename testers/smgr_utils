@@ -207,7 +207,7 @@ function reimage_using_SM() {
         fi
 
         echo "add base ISO image to server manager database"
-        if [ ${DISTRO} == "ubuntu-14.04" ]
+        if [ ${DISTRO} == "ubuntu-14-04" ]
         then
             server-manager add image -f /root/images/image14.json
         else
