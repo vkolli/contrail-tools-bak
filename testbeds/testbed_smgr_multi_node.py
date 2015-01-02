@@ -78,7 +78,7 @@ multi_tenancy = True
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True
-env.test_repo_dir='/home/stack/sudhee/19Nov/contrail-test'
+env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Server Manager Multi-Node Sanity'
 
