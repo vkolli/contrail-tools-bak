@@ -9,12 +9,12 @@ function check_SM_pkg_availability() {
     then
         if [ ${SKU} == "juno" ]
         then
-            pkg_dir="/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
         else
-            pkg_dir="/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
         fi
     else
-        pkg_dir="/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
+        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
     fi
     
     while [ "$count" -ne 36 ]; do
@@ -30,6 +30,7 @@ function check_SM_pkg_availability() {
             fi
             echo "SM pkgs are still not there, let's wait..."
             sleep 100
+            count=$((count+1))
         fi
     done
 }
