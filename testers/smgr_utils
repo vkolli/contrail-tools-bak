@@ -267,7 +267,7 @@ function reimage_using_SM() {
             exit 1
         fi
         echo "reimage in progress please wait ..."
-        sleep 60
+        sleep 10
  
         #check if reimage is completed.
         /root/sm_files/check_reimage.sh $CLUSTER_NAME
