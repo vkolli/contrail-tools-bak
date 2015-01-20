@@ -30,6 +30,7 @@ export SKIP_SANITY=${SKIP_SANITY:-0}
 export SKIP_LOGS_COLLECTION=${SKIP_LOGS_COLLECTION:-0}
 # Skip running tempest by default
 export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
+export SKIP_SM_PROVISION=${SKIP_SM_PROVISION:-0}
 
 # Enable tests which depend on public network connectivity
 export MX_GW_TEST=${MX_GW_TEST:-0}
