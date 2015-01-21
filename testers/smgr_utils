@@ -129,9 +129,12 @@ function provision_using_SM() {
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "provision the target setup"
-        server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
-        if [ $? != 0 ] 
+        output = `server-manager provision -F --cluster_id $CLUSTER_NAME $SMID`
+        string="\"return_code\": 0"
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
         then
+            echo "Server-manager provision command is successful"
+        else
             echo "Server-manager provision command failed, aborting the process"
             exit 1
         fi
@@ -142,19 +145,29 @@ function provision_using_SM() {
         /root/sm_files/check_provision.sh $CLUSTER_NAME
         if [ $? != 0 ]
         then
-            echo "Provisioning of the target/cluster failed!!!"
+            echo "Provisioning of the target/cluster is sucessfull!!!"
+        else
+            echo "Provisioning of the target/cluster failed!!! aborting the process"
             exit 1
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
-        fi
     ) "
-    sleep 120
+    if [ ${BRANCH} == "R1.10" ]
+    then
+        server-manager delete image $SMID
+    else
+        server-manager delete image --image_id $SMID
+    fi
+    if [ $? != 0 ]
+    then
+        echo "Provisioning of the target/cluster is sucessfull!!!"
+        sleep 120
+    else
+        echo "Provisioning of the target/cluster failed!!! aborting the process"
+        exit 1
+    fi
+
 }
 
 # This function will reimage the provided setup.
@@ -210,10 +223,20 @@ function reimage_using_SM() {
         echo "add base ISO image to server manager database"
         if [ ${DISTRO} == "ubuntu-14-04" ]
         then
-            server-manager add image -f /root/images/image14.json
+            output = `server-manager add image -f /root/images/image14.json`
+            string="\"return_code\": 0"
         else
-            server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
+            output = `server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image`
+            string="\"return_code\": 0"
         fi
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
+        then
+            echo "Server-manager adding image command is successful"
+        else
+            echo "Server-manager adding image command failed, aborting the process"
+            exit 1
+        fi
+
         echo "check if the image was added successfully"
         server-manager show image | grep $DISTRO
         if [ $? != 0 ] 
@@ -230,7 +253,17 @@ function reimage_using_SM() {
             server-manager delete image --image_id $SMID
         fi
         echo "add contrail package to the SM database"
-        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE
+      
+        output = `server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE`
+        string="\"return_code\": 0"
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
+        then
+            echo "Server-manager adding contrail-package command is successful"
+        else
+            echo "Server-manager adding contrail-package command failed, aborting the process"
+            exit 1
+        fi
+
         echo "check if the package was added successfully"
         server-manager show image | grep $SMID
         if [ $? != 0 ] 
@@ -242,30 +275,42 @@ function reimage_using_SM() {
         server-manager show image
 
         echo "add cluster to SM database"
-        server-manager add cluster -f $cluster_json
-        if [ $? != 0 ] 
+        output = `server-manager add cluster -f $cluster_json`
+        string="\"return_code\": 0"
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
         then
-            echo "Adding cluster to server-manager failed"
+            echo "Adding cluster to server-manager is sucessful!!!"
+        else
+            echo "Adding cluster to server-manager failed, aborting the process"
             exit 1
         fi
+
         server-manager show cluster --detail
 
         echo "add server to SM database"
-        server-manager add server -f $server_json
-        if [ $? != 0 ] 
+        output = `server-manager add server -f $server_json`
+        string="\"return_code\": 0"
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
         then
-            echo "Adding server to server-manager failed"
+            echo "Adding server to server-manager is sucessful!!!"
+        else
+            echo "Adding server to server-manager failed, aborting the process"
             exit 1
         fi
+
         server-manager show server --detail
 
         echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
-        if [ $? != 0 ] 
+        output = `server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO`
+        string="\"return_code\": 0"
+        if `echo ${output} | grep "${string}" 1>/dev/null 2>&1`
         then
-            echo "reimage of target nodes failed"
+            echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
+        else
+            echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
             exit 1
         fi
+
         echo "reimage in progress please wait ..."
         sleep 10
  
@@ -273,15 +318,23 @@ function reimage_using_SM() {
         /root/sm_files/check_reimage.sh $CLUSTER_NAME
         if [ $? != 0 ]
         then
+            echo "reimaged the target $CLUSTER_NAME successfully"
+        else
             echo "reimage of target $CLUSTER_NAME failed!!!"
             exit 1
-        else
-            echo "reimaged the target $CLUSTER_NAME successfully"
         fi
-        sleep 150 
 
-        echo "Reimage of the target completed successfully"
     ) "
+    if [ $? != 0 ]
+    then
+        echo "reimaged the target $CLUSTER_NAME successfully"
+        sleep 150
+    else
+        echo "reimage of target $CLUSTER_NAME failed!!!"
+        exit 1
+    fi
+    
+   
 }
 
 
