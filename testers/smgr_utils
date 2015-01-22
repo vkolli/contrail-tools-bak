@@ -129,9 +129,9 @@ function provision_using_SM() {
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "provision the target setup"
-        output = `server-manager provision -F --cluster_id $CLUSTER_NAME $SMID`
+        server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
         string="\"return_code\": 0"
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        if [ $? == 0 ]
         then
             echo "Server-manager provision command is successful"
         else
@@ -143,23 +143,31 @@ function provision_using_SM() {
 
         #check provisioing status.
         /root/sm_files/check_provision.sh $CLUSTER_NAME
-        if [ $? != 0 ]
+        if [ $? == 0 ]
         then
             echo "Provisioning of the target/cluster is sucessfull!!!"
         else
             echo "Provisioning of the target/cluster failed!!! aborting the process"
+            if [ ${BRANCH} == "R1.10" ]
+            then
+                server-manager delete image $SMID
+            else
+                server-manager delete image --image_id $SMID
+        fi
+
             exit 1
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-    ) "
-    if [ ${BRANCH} == "R1.10" ]
-    then
-        server-manager delete image $SMID
-    else
-        server-manager delete image --image_id $SMID
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image $SMID
+        else
+            server-manager delete image --image_id $SMID
     fi
-    if [ $? != 0 ]
+
+    ) "
+    if [ $? == 0 ]
     then
         echo "Provisioning of the target/cluster is sucessfull!!!"
         sleep 120
@@ -223,13 +231,11 @@ function reimage_using_SM() {
         echo "add base ISO image to server manager database"
         if [ ${DISTRO} == "ubuntu-14-04" ]
         then
-            output = `server-manager add image -f /root/images/image14.json`
-            string="\"return_code\": 0"
+            server-manager add image -f /root/images/image14.json
         else
-            output = `server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image`
-            string="\"return_code\": 0"
+            server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
         fi
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        if [ $? == 0 ]
         then
             echo "Server-manager adding image command is successful"
         else
@@ -254,9 +260,8 @@ function reimage_using_SM() {
         fi
         echo "add contrail package to the SM database"
       
-        output = `server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE`
-        string="\"return_code\": 0"
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE
+        if [ $? == 0 ]
         then
             echo "Server-manager adding contrail-package command is successful"
         else
@@ -275,9 +280,8 @@ function reimage_using_SM() {
         server-manager show image
 
         echo "add cluster to SM database"
-        output = `server-manager add cluster -f $cluster_json`
-        string="\"return_code\": 0"
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        server-manager add cluster -f $cluster_json
+        if [ $? == 0 ]
         then
             echo "Adding cluster to server-manager is sucessful!!!"
         else
@@ -288,9 +292,8 @@ function reimage_using_SM() {
         server-manager show cluster --detail
 
         echo "add server to SM database"
-        output = `server-manager add server -f $server_json`
-        string="\"return_code\": 0"
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        server-manager add server -f $server_json
+        if [ $? == 0 ]
         then
             echo "Adding server to server-manager is sucessful!!!"
         else
@@ -301,9 +304,8 @@ function reimage_using_SM() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        output = `server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO`
-        string="\"return_code\": 0"
-        if [ `echo ${output} | grep "${string}" 1>/dev/null 2>&1` ]
+        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
+        if [ $? == 0 ]
         then
             echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
         else
@@ -316,7 +318,7 @@ function reimage_using_SM() {
  
         #check if reimage is completed.
         /root/sm_files/check_reimage.sh $CLUSTER_NAME
-        if [ $? != 0 ]
+        if [ $? == 0 ]
         then
             echo "reimaged the target $CLUSTER_NAME successfully"
         else
@@ -325,7 +327,7 @@ function reimage_using_SM() {
         fi
 
     ) "
-    if [ $? != 0 ]
+    if [ $? == 0 ]
     then
         echo "reimaged the target $CLUSTER_NAME successfully"
         sleep 150
