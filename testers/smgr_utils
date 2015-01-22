@@ -55,10 +55,10 @@ function bringup_SM_setup() {
     #multi-node uses ubuntu SM and single node uses centos SM.
     if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
     then
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_[0-9]\.[0-9]-${BUILDID}\~$SKU\_all.deb*`
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
         echo $SM_SERVER_PKG_FILE
     else
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-[0-9]\.[0-9]-${BUILDID}\~$SKU.el6.noarch.rpm*`
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*`
         echo $SM_SERVER_PKG_FILE
     fi
     pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
