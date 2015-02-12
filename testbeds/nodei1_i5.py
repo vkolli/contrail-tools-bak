@@ -64,3 +64,4 @@ multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+do_parallel = True
