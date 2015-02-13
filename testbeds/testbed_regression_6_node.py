@@ -53,3 +53,4 @@ multi_tenancy=True
 env.interface_rename=True
 env.log_scenario='MultiNode Regression'
 env.enable_lbaas = True
+do_parallel = True

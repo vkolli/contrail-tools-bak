@@ -56,3 +56,4 @@ env.interface_rename = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='MultiNode Single Intf Sanity'
 env.enable_lbaas = True
+do_parallel = True
