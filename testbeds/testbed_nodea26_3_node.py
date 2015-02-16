@@ -7,8 +7,6 @@ os_tenant_name = 'demo'
 host1 = 'root@10.204.216.22'
 host2 = 'root@10.204.217.56'
 host3 = 'root@10.204.217.66'
-host4 = 'root@10.204.216.37'
-host5 = 'root@10.204.216.5'
 
 
 ext_routers = [('blr-mx1', '10.204.216.253')]
@@ -19,10 +17,10 @@ public_vn_subnet = "10.204.220.168/29"
 host_build = 'ganeshahv@10.204.216.3'
 
 env.roledefs = {
-    'all': [host1, host2, host3, host4, host5],
-    'cfgm': [host1, host2, host3],
+    'all': [host1, host2, host3],
+    'cfgm': [host1],
     'control': [host2, host3],
-    'compute': [host4, host5],
+    'compute': [host2, host3],
     'collector': [host1],
     'openstack': [host1],
     'webui': [host1],
@@ -31,23 +29,19 @@ env.roledefs = {
 }
 
 env.hostnames = {
-     'all': ['nodea26', 'nodeg16', 'nodeg26', 'nodeb6', 'nodeb12']
+     'all': ['nodea26', 'nodeg16', 'nodeg26']
 }
 
 env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
     host3: 'c0ntrail123',
-    host4: 'c0ntrail123',
-    host5: 'c0ntrail123',
     host_build: 'secret',
 }
 env.ostypes = { 
     host1: 'ubuntu',
     host2: 'ubuntu',
     host3: 'ubuntu',
-    host4: 'ubuntu',
-    host5: 'ubuntu',
     }
 
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
