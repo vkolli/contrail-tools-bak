@@ -233,7 +233,8 @@ function reimage_using_SM() {
         then
             server-manager add image -f /root/images/image14.json
         else
-            server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
+            #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
+            server-manager add image -f /root/images/image12.json
         fi
         if [ $? == 0 ]
         then
