@@ -212,8 +212,8 @@ function reimage_using_SM() {
     fi
 
     #set the parameters for multi/single node setup
-    cluster_json="/root/sm_files/$CLUSTER_NAME.json"
-    server_json="/root/sm_files/$SERVER_NAME.json"
+    cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
+    server_json="/root/sm_files/$SERVER_FILE_NAME.json"
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
