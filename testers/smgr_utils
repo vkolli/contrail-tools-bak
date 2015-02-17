@@ -130,7 +130,6 @@ function provision_using_SM() {
         set -e
         echo "provision the target setup"
         server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
-        string="\"return_code\": 0"
         if [ $? == 0 ]
         then
             echo "Server-manager provision command is successful"
