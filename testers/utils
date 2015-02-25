@@ -650,7 +650,7 @@ function lock_testbed() {
         fi 
         echo "Locking testbed $tb_lock_file"
         cat $tb_lock_file
-        echo "Occupied! ($BUILD_TAG)" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
+        echo "Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
         cat $tb_lock_file
         return 0
     ) 5>${LOCK_FILE_DIR}/lockfile
@@ -670,7 +670,7 @@ function unlock_testbed() {
         flock 5
         echo "Unlocking testbed $tb_lock_file"
         cat $tb_lock_file
-        sed -i "/Occupied! ($BUILD_TAG)/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
+        sed -i "/Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
         cat $tb_lock_file
     ) 5>${LOCK_FILE_DIR}/lockfile
 }
