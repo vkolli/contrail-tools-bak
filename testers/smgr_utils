@@ -2,6 +2,25 @@
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
 
+#install ant on cfgm0
+function install_ant() {
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+        set -e
+        cat /etc/apt/sources.list > /etc/apt/sources.list.orig
+        cat /etc/apt/sources.save > /etc/apt/sources.list
+        apt-get update
+        apt-get -y --force-yes --allow-unauthenticated install ant
+        if [ $? != 0 ]
+        then
+            echo "failed to install ant on cfgm!!!"
+        else
+            echo "installed ant successfully"
+        fi
+    ) "
+}
+
+
+
 #check if the server-manager pkgs are available in artifacts folder.
 function check_SM_pkg_availability() {
     count=0
@@ -368,6 +387,7 @@ function run_smgr_task() {
     bringup_SM_setup || die "Failed to bringup SM setup" 
     reimage_using_SM || die "reimage failed"
     provision_using_SM || die "provision failed"
+    install_ant || die "ant installation failed on cfgm"
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
