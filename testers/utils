@@ -201,7 +201,6 @@ function use_testbed_file {
     set -x
     folder_path=''
     tbfile=''
-    esxi_only=${ESXI_ONLY:-0}
     export ABS_PATH_TBFILE=`readlink -f $TBFILE`
     if [ ! -f $ABS_PATH_TBFILE ] ; then
         folder_path=${TOOLS_WS}/testbeds
@@ -217,7 +216,7 @@ function use_testbed_file {
     image_name=${BUILD_MAP[${DISTRO}]}
     base_distro=`echo $image_name | cut -d - -f1`
     tbfile_hyper=${tbfile}
-    if [ $esxi_only -eq 1 ]; then
+    if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.esx
     fi
     if [ -f ${tbfile_hyper}.$image_name ]; then
