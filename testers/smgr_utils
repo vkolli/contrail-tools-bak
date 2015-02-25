@@ -7,7 +7,7 @@ function install_ant() {
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -e
         cat /etc/apt/sources.list > /etc/apt/sources.list.orig
-        cat /etc/apt/sources.save > /etc/apt/sources.list
+        cat /etc/apt/sources.list.save > /etc/apt/sources.list
         apt-get update
         apt-get -y --force-yes --allow-unauthenticated install ant
         if [ $? != 0 ]
@@ -16,6 +16,8 @@ function install_ant() {
         else
             echo "installed ant successfully"
         fi
+        cat /etc/apt/sources.list > /etc/apt/sources.list.save
+        cat /etc/apt/sources.list.orig > /etc/apt/sources.list
     ) "
 }
 
