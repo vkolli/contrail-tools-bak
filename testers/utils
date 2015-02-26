@@ -215,10 +215,14 @@ function use_testbed_file {
     
     image_name=${BUILD_MAP[${DISTRO}]}
     base_distro=`echo $image_name | cut -d - -f1`
-    if [ -f ${tbfile}.$image_name ]; then
-            cp -f ${tbfile}.$image_name ${tbfile}
-    elif [ -f ${tbfile}.${base_distro} ]; then
-            cp -f ${tbfile}.${base_distro} ${tbfile}
+    tbfile_hyper=${tbfile}
+    if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.esx
+    fi
+    if [ -f ${tbfile_hyper}.$image_name ]; then
+            cp -f ${tbfile_hyper}.$image_name ${tbfile}
+    elif [ -f ${tbfile_hyper}.${base_distro} ]; then
+            cp -f ${tbfile_hyper}.${base_distro} ${tbfile}
     fi
 
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
@@ -256,6 +260,8 @@ function bringup_setup {
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
+    fab prov_esxi
+    sleep 60
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
 
@@ -311,6 +317,10 @@ function bringup_setup {
             fab setup_interface || exit 1;
             fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
 
+    if [ $SKIP_ZONES -eq 0 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab setup_zones)
+    fi
     if [ $ADD_IMAGES -eq 1 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
         fab add_basic_images)
@@ -339,13 +349,13 @@ function reimage_setup {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
             fab all_sm_reimage:$REIMAGE_PARAM ;
-            fab wait_till_all_up:attempts=180;
+            fab wait_till_all_up:attempts=180,reimaged=True;
             fab check_reimage_state" || debug_and_die "reimage_setup failed"
     else
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
-        fab wait_till_all_up:attempts=180  || debug_and_die "Not all nodes are up after reimage"
+        fab wait_till_all_up:attempts=180,reimaged=True || debug_and_die "Not all nodes are up after reimage"
         # verify reimage is successful or failure
         fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
     fi
