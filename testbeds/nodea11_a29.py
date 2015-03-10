@@ -39,6 +39,19 @@ control_data = {
     host5 : { 'ip': '192.168.251.5/24', 'gw' : '192.168.251.254', 'device':'eth1' },
 }
 
+static_route  = {
+    host1 : [{ 'ip': '192.168.251.0', 'netmask' : '255.255.255.0', 'gw':'192.168.250.254', 'intf': 'eth0' }
+],
+    host2 : [{ 'ip': '192.168.251.0', 'netmask' : '255.255.255.0', 'gw':'192.168.250.254', 'intf': 'eth0' }
+],
+    host3 : [{ 'ip': '192.168.251.0', 'netmask' : '255.255.255.0', 'gw':'192.168.250.254', 'intf': 'eth0' }
+],
+    host4 : [{ 'ip': '192.168.251.0', 'netmask' : '255.255.255.0', 'gw':'192.168.250.254', 'intf': 'eth0' }
+],
+    host5 : [{ 'ip': '192.168.250.0', 'netmask' : '255.255.255.0', 'gw':'192.168.251.254', 'intf': 'eth1' }
+],
+}
+
 env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'
 env.passwords = {
