@@ -315,6 +315,7 @@ function bringup_setup {
             cd fabric-utils; 
             export HA_TEST=$HA_TEST;
             fab setup_interface || exit 1;
+            fab add_static_route 
             fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
 
     if [ $SKIP_ZONES -eq 0 ]; then
