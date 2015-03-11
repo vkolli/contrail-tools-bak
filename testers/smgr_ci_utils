@@ -46,19 +46,19 @@ function bringup_SM_setup() {
         SM_SERVER_PKG_FILE=`contrail-server-manager-installer-*\.*.el6.noarch.rpm*`
         echo $SM_SERVER_PKG_FILE
     fi
-    pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
-
+    pkg_name="$pkg_dir/${CONTRAIL_PACKAGE}"
+    
     echo "Connect to SM_SERVER to install/upgrade SM packages"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
 
-        if [ -e /tmp/smgr/$SM_SERVER_PKG_FILE ] 
+        if [ -e /tmp/smgr/${SERVER_MANAGER_INSTALLER} ] 
         then
             echo "file exists, upgrading Server manager"
             cd /tmp/smgr/; 
             if [ $SM_TYPE -eq 1 ]
             then
-                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+                ./ubuntu_smgr_upgrade.sh ${SERVER_MANAGER_INSTALLER}
             else
                 ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             fi
