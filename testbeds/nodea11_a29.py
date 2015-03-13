@@ -20,7 +20,7 @@ env.roledefs = {
     'webui': [host1],
     'openstack': [host1],
     'control': [host2, host3],
-    'collector': [host1,host2],
+    'collector': [host1],
     'database': [host1],
     'compute': [host4, host5],
     'build': [host_build]
