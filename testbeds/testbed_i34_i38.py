@@ -51,7 +51,7 @@ env.ostypes = {
     host5:'ubuntu',
     host6:'ubuntu',
 }
-minimum_diskGB=256
+minimum_diskGB=32
 #env.test_repo_dir='/home/shettyp/parallel/contrail-test'
 env.test_repo_dir='/home/shettyp/mainline/contrail-test'
 env.mail_from='contrail-build@juniper.net'

@@ -49,7 +49,7 @@ env.passwords = {
     host_build: 'stack@123',
 }
 
-minimum_diskGB=256
+minimum_diskGB=32
 
 env.ostypes = {
     host1:'centos65',
