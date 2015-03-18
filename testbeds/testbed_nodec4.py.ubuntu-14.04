@@ -52,6 +52,8 @@ env.ostypes = {
     host4: 'ubuntu',
     host5: 'ubuntu'
     }
+minimum_diskGB=256
+
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'                                                                                                                                                                                      
 env.mail_from='contrail-build@juniper.net'                                                                                                                                                                                                                                    
 env.mail_to='ganeshahv@juniper.net'                                                                                                                                                                                                                                      

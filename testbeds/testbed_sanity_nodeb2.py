@@ -76,7 +76,7 @@ env.interface_rename = True
 
 #To enable multi-tenancy feature
 multi_tenancy = True
-
+minimum_diskGB=256
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True

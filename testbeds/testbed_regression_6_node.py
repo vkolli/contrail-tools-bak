@@ -45,7 +45,7 @@ env.passwords = {
 
     host_build: 'stack@123',
 }
-
+minimum_diskGB=256
 env.test_repo_dir='/home/stack/regression/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
