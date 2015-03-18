@@ -57,5 +57,6 @@ env.mail_from='contrail-build@juniper.net'
 env.mail_to='ganeshahv@juniper.net'                                                                                                                                                                                                                                      
 multi_tenancy=True                                                                                                                                                                                                                                                            
 env.interface_rename = True                                                                                                                                                                                                                                                   
+minimum_diskGB=32
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"                                                                                                                                                                                                                         
 env.log_scenario='ECMP Regression'
