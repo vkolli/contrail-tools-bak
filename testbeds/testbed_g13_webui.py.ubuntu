@@ -3,12 +3,12 @@ from fabric.api import env
 os_username = 'admin'
 os_password = 'contrail123'
 os_tenant_name = 'demo'
-#multi_tenancy = False
+#multi_tenancy = True
 webui = True
 horizon = False
 ui_config = 'contrail'
 ui_browser = 'firefox'
-host1='root@10.204.217.64'
+host1='root@10.204.217.53'
 ext_routers = []
 router_asn = 64512
 public_vn_rtgt = 10000
@@ -26,15 +26,18 @@ env.roledefs = {
     'build': [host_build],
 }
 env.hostnames = {
-    'all': ['nodeg24']
+    'all': ['nodeg13']
+}
+env.ostypes = {
+     host1: 'ubuntu'
 }
 
 env.passwords = {
     host1: 'c0ntrail123',
     host_build: 'c0ntrail123',
 }
-minimum_diskGB=32
-env.test_repo_dir='/home/stack/webui_centos_single_node/havana/contrail-test'
+
+env.test_repo_dir='/home/stack/webui_ubuntu_single_node/icehouse/contrail-test'
 env.mail_from='ankitja@juniper.net'
-env.mail_to='dl-contrail-sw@juniper.net'
+env.mail_to='ankitja@juniper.net'
 env.log_scenario='Single Node Webui Sanity'
