@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+TOOLS_WS=${TOOLS_WS:-$(pwd)}
+source $TOOLS_WS/testers/environment.sh
+export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0)
+
+##
+# search_package
+function search_package_ceph {
+    
+    if [ -z $PKG_FILE ]
+    then 
+        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
+        export PKG_FILE
+        STORAGE_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find install package"
+        export STORAGE_PKG_FILE
+    else
+        pkg_file_name=`basename $PKG_FILE`
+        re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
+        re_centos="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
+        if [[ $pkg_file_name =~ $re_ubuntu ]] ; then
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
+            export pkg_type=${BASH_REMATCH[3]}
+            export DISTRO=${DISTRO:-ubuntu-12-04}
+        elif [[ $pkg_file_name =~ $re_centos ]]; then
+            # Centos
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
+            export pkg_type=${BASH_REMATCH[3]}
+            export DISTRO=${DISTRO:-centos65}
+        fi 
+    fi
+    export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+    export PKG_FILE_DIR=`dirname $PKG_FILE`
+}
+
+
+#####
+
+function create_testbed_ceph {
+
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+       PKG_FILE=$CONTRAIL_LOCAL_PKG_FILE
+       export PKG_FILE
+       STORAGE_PKG_FILE=$STORAGE_LOCAL_PKG_FILE
+       export STORAGE_PKG_FILE
+    else
+        search_package_ceph || die "Unable to locate package"
+    fi
+
+    if [ "$BRANCH" = "R1.10" ]; then
+        export NEW_TEST_INFRA=0
+    fi
+
+    checkout_repo || die "Unable to checkout fab/test repos"
+    use_testbed_file || die "Unable to set the testbed properly for use"
+    be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
+}
+
