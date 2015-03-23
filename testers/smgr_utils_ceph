@@ -292,16 +292,18 @@ function bringup_SM_setup_ceph() {
         echo $SM_SERVER_PKG_FILE
       fi
       pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
+    
+      sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:$PKG_LOCAL_PATH
+
     fi
 
     #copy the SM PKGs to SM server.
-    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:/root/sm_files
 
     echo "Connect to SM_SERVER to install/upgrade SM packages"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
 
-        if [ -e /root/sm_files/$SM_SERVER_PKG_FILE ] 
+        if [ -e ${PKG_LOCAL_PATH}/${SM_SERVER_PKG_FILE} ] 
         then
             echo "file exists, upgrading Server manager"
             cd /root/sm_files; 
