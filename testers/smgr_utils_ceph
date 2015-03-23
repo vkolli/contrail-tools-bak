@@ -9,7 +9,7 @@ function check_ceph_status() {
     fi
     
     echo "Connect to config node to check ceph -s output"
-    /usr/local/bin/sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    /usr/local/bin/sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $SM_SERVER_LOGIN $SM_SERVER_IP " (
     set -e 
     $SM_FILES_DIR/check_ceph_status.py $CLUSTER_NAME $EXPECTED_OSD_COUNT
 
