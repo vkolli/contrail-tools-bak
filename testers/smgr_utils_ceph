@@ -63,7 +63,13 @@ function reimage_using_SM_ceph() {
 
     #set the parameters for multi/single node setup
     cluster_json="$SM_FILES_DIR/$CLUSTER_FILE_NAME.json"
-    server_json="$SM_FILES_DIR/$SERVER_FILE_NAME.json"
+    #server_json="$SM_FILES_DIR/$SERVER_FILE_NAME.json"
+    if [ ${DISTRO} == "ubuntu-14-04" ]
+    then
+      server_json="$SM_FILES_DIR/ceph_server_14.json"
+    else
+      server_json="$SM_FILES_DIR/ceph_server.json"
+    fi
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
     /usr/local/bin/sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
@@ -213,6 +219,137 @@ function reimage_using_SM_ceph() {
     fi
 }
 
+#check if the server-manager pkgs are available in artifacts folder.
+function check_SM_pkg_availability_ceph() {
+    count=0
+
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+       pkg_dir="PKG_LOCAL_PATH"
+       return
+    fi 
+
+    if [ $SM_TYPE -eq 1 ] 
+    then
+        if [ ${SKU} == "juno" ]
+        then
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
+        else
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
+        fi
+    else
+        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
+    fi
+    
+    while [ "$count" -ne 36 ]; do
+        if ls $pkg_dir/contrail-server-manager-installer*
+        then
+            echo "SM pkgs are present in artifacts"
+            break
+        else
+            if [ "$count" -eq 35 ]
+            then
+                echo "waited for an hour, still pkgs are not found, aborting"
+                exit 1
+            fi
+            echo "SM pkgs are still not there, let's wait..."
+            sleep 100
+            count=$((count+1))
+        fi
+    done
+}
+
+
+#upgrade/install SM on either cenots/ubuntu server.
+#Multi-node setup will refer to SM running on ubuntu
+#Single-node setup will refer to SM running on centos
+function bringup_SM_setup_ceph() {
+    if [ $SKIP_BRINGUP -ne 0 ]
+    then
+        return 0
+    fi
+
+    echo "Bringup/upgrade SM setup"
+
+    #check if SM pkgs are available in artifacts before proceeding further.
+    check_SM_pkg_availability_ceph || die "SM pkg not available in artifacts"
+
+    cd $pkg_dir
+
+    #SM pkg name is different for centos & ubuntu, so set it accordingly.
+    #multi-node uses ubuntu SM and single node uses centos SM.
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+      pkg_name="$pkg_dir/$SM_SERVER_LOCAL_PKG_FILE"
+      SM_SERVER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
+    else 
+      if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
+      then
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
+        echo $SM_SERVER_PKG_FILE
+      else
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*`
+        echo $SM_SERVER_PKG_FILE
+      fi
+      pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
+    fi
+
+    #copy the SM PKGs to SM server.
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:/root/sm_files
+
+    echo "Connect to SM_SERVER to install/upgrade SM packages"
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+
+        if [ -e /root/sm_files/$SM_SERVER_PKG_FILE ] 
+        then
+            echo "file exists, upgrading Server manager"
+            cd /root/sm_files; 
+            if [ $SM_TYPE -eq 1 ]
+            then
+                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+            else
+                ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+            fi
+            if [ $? != 0 ] 
+            then
+                echo "upgrade/installation of server-manager failed, aborting the process"
+                exit 1
+            fi
+
+            sleep 1
+            echo "check if SM has been installed by following checks"
+            sleep 30
+
+            netstat -nap | grep 9001
+            if [ $? != 0 ]
+            then
+                echo "Server Manager pkg installation failed!!!"
+                exit 1
+            else
+                echo "Server Manager pkg installed successfully"
+            fi
+
+            echo "check if SM client installed"
+            if [ -e /usr/bin/server-manager ]
+            then
+                echo "SM client installed successfully"
+            else
+                echo "SM client pkg installion failed"
+                exit 1
+            fi
+            sleep 1
+        else
+            echo "SM PKGs not present in the folder, aborting the process"
+            exit 1
+        fi
+
+        echo "Installation is fine, delete the images from the server"
+        #rm $SM_SERVER_PKG_FILE
+    ) "
+}
+
+
 function run_smgr_task_ceph() {
     echo "Running tests on $1.."
 
@@ -238,7 +375,7 @@ function run_smgr_task_ceph() {
         exit 1
     fi
     create_testbed_ceph || die "Failed to create required testbed details"
-    bringup_SM_setup || die "Failed to bringup SM setup" 
+    bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
     reimage_using_SM_ceph || die "reimage failed"
     provision_using_SM || die "provision failed"
     #install_ant || die "ant installation failed on cfgm"
