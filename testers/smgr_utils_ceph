@@ -225,7 +225,7 @@ function check_SM_pkg_availability_ceph() {
 
     if [ $PKG_LOCAL -eq 1 ]
     then
-       pkg_dir="PKG_LOCAL_PATH"
+       pkg_dir="$PKG_LOCAL_PATH"
        return
     fi 
 
