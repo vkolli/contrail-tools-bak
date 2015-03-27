@@ -12,14 +12,25 @@ echo "Running tests on $TBFILE_NAME .."
 reimage_setup || debug_and_die "Reimage failed!"
 search_third_party_package
 run_build_fab "cleanup_repo"
-run_build_fab "install_pkg_all:${REDHAT_KERNEL_PACKAGE}"
-run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_node"
-run_build_fab "update_keystone_admin_token"
+if [ "$SKU" == icehouse ]; then
+run_build_fab install_rhosp5_repo || debug_and_die "Failed during installing rhosp5 repo"
+else
+run_build_fab install_rhosp6_repo || debug_and_die "Failed during installing rhosp6 repo"
+fi
 run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}"  || debug_and_die "Task install_pkg_all_without_openstack failed!!"
-
 copy_fabric_test_artifacts
 run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}" || debug_and_die "Task install_pkg_all_without_openstack failed!!"
 run_setup_shell_script
+
+if [ "$SKU" == icehouse ]; then
+run_build_fab upgrade_kernel_without_openstack
+else
+run_build_fab update_rhosp_node:reboot=False
+run_build_fab upgrade_kernel_without_openstack
+fi
+
+run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_node"
+run_build_fab "update_keystone_admin_token"
 
 run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
 run_fab "update_keystone_admin_token"
