@@ -6,9 +6,9 @@ host3 = 'root@10.204.216.15'
 host4 = 'root@10.204.216.25'
 host5 = 'root@10.204.217.75'
 
-ext_routers = [('blr-mx1', '10.204.216.253')]
-router_asn = 64512
-public_vn_rtgt = 10003
+ext_routers = [('blr-mx1', '192.168.249.1')]
+router_asn = 64510
+public_vn_rtgt = 19006
 public_vn_subnet = "10.204.219.80/29"
 
 host_build = 'sandipd@10.204.216.4'
