@@ -10,7 +10,7 @@ host2 = 'root@10.87.140.187'
 ext_routers = [('montreal', '10.87.140.140')]
 router_asn = 64510
 
-host_build = 'root@10.87.140.187'
+host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2],
@@ -36,7 +36,7 @@ control_data = {
 env.passwords = {
     host1: 'n1keenA',
     host2: 'n1keenA',
-    host_build: 'n1keenA',
+    host_build: 'stack@123',
 }
 
 minimum_diskGB=32
