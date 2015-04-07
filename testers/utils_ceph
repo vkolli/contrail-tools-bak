@@ -109,6 +109,8 @@ function bringup_setup_ceph {
     if [ $USE_TASK_RUNNER_HOST -eq 1 ]
     then
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
+       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "ssh-keygen -f /home/stack/.ssh/known_hosts -R ${API_SERVER_IP}"
+       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "ssh-keyscan -H ${API_SERVER_IP} >> /home/stack/.ssh/known_hosts"
        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
     fi
