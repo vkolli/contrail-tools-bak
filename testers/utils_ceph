@@ -73,6 +73,32 @@ function reimage_setup_ceph {
      fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
 }
 
+function copy_fabric_test_artifacts_ceph {
+    if [ $JUNIPER_INTRANET -eq 0 ]
+    then
+        echo "Not in Juniper Intranet..skipping copying fab files"
+        return 0
+    fi
+    search_package
+
+    if [ $USE_LATEST_TEST_CODE -eq 1 ]; then
+        (cd $TOOLS_WS/
+        tar cf contrail-test.tar contrail-test)
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-test.tar  ${API_SERVER_HOST_STRING}:
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            tar xf contrail-test.tar"
+    else
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" 
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz"
+    fi
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
+
+    copy_testbedfile_cfgm
+
+}
+
+
 function bringup_setup_ceph {
     if [ $SKIP_BRINGUP -ne 0 ] 
     then 
@@ -84,9 +110,10 @@ function bringup_setup_ceph {
     then
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
     fi
 
-    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
+    copy_fabric_test_artifacts_ceph || die "Failed to copy fab/test code from artifacts to destination"
 
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
