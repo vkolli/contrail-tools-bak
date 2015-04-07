@@ -98,7 +98,7 @@ function reimage_and_bringup_ceph {
 
 
 function run_task_ceph() {
-    create_testbed || die "Failed to create required testbed details"
+    create_testbed_ceph || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup_ceph
     #bringup_setup || die "Bringup failed"
