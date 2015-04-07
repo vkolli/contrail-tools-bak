@@ -73,7 +73,94 @@ function reimage_setup_ceph {
      fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
 }
 
+function bringup_setup_ceph {
+    if [ $SKIP_BRINGUP -ne 0 ] 
+    then 
+        return 0
+    fi
+    need_reboot=0
+    search_package_ceph
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]
+    then
+       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
+       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz $PKG_FILE_DIR/artifacts_extra/
+    fi
 
+    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
+
+    cd ${TOOLS_WS}/contrail-fabric-utils
+    # copy contrail-package on all node
+    fab prov_esxi
+    sleep 60
+    fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
+    run_setup_shell_script
+
+    # Upgrade biosdevname if ubuntu-14-04
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
+        fab upgrade_biosdevname_all:reboot=no
+    fi
+    # upgrade kernel to latest if its ubuntu
+    cd ${TOOLS_WS}/contrail-fabric-utils
+    if [[ "${DISTRO}" =~ "ubuntu" ]]; then
+        fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
+        sleep 60
+        fab wait_till_all_up:waitdown=False,attempts=30 || debug_and_die "Failed waiting for nodes to come up"
+    fi
+
+    # install contrail packages on all node
+    if [[ ${DISTRO} =~ centos ]]
+    then
+        intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename fabric-utils/fabfile/testbeds/testbed.py"`
+        shopt -s nocasematch
+        if [[ ${intf_rename} =~ False ]]
+        then
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
+        else
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail:False" || debug_and_die "fab install_contrail failed"
+            need_reboot=1
+        fi
+    else
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            export HA_TEST=$HA_TEST;
+            cd fabric-utils;
+            fab install_contrail" || debug_and_die "fab install_contrail failed"
+    fi
+
+    # reboot compute nodes after intf rename package install
+    if [[ ${need_reboot} == 1 ]]
+    then
+        cd ${TOOLS_WS}/contrail-fabric-utils
+        fab compute_reboot
+    fi
+
+    # setup multi interface, if any
+    # provision contrail
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils; 
+            export HA_TEST=$HA_TEST;
+            fab setup_interface || exit 1;
+            fab add_static_route 
+            fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
+
+    if [ $SKIP_ZONES -eq 0 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab setup_zones)
+    fi
+    if [ $ADD_IMAGES -eq 1 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab add_basic_images)
+    fi
+    # reboot compute nodes after setup
+    (cd ${TOOLS_WS}/contrail-fabric-utils
+    fab compute_reboot)
+
+}
 function reimage_and_bringup_ceph {
     if [ $SKIP_REIMAGE -eq 0 ]
     then
@@ -82,7 +169,7 @@ function reimage_and_bringup_ceph {
     fi
     if [ $SKIP_CONTRAIL_BRINGUP -eq 0 ]
     then
-      bringup_setup || debug_and_die "Bringup failed!"
+      bringup_setup_ceph || debug_and_die "Bringup failed!"
       sleep 120
       fab restore_repo
     fi
