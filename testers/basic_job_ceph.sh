@@ -7,6 +7,6 @@ source $TOOLS_WS/testers/utils_ceph
 testbeds=(${AVAILABLE_TESTBEDS//,/ })
 echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 
-#get_testbed
+get_testbed
 run_task_ceph
-#unlock_testbed $TBFILE_NAME
+unlock_testbed $TBFILE_NAME
