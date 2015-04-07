@@ -39,16 +39,6 @@ function search_package_ceph {
 
 function create_testbed_ceph {
 
-    if [ $PKG_LOCAL -eq 1 ]
-    then
-       PKG_FILE="${PKG_LOCAL_PATH}/${CONTRAIL_LOCAL_PKG_FILE}"
-       export PKG_FILE
-       STORAGE_PKG_FILE="${PKG_LOCAL_PATH}/${STORAGE_LOCAL_PKG_FILE}"
-       export STORAGE_PKG_FILE
-    else
-        search_package_ceph || die "Unable to locate package"
-    fi
-
     if [ "$BRANCH" = "R1.10" ]; then
         export NEW_TEST_INFRA=0
     fi
@@ -94,16 +84,32 @@ function reimage_and_bringup_ceph {
       sleep 120
       fab restore_repo
     fi
+
+    # bring up ceph
+}
+
+# run_sanity serial/parallel
+function run_sanity {
+    if [ $SKIP_SANITY -ne 0 ]
+    then
+        return 0
+    fi
+    search_package_ceph
+    copy_fabric_test_artifacts
+    run_fab "setup_test_env"
+    # check venv exist before running test
+    check_venv_exists
+    setup_sanity_base
+    #stop_on_failure
 }
 
 
-function run_task_ceph() {
+function run_fab_sanity() {
     create_testbed_ceph || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup_ceph
-    #bringup_setup || die "Bringup failed"
-    run_sanity || die "Run_sanity step failed"
-    run_tempest || die "Run_Tempest step failed"
+    #run_sanity_ceph || die "Run_sanity step failed"
+    #run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
