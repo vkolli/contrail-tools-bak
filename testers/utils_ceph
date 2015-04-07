@@ -191,7 +191,7 @@ function bringup_setup_ceph {
 
 function bringup_storage {
  cd ${TOOLS_WS}/contrail-fabric-utils
- fab install_storage_pkg_all:${PKG_FILE} || die "fab_install_storage_pkg_all failed" 
+ fab install_storage_pkg_all:${STORAGE_PKG_FILE} || die "fab_install_storage_pkg_all failed" 
  fab install_storage
  fab setup_storage
 
