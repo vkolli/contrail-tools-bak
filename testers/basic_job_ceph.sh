@@ -8,5 +8,5 @@ testbeds=(${AVAILABLE_TESTBEDS//,/ })
 echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 
 get_testbed
-run_task_ceph
+run_ceph_fab_sanity
 unlock_testbed $TBFILE_NAME
