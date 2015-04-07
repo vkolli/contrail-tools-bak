@@ -83,7 +83,7 @@ function bringup_setup_ceph {
     if [ $USE_TASK_RUNNER_HOST -eq 1 ]
     then
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
-       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz stack@${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
     fi
 
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
