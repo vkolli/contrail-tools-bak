@@ -75,11 +75,11 @@ function reimage_setup_ceph {
 
 
 function reimage_and_bringup_ceph {
-    if [ $SKIP_REIMAGE -eq 0];then
+    if [$SKIP_REIMAGE -eq 0];then
       reimage_setup_ceph || debug_and_die "Reimage failed!"
       fab cleanup_repo
     fi
-    if [ $SKIP_CONTRAIL_BRINGUP -eq 0];then
+    if [$SKIP_CONTRAIL_BRINGUP -eq 0];then
       bringup_setup || debug_and_die "Bringup failed!"
       sleep 120
       fab restore_repo
