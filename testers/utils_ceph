@@ -211,7 +211,7 @@ function reimage_and_bringup_ceph {
       sleep 120
       fab restore_repo
     fi
-    if [ $SKIP_STORAGE_BRINGUP -eq 0]
+    if [ $SKIP_STORAGE_BRINGUP -eq 0 ]
     then
       bringup_storage || debug_and_die "Bringup storage failed!"
     fi
