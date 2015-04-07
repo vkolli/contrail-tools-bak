@@ -213,6 +213,7 @@ function reimage_and_bringup_ceph {
     fi
     if [ $SKIP_STORAGE_BRINGUP -eq 0 ]
     then
+      search_package_ceph
       bringup_storage || debug_and_die "Bringup storage failed!"
     fi
 
