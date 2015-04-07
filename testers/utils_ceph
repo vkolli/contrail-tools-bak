@@ -58,3 +58,49 @@ function create_testbed_ceph {
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
 
+function reimage_setup_ceph {
+    if [ $SKIP_REIMAGE -ne 0 ] 
+    then 
+        return 0
+    fi
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            export HA_TEST=$HA_TEST;
+            #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
+            server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_PARAM;
+            fab wait_till_all_up:attempts=180,reimaged=True;
+            fab check_reimage_state" || debug_and_die "reimage_setup failed"
+    else
+        cd ${TOOLS_WS}/contrail-fabric-utils
+        # server-manager reimage
+        fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
+        fab wait_till_all_up:attempts=180,reimaged=True || debug_and_die "Not all nodes are up after reimage"
+        # verify reimage is successful or failure
+        fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
+    fi
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
+}
+
+
+function reimage_and_bringup_ceph {
+    reimage_setup_ceph || debug_and_die "Reimage failed!"
+    fab cleanup_repo
+    bringup_setup || debug_and_die "Bringup failed!"
+    sleep 120
+    fab restore_repo
+}
+
+
+function run_task_ceph() {
+    create_testbed || die "Failed to create required testbed details"
+    echo "Running tests on $TBFILE_NAME .." 
+    reimage_and_bringup_ceph
+    #bringup_setup || die "Bringup failed"
+    run_sanity || die "Run_sanity step failed"
+    run_tempest || die "Run_Tempest step failed"
+    echo "Test Done" 
+    collect_tech_support || die "Task to collect logs/cores failed"
+    echo "Ending test on $TBFILE_NAME"
+}
