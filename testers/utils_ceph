@@ -9,9 +9,9 @@ function search_package_ceph {
     
     if [ -z $PKG_FILE ]
     then 
-        PKG_FILE=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
+        PKG_FILE=`ls ${BUILD_PREFIX}/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
         export PKG_FILE
-        STORAGE_PKG_FILE=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find install package"
+        STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find install package"
         export STORAGE_PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
