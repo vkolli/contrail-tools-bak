@@ -237,6 +237,7 @@ function run_sanity {
 
 
 function run_ceph_check {
+
   result=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "/home/stack/check_ceph_status.py $CLUSTER_NAME $OSD_COUNT"`
   echo $result | grep "CEPH_STATUS_CHECK_OK"
   return_val=`echo $?`
