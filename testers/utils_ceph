@@ -39,9 +39,9 @@ function use_testbed_file_ceph {
     folder_path=''
     tbfile=''
     folder_path=${TOOLS_WS}/testbeds
-    if [ $CEPH_PROFILE -eq "PROF02" ];then
+    if [ $CEPH_PROFILE == "PROF02" ];then
       PROFILE_TBFILE_NAME="testbed_ceph_perf.py"
-    elif [ $CEPH_PROFILE -eq "PROF04" ];then
+    elif [ $CEPH_PROFILE == "PROF04" ];then
       PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
     fi
     tbfile=$folder_path/$PROFILE_TBFILE_NAME
@@ -104,7 +104,7 @@ function reimage_setup_ceph {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
-            if [ $DISTRO -eq "ubuntu-12.04" ]; then
+            if [ $DISTRO == "ubuntu-12.04" ]; then
               server-manager delete image --image_id ubuntu-12.04.3;
               server-manager add image -f /home/stack/image_12.04.3.json;
             else
