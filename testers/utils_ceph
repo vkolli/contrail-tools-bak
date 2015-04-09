@@ -301,6 +301,9 @@ function run_ceph_check {
   else
     echo "CEPH_STATUS_CHECK : PASS"
   fi
+
+  exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "/home/stack/ceph_scripts/mfc_snapshot.py /home/stack/ceph_scripts/ceph_install.conf.1428538975.36 001 /home/stack/ceph_scripts/log1 /home/stack/ceph_scripts/SMOKE_CEPH_PERF.config"
+
 }
 
 function run_ceph_fab_sanity() {
