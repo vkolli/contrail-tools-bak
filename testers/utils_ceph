@@ -34,6 +34,52 @@ function search_package_ceph {
     export PKG_FILE_DIR=`dirname $PKG_FILE`
 }
 
+function use_testbed_file_ceph {
+    set -x
+    folder_path=''
+    tbfile=''
+    folder_path=${TOOLS_WS}/testbeds
+    if [ $CEPH_PROFILE -eq "PROF02" ];then
+      PROFILE_TBFILE_NAME="testbed_ceph_perf.py"
+    elif [ $CEPH_PROFILE -eq "PROF04" ];then
+      PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
+    fi
+    tbfile=$folder_path/$PROFILE_TBFILE_NAME
+    [ -f $tbfile ] || die "Testbed file $tbfile not found"
+    export ABS_PATH_TBFILE=$tbfile
+    
+    image_name=${BUILD_MAP[${DISTRO}]}
+    base_distro=`echo $image_name | cut -d - -f1`
+    tbfile_hyper=${tbfile}
+    if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.esx
+    fi
+    if [ -f ${tbfile_hyper}.$image_name ]; then
+            cp -f ${tbfile_hyper}.$image_name ${tbfile}
+    elif [ -f ${tbfile_hyper}.${base_distro} ]; then
+            cp -f ${tbfile_hyper}.${base_distro} ${tbfile}
+    fi
+
+    dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
+    cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
+
+    rm -f $TOOLS_WS/contrail-fabric-utils/testbed_env
+    ( cd ${TOOLS_WS}/contrail-fabric-utils;
+      fab export_testbed_details:testbed_env || echo "fab export_testbed_details failed")
+
+    if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
+        source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
+        source $TOOLS_WS/testers/environment.sh
+        sed 's/export //' ${TOOLS_WS}/contrail-fabric-utils/testbed_env > ${TOOLS_WS}/contrail-fabric-utils/plain_testbed_env
+    fi
+    sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
+    echo "env.test_repo_dir='${TOOLS_WS}/contrail-test'" >> $dest_folder_path/testbed.py
+    if [ $TESTBED_LOCATION != "LOCAL" ]; then
+        export USE_TASK_RUNNER_HOST=1
+    fi
+}
+
+
 
 #####
 
@@ -44,7 +90,7 @@ function create_testbed_ceph {
     fi
 
     checkout_repo || die "Unable to checkout fab/test repos"
-    use_testbed_file || die "Unable to set the testbed properly for use"
+    use_testbed_file_ceph || die "Unable to set the testbed properly for use"
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
 
