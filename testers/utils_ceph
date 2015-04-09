@@ -48,37 +48,25 @@ function use_testbed_file_ceph {
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
     
-    image_name=${BUILD_MAP[${DISTRO}]}
-    base_distro=`echo $image_name | cut -d - -f1`
-    tbfile_hyper=${tbfile}
-    if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
-            tbfile_hyper=${tbfile}.esx
-    fi
-    if [ -f ${tbfile_hyper}.$image_name ]; then
-            cp -f ${tbfile_hyper}.$image_name ${tbfile}
-    elif [ -f ${tbfile_hyper}.${base_distro} ]; then
-            cp -f ${tbfile_hyper}.${base_distro} ${tbfile}
-    fi
-
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
-    cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
+    cp -f ABS_PATH_TBFILE $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
 
-    iface=`sshpass -p stack@123 ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null stack@10.87.140.230 '(
+    iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.197
       )'`
     sed -i "s/HOST1_IFACE/$iface/" $dest_folder_path/testbed.py
 
-    iface=`sshpass -p stack@123 ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null stack@10.87.140.230 '(
+    iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.198
       )'`
     sed -i "s/HOST2_IFACE/$iface/" $dest_folder_path/testbed.py
 
-    iface=`sshpass -p stack@123 ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null stack@10.87.140.230 '(
+    iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.199
       )'`
     sed -i "s/HOST3_IFACE/$iface/" $dest_folder_path/testbed.py
 
-    iface=`sshpass -p stack@123 ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null stack@10.87.140.230 '(
+    iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.200
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $dest_folder_path/testbed.py
