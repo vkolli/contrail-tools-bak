@@ -49,27 +49,28 @@ function use_testbed_file_ceph {
     export ABS_PATH_TBFILE=$tbfile
     
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
-    cp -f ABS_PATH_TBFILE $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.197
       )'`
-    sed -i "s/HOST1_IFACE/$iface/" $dest_folder_path/testbed.py
+    sed -i "s/HOST1_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.198
       )'`
-    sed -i "s/HOST2_IFACE/$iface/" $dest_folder_path/testbed.py
+    sed -i "s/HOST2_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.199
       )'`
-    sed -i "s/HOST3_IFACE/$iface/" $dest_folder_path/testbed.py
+    sed -i "s/HOST3_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
        /home/stack/get_pvt_iface.py 10.87.140.200
       )'`
-    sed -i "s/HOST4_IFACE/$iface/" $dest_folder_path/testbed.py
+    sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
+
+    cp -f $ABS_PATH_TBFILE $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
 
     rm -f $TOOLS_WS/contrail-fabric-utils/testbed_env
     ( cd ${TOOLS_WS}/contrail-fabric-utils;
