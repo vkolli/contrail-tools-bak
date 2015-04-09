@@ -13,7 +13,7 @@ ext_routers = [('montreal', '10.87.140.185')]
 router_asn = 64512
 
 #Host from which the fab commands are triggered to install and provision
-host_build = 'root@10.87.140.197'
+host_build = 'stack@10.87.140.230'
 
 #Role definition of the hosts.
 env.roledefs = {
@@ -44,7 +44,7 @@ env.passwords = {
     host2: 'n1keenA',
     host3: 'n1keenA',
     host4: 'n1keenA',
-    host_build: 'n1keenA',
+    host_build: 'stack@123',
 }
 
 #For reimage purpose
@@ -77,10 +77,10 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '5.0.0.1/24', 'gw' : '5.0.0.1', 'device':'node1_data_interface' },
-   host2 : { 'ip': '5.0.0.2/24', 'gw' : '5.0.0.1', 'device':'node2_data_interface' },
-   host3 : { 'ip': '5.0.0.3/24', 'gw' : '5.0.0.1', 'device':'node3_data_interface' },
-   host4 : { 'ip': '5.0.0.4/24', 'gw' : '5.0.0.1', 'device':'node4_data_interface' },
+   host1 : { 'ip': '5.0.0.1/24', 'gw' : '5.0.0.1', 'device':'eth3' },
+   host2 : { 'ip': '5.0.0.2/24', 'gw' : '5.0.0.1', 'device':'eth3' },
+   host3 : { 'ip': '5.0.0.3/24', 'gw' : '5.0.0.1', 'device':'eth3' },
+   host4 : { 'ip': '5.0.0.4/24', 'gw' : '5.0.0.1', 'device':'eth3' },
 }
 
 #To disable installing contrail interface rename package
