@@ -40,7 +40,7 @@ function use_testbed_file_ceph {
     tbfile=''
     folder_path=${TOOLS_WS}/testbeds
     if [ $CEPH_PROFILE == "PROF02" ];then
-      PROFILE_TBFILE_NAME="testbed_ceph_perf.py"
+      PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
     elif [ $CEPH_PROFILE == "PROF04" ];then
       PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
     fi
