@@ -262,6 +262,8 @@ function bringup_storage {
 
 function reimage_and_bringup_ceph {
 
+    use_testbed_file_ceph || die "Unable to set the testbed properly for use"
+
     if [ $SKIP_REIMAGE -eq 0 ]
     then
       reimage_setup_ceph || debug_and_die "Reimage failed!"
