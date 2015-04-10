@@ -51,22 +51,22 @@ function use_testbed_file_ceph {
     dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
-       /home/stack/get_pvt_iface.py 10.87.140.197
+       /home/stack/get_pvt_iface.py HOST1
       )'`
     sed -i "s/HOST1_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
-       /home/stack/get_pvt_iface.py 10.87.140.198
+       /home/stack/get_pvt_iface.py HOST2
       )'`
     sed -i "s/HOST2_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
-       /home/stack/get_pvt_iface.py 10.87.140.199
+       /home/stack/get_pvt_iface.py HOST3
       )'`
     sed -i "s/HOST3_IFACE/$iface/" $ABS_PATH_TBFILE
 
     iface=`sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} '(
-       /home/stack/get_pvt_iface.py 10.87.140.200
+       /home/stack/get_pvt_iface.py HOST4
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
