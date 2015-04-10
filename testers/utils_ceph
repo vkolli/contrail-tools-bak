@@ -155,7 +155,9 @@ function copy_fabric_test_artifacts_ceph {
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
 
-    copy_testbedfile_cfgm
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+
 
 }
 
@@ -172,8 +174,6 @@ function bringup_setup_ceph {
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "ssh-keygen -f /home/stack/.ssh/known_hosts -R ${API_SERVER_IP}"
        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "ssh-keyscan -H ${API_SERVER_IP} >> /home/stack/.ssh/known_hosts"
-       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
-       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
     fi
 
 
@@ -272,7 +272,7 @@ function reimage_and_bringup_ceph {
     fi
 
     use_testbed_file_ceph || die "Unable to set the testbed properly for use"
-    copy_fabric_test_artifacts_ceph || die "Failed to copy fab/test code from artifacts to destination"
+    copy_testbedfile_cfgm
 
     if [ $SKIP_CONTRAIL_BRINGUP -eq 0 ]
     then
