@@ -150,7 +150,7 @@ function copy_fabric_test_artifacts_ceph {
             tar xf contrail-test.tar"
     else
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c  "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
-        shpass -p $TASK_RUNNER_HOST_PASSWORD scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+        shpass -p $TASK_RUNNER_HOST_PASSWORD scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" 
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz"
     fi
