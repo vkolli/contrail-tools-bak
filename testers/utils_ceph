@@ -77,7 +77,7 @@ function create_testbed_ceph {
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR/artifacts_extra/"      
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
      
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/
     sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
 
 
