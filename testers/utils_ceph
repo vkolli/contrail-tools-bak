@@ -69,16 +69,16 @@ function create_testbed_ceph {
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
    
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-test*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-test*.tgz" 
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
 
     copy_tbfile
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR/artifacts_extra/"      
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
      
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}: $PKG_FILE_DIR/artifacts_extra/
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}: $PKG_FILE_DIR/artifacts_extra/
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
 
 
 }
@@ -149,8 +149,6 @@ function bringup_storage {
 }
 
 function reimage_and_bringup_ceph {
-
-    create_testbed_ceph || die "Failed to create required testbed details"
 
     if [ $SKIP_REIMAGE -eq 0 ]
     then
