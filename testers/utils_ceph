@@ -176,7 +176,6 @@ function bringup_setup_ceph {
        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:$PKG_FILE_DIR/artifacts_extra/
     fi
 
-    copy_fabric_test_artifacts_ceph || die "Failed to copy fab/test code from artifacts to destination"
 
     cd ${TOOLS_WS}/contrail-fabric-utils
     # copy contrail-package on all node
@@ -262,7 +261,9 @@ function bringup_storage {
 
 function reimage_and_bringup_ceph {
 
+    create_testbed_ceph || die "Failed to create required testbed details"
     use_testbed_file_ceph || die "Unable to set the testbed properly for use"
+    copy_fabric_test_artifacts_ceph || die "Failed to copy fab/test code from artifacts to destination"
 
     if [ $SKIP_REIMAGE -eq 0 ]
     then
@@ -271,6 +272,7 @@ function reimage_and_bringup_ceph {
     fi
 
     use_testbed_file_ceph || die "Unable to set the testbed properly for use"
+    copy_fabric_test_artifacts_ceph || die "Failed to copy fab/test code from artifacts to destination"
 
     if [ $SKIP_CONTRAIL_BRINGUP -eq 0 ]
     then
@@ -322,7 +324,6 @@ function run_ceph_check {
 }
 
 function run_ceph_fab_sanity() {
-    create_testbed_ceph || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup_ceph
     run_ceph_check || die "run_ceph_check step failed"
