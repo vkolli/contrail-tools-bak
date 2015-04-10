@@ -99,7 +99,6 @@ function create_testbed_ceph {
     fi
 
     checkout_repo || die "Unable to checkout fab/test repos"
-    use_testbed_file_ceph || die "Unable to set the testbed properly for use"
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
 
@@ -262,17 +261,22 @@ function bringup_storage {
 }
 
 function reimage_and_bringup_ceph {
+
     if [ $SKIP_REIMAGE -eq 0 ]
     then
       reimage_setup_ceph || debug_and_die "Reimage failed!"
       fab cleanup_repo
     fi
+
+    use_testbed_file_ceph || die "Unable to set the testbed properly for use"
+
     if [ $SKIP_CONTRAIL_BRINGUP -eq 0 ]
     then
       bringup_setup_ceph || debug_and_die "Bringup contrail failed!"
       sleep 120
       fab restore_repo
     fi
+
     if [ $SKIP_STORAGE_BRINGUP -eq 0 ]
     then
       search_package_ceph
