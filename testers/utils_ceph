@@ -38,7 +38,7 @@ function update_testbed_file {
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
 
 }
 
@@ -54,7 +54,7 @@ function copy_tbfile {
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
  
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
 
 }
 
@@ -90,7 +90,7 @@ function reimage_setup_ceph {
     fi
     if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            cd /tmp/$TBFILE_NAME/fabric-utils;
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
             if [ $DISTRO == "ubuntu-12.04" ]; then
@@ -113,26 +113,26 @@ function bringup_setup_contrail {
     fi
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-          cd /tmp/${TBFILE_NAME}/contail-fabric-utils;
+          cd /tmp/${TBFILE_NAME}/fabric-utils;
           fab install_pkg_all:${PKG_FILE} || die 'fab install_pkg_all:${PKG_FILE} failed'
           " || debug_and_die "install_pkg_all failed"
 
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-          cd /tmp/${TBFILE_NAME}/contail-fabric-utils;
+          cd /tmp/${TBFILE_NAME}/fabric-utils;
           fab upgrade_kernel_all;
           sleep 60;
           fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die "kernel upgrade/Failed waiting for nodes to come up"
     fi
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/contail-fabric-utils;
+            cd /tmp/${TBFILE_NAME}/fabric-utils;
             export HA_TEST=$HA_TEST;
             cd fabric-utils;
             fab install_contrail" || debug_and_die "fab install_contrail failed"
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/contail-fabric-utils;
+            cd /tmp/${TBFILE_NAME}/fabric-utils;
             export HA_TEST=$HA_TEST;
             fab setup_interface || exit 1;
             fab add_static_route 
@@ -141,7 +141,7 @@ function bringup_setup_contrail {
 
 function bringup_storage {
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/contail-fabric-utils;
+            cd /tmp/${TBFILE_NAME}/fabric-utils;
             fab install_storage_pkg_all:${STORAGE_PKG_FILE} || die "fab_install_storage_pkg_all failed" 
             fab install_storage
             fab setup_storage" || debug_and_die "install_storage_pkg_all failed"
