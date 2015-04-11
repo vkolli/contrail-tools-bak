@@ -143,7 +143,7 @@ function bringup_setup_contrail {
 function bringup_storage {
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             cd /tmp/${TBFILE_NAME}/fabric-utils;
-            fab install_storage_pkg_all:${STORAGE_PKG_FILE} || die "fab_install_storage_pkg_all failed" 
+            fab install_storage_pkg_all:${STORAGE_PKG_FILE} 
             fab install_storage
             fab setup_storage" || debug_and_die_local "install_storage_pkg_all failed"
 
