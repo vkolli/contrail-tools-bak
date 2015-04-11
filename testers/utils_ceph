@@ -94,7 +94,7 @@ function reimage_setup_ceph {
             cd /tmp/$TBFILE_NAME/fabric-utils;
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
-            if [ $DISTRO == "ubuntu-12.04" ]; then
+            if [ $DISTRO == "ubuntu-12-04" ]; then
               server-manager delete image --image_id ubuntu-12.04.3;
               server-manager add image -f /home/stack/image_12.04.3.json;
             else
