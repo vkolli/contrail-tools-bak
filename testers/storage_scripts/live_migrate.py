@@ -5,6 +5,7 @@ import os
 import re
 
 import ceph
+import os_lib
 import test_lib
 import ostack
 import time
@@ -80,6 +81,7 @@ def live_migrate(test_obj,handle,prompt):
   current_hostname1 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
   new_host = ""
   compute_host_list = ceph.get_storage_host_list(test_obj,handle,prompt)
+  print compute_host_list,current_hostname1
   for host in compute_host_list:
      print host,current_hostname1
      if host != current_hostname1 :
