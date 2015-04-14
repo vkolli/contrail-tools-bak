@@ -9,7 +9,7 @@ echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 get_testbed
 
 cd $TOOLS_WS
-cd storage_scripts
+cd testers/storage_scripts
 python execute_ceph_suite.py $AVAILABLE_TESTBEDS $PROFILE
 
 unlock_testbed $TBFILE_NAME
