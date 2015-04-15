@@ -16,7 +16,7 @@ return_val=`exec_cmds -s $TASK_RUNNER_HOST_STRING -p $TASK_RUNNER_HOST_PASSWORD 
 
 flag=`echo $return_val | awk '{print match($0,"CEPH_SANITY_PASS")}'`;
 if [ $flag -gt 0 ];then
-    die "CEPH_SANITY : FAILED"
+    die "CEPH_SANITY : PASS"
 else
-    echo "CEPH_SANITY : PASS"
+    echo "CEPH_SANITY : FAILED"
 fi
