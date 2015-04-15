@@ -180,4 +180,8 @@ if __name__ == '__main__' :
 
   test_obj.PostResult()
   test_obj.cleanup()
+  if test_obj.argument['err_msg'] == "" :
+    sys.exit(0)
+  else:
+    sys.exit(1)
 

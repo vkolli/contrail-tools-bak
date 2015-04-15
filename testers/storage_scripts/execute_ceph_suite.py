@@ -21,8 +21,10 @@ for tests in profiles_tests[profile] :
   return_val = subprocess.call(script_cmd)
   exit_status = exit_status or return_val
   
-print "CEPH_SANITY suite completed"
-
+if not exit_status :
+  print "CEPH_SANITY_PASS"
+else:
+  print "CEPH_SANITY_FAIL"
 sys.exit(exit_status)
 
 

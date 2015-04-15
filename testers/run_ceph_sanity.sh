@@ -14,9 +14,10 @@ return_val=`exec_cmds -s $TASK_RUNNER_HOST_STRING -p $TASK_RUNNER_HOST_PASSWORD 
     python execute_ceph_suite.py $AVAILABLE_TESTBEDS $CEPH_PROFILE;
   "`
 
-flag=`echo $return_val | awk '{print match($0,"CEPH_SANITY_PASS")}'`;
+flag=`awk 'BEGIN{match_found=0}{if ($0 ~ /CEPH_SANITY_PASS/) match_found=1;}END{print match_found}' <<< $return_val`
+
 if [ $flag -gt 0 ];then
-    die "CEPH_SANITY : PASS"
+    echo "CEPH_SANITY : PASS"
 else
-    echo "CEPH_SANITY : FAILED"
+    die "CEPH_SANITY : FAILED"
 fi
