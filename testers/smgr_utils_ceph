@@ -9,7 +9,7 @@ function check_ceph_status() {
     fi
     
     echo "Connect to config node to check ceph -s output"
-    /usr/local/bin/sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $SM_SERVER_LOGIN $SM_SERVER_IP " (
+    /usr/local/bin/sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
     set -e 
     $SM_FILES_DIR/check_ceph_status.py $CLUSTER_NAME $EXPECTED_OSD_COUNT
 
@@ -72,7 +72,7 @@ function reimage_using_SM_ceph() {
     fi
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    /usr/local/bin/sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    /usr/local/bin/sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
@@ -293,14 +293,14 @@ function bringup_SM_setup_ceph() {
       fi
       pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
     
-      sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:$PKG_LOCAL_PATH
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name ${TASK_RUNNER_HOST_STRING}:$PKG_LOCAL_PATH
 
     fi
 
     #copy the SM PKGs to SM server.
 
     echo "Connect to SM_SERVER to install/upgrade SM packages"
-    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
         set -e
 
         if [ -e ${PKG_LOCAL_PATH}/${SM_SERVER_PKG_FILE} ] 
