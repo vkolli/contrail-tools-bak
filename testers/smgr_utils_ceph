@@ -29,50 +29,28 @@ function check_ceph_status() {
 # Adds the iso and contrail packages to SM database
 # Adds cluster and servers to SM database
 # Does reimage of the setup.
+
 function reimage_using_SM_ceph() {
+
     if [ $SKIP_REIMAGE -ne 0 ]
     then
         return 0
     fi
-    # set the parameters required for reimage.
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
-        image="/root/images/ubuntu-12.04.3-server-amd64.iso" 
-        pkg_type="contrail-ubuntu-package"
-        storage_pkg_type="contrail-storage-ubuntu-package"
-        iso_type="ubuntu"
         SMID=ubuntu12$SKU${BUILDID}
+        server_json="$SM_FILES_DIR/ceph_server.json"
     elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
-        image="/root/images/ubuntu-14.04.1-server-amd64.iso"
-        pkg_type="contrail-ubuntu-package"
-        storage_pkg_type="contrail-storage-ubuntu-package"
-        iso_type="ubuntu"
         SMID=ubuntu14$SKU${BUILDID}
-    elif [[ $DISTRO =~ centos64 ]]; then 
-        image="/root/images/CentOS-6.4-x86_64-minimal.iso"
-        pkg_type="contrail-centos-package"
-        iso_type="centos"
-        SMID=centos64$SKU${BUILDID}
-    elif [[ $DISTRO =~ centos65 ]]; then 
-        image="/root/images/CentOS-6.5-x86_64-minimal.iso"
-        pkg_type="contrail-centos-package"
-        iso_type="centos"
-        SMID=centos65$SKU${BUILDID}
+        server_json="$SM_FILES_DIR/ceph_server_14.json"
     fi
 
+    
     SMID=`echo $SMID | tr '[:upper:]' '[:lower:]'`
 
-    #set the parameters for multi/single node setup
     cluster_json="$SM_FILES_DIR/$CLUSTER_FILE_NAME.json"
-    #server_json="$SM_FILES_DIR/$SERVER_FILE_NAME.json"
-    if [ ${DISTRO} == "ubuntu-14-04" ]
-    then
-      server_json="$SM_FILES_DIR/ceph_server_14.json"
-    else
-      server_json="$SM_FILES_DIR/ceph_server.json"
-    fi
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    /usr/local/bin/sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
+    /usr/local/bin/sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
@@ -89,7 +67,6 @@ function reimage_using_SM_ceph() {
         then
             server-manager add image -f /root/images/image14.json
         else
-            #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
             server-manager add image -f /root/images/image12.json
         fi
         if [ $? == 0 ]
@@ -117,8 +94,8 @@ function reimage_using_SM_ceph() {
         fi
         echo "add contrail package to the SM database"
       
-        echo "server-manager upload_image $SMID ${BUILDID} $pkg_type $PKG_FILE"
-        server-manager upload_image $SMID ${BUILDID} $pkg_type $PKG_FILE
+        echo "server-manager upload_image $SMID ${BUILDID} $INSTALL_PKG_TYPE $INSTALL_PKG_FILE"
+        server-manager upload_image $SMID ${BUILDID} $INSTALL_PKG_TYPE $INSTALL_PKG_FILE
         if [ $? == 0 ]
         then
             echo "Server-manager adding contrail-package command is successful"
@@ -137,7 +114,7 @@ function reimage_using_SM_ceph() {
 
         echo "add contrail storage package to the SM database"
       
-        server-manager upload_image contrail-storage-packages ${BUILDID} ${storage_pkg_type} $STORAGE_PKG_FILE
+        server-manager upload_image contrail-storage-packages ${BUILDID} ${STORAGE_PKG_TYPE} $STORAGE_PKG_FILE
         if [ $? == 0 ]
         then
             echo "Server-manager adding storage-package command is successful"
@@ -219,47 +196,6 @@ function reimage_using_SM_ceph() {
     fi
 }
 
-#check if the server-manager pkgs are available in artifacts folder.
-function check_SM_pkg_availability_ceph() {
-    count=0
-
-    if [ $PKG_LOCAL -eq 1 ]
-    then
-       pkg_dir="$PKG_LOCAL_PATH"
-       return
-    fi 
-
-    if [ $SM_TYPE -eq 1 ] 
-    then
-        if [ ${SKU} == "juno" ]
-        then
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
-        else
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
-        fi
-    else
-        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
-    fi
-    
-    while [ "$count" -ne 36 ]; do
-        if ls $pkg_dir/contrail-server-manager-installer*
-        then
-            echo "SM pkgs are present in artifacts"
-            break
-        else
-            if [ "$count" -eq 35 ]
-            then
-                echo "waited for an hour, still pkgs are not found, aborting"
-                exit 1
-            fi
-            echo "SM pkgs are still not there, let's wait..."
-            sleep 100
-            count=$((count+1))
-        fi
-    done
-}
-
-
 #upgrade/install SM on either cenots/ubuntu server.
 #Multi-node setup will refer to SM running on ubuntu
 #Single-node setup will refer to SM running on centos
@@ -271,43 +207,15 @@ function bringup_SM_setup_ceph() {
 
     echo "Bringup/upgrade SM setup"
 
-    #check if SM pkgs are available in artifacts before proceeding further.
-    check_SM_pkg_availability_ceph || die "SM pkg not available in artifacts"
-
-    cd $pkg_dir
-
-    #SM pkg name is different for centos & ubuntu, so set it accordingly.
-    #multi-node uses ubuntu SM and single node uses centos SM.
-    if [ $PKG_LOCAL -eq 1 ]
-    then
-      pkg_name="$pkg_dir/$SM_SERVER_LOCAL_PKG_FILE"
-      SM_SERVER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
-    else 
-      if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
-      then
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
-        echo $SM_SERVER_PKG_FILE
-      else
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*`
-        echo $SM_SERVER_PKG_FILE
-      fi
-      pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
-    
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name ${TASK_RUNNER_HOST_STRING}:$PKG_LOCAL_PATH
-
-    fi
-
     #copy the SM PKGs to SM server.
 
     echo "Connect to SM_SERVER to install/upgrade SM packages"
     sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
-        set -e
+            set -e
 
-        if [ -e ${PKG_LOCAL_PATH}/${SM_SERVER_PKG_FILE} ] 
-        then
             echo "file exists, upgrading Server manager"
             cd /root/sm_files; 
-            if [ $SM_TYPE -eq 1 ]
+            if [ $SM_TYPE == "UBUNTU" ]
             then
                 ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             else
@@ -341,48 +249,75 @@ function bringup_SM_setup_ceph() {
                 exit 1
             fi
             sleep 1
-        else
-            echo "SM PKGs not present in the folder, aborting the process"
-            exit 1
-        fi
 
-        echo "Installation is fine, delete the images from the server"
-        #rm $SM_SERVER_PKG_FILE
+        echo "Installation is fine"
     ) "
 }
 
+function provision_using_SM_ceph() {
+    if [ $SKIP_SM_PROVISION -ne 0 ]
+    then
+        return 0
+    fi
+    
+    echo "Connect to SM_SERVER to provision the targets/cluster"
+    /usr/local/bin/sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
+        set -e
+        echo "provision the target setup"
+        server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
+        if [ $? == 0 ]
+        then
+            echo "Server-manager provision command is successful"
+        else
+            echo "Server-manager provision command failed, aborting the process"
+            exit 1
+        fi
+        echo "provisioning in progress please wait ..."
+        sleep 100
 
+        #check provisioing status.
+        /root/sm_files/check_provision.sh $CLUSTER_NAME
+        if [ $? == 0 ]
+        then
+            echo "Provisioning of the target/cluster is sucessfull!!!"
+        else
+            echo "Provisioning of the target/cluster failed!!! aborting the process"
+            if [ ${BRANCH} == "R1.10" ]
+            then
+                server-manager delete image $SMID
+            else
+                server-manager delete image --image_id $SMID
+        fi
+
+            exit 1
+        fi
+
+        server-manager status server --cluster_id $CLUSTER_NAME --detail
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image $SMID
+        else
+            server-manager delete image --image_id $SMID
+    fi
+
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "Provisioning of the target/cluster is sucessfull!!!"
+        sleep 120
+    else
+        echo "Provisioning of the target/cluster failed!!! aborting the process"
+        exit 1
+    fi
+
+}
 function run_smgr_task_ceph() {
     echo "Running tests on $1.."
-
-    if [ ${TEST_SETUP} == "SINGLENODE" ]
-    then
-        multi_node=0
-    elif [ ${TEST_SETUP} == "MULTINODE" ]
-    then
-        multi_node=1
-    else
-        echo "TEST_SETUP is not defined, abort the process"
-        exit 1
-    fi
-
-    if [ -z "$SM_SERVER_IP" ]
-    then
-        echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
-        exit 1
-    fi
-
-    if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
-        echo "CLUSTER_NAME/SERVER_NAME env is not set, aborting the process"
-        exit 1
-    fi
     create_testbed_ceph || die "Failed to create required testbed details"
     bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
     reimage_using_SM_ceph || die "reimage failed"
-    provision_using_SM || die "provision failed"
-    #install_ant || die "ant installation failed on cfgm"
+    provision_using_SM_ceph || die "provision failed"
     check_ceph_status || die "Run_sanity step failed"
-    #run_tempest || die "Run_Tempest step failed"
-    #collect_tech_support || die "Task to collect logs/cores failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $1"
 }

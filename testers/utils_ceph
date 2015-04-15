@@ -6,13 +6,32 @@ export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [cento
 ##
 # search_package
 function search_package_ceph {
+
+    if [ $PKG_LOCAL -eq 0 ]
+    then
+      if [ $INSTALL_MODE == "SM" ]
+      then
+        SM_INSTALLER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
+      fi
+      INSTALL_PKG_FILE=$INSTALL_PKG_FILE_LOCAL
+      STORAGE_PKG_FILE=$STORAGE_PKG_FILE_LOCAL  
+    else
+      INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
+      STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
+      if [ $INSTALL_MODE == "SM" ]
+      then
+       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-server-manager-installer*` || die "Unable to find SM install package"
+      fi
+    fi
     
-    PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
-    export PKG_FILE
-    STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find install package"
+    export INSTALL_PKG_TYPE="contrail-ubuntu-package"
+    export STORAGE_PKG_TYPE="contrail-storage-ubuntu-package"
+    export INSTALL_PKG_FILE
     export STORAGE_PKG_FILE
+    export SM_INSTALLER_PKG_FILE
+
     export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
-    export PKG_FILE_DIR=`dirname $PKG_FILE`
+    export PKG_FILE_DIR=`dirname $INSTALL_PKG_FILE`
 
 }
 
@@ -76,14 +95,23 @@ function create_testbed_ceph {
 
     copy_tbfile
 
+    if [ $PKG_LOCAL -eq 0 ]
+    then
+     return
+    fi
+
     if [ $COPY_BUILD_PKG_TO_TASK_RUNNER -eq 1 ]
     then
-      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR/artifacts_extra/"      
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR"      
       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$INSTALL_PKG_FILE
       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
+      if [ $INSTALL_MODE == "SM" ]
+      then
+        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$SM_INSTALLER_PKG_FILE
+      fi
     fi 
 
 }
@@ -119,7 +147,7 @@ function bringup_setup_contrail {
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
           cd /tmp/${TBFILE_NAME}/fabric-utils;
-          fab install_pkg_all:${PKG_FILE} || die 'fab install_pkg_all:${PKG_FILE} failed'
+          fab install_pkg_all:${INSTALL_PKG_FILE} || die 'fab install_pkg_all:${INSTALL_PKG_FILE} failed'
           " || debug_and_die_local "install_pkg_all failed"
 
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
