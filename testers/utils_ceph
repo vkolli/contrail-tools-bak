@@ -76,13 +76,15 @@ function create_testbed_ceph {
 
     copy_tbfile
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR/artifacts_extra/"      
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
+    if [ $COPY_BUILD_PKG_TO_TASK_RUNNER -eq 1 ]
+    then
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR/artifacts_extra/"      
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
-
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE ${TASK_RUNNER_HOST_STRING}:$PKG_FILE
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
+    fi 
 
 }
 
