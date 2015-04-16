@@ -95,7 +95,7 @@ function create_testbed_ceph {
 
     copy_tbfile
 
-    if [ $PKG_LOCAL -eq 0 ]
+    if [ $PKG_LOCAL -eq 1 ]
     then
      return
     fi
