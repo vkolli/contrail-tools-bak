@@ -174,8 +174,6 @@ function reimage_using_SM_ceph() {
         #sleep 10
  
         #check if reimage is completed.
-        #echo "/root/sm_files/check_reimage.sh $CLUSTER_NAME"
-        #/root/sm_files/check_reimage.sh $CLUSTER_NAME
         $SM_FILES_DIR/check_reimage_complete.py
         if [ $? == 0 ]
         then
@@ -214,7 +212,7 @@ function bringup_SM_setup_ceph() {
             set -e
 
             echo "file exists, upgrading Server manager"
-            cd /root/sm_files; 
+            cd $SM_FILES_DIR; 
             if [ $SM_TYPE == "UBUNTU" ]
             then
                 ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
@@ -276,7 +274,7 @@ function provision_using_SM_ceph() {
         sleep 100
 
         #check provisioing status.
-        /root/sm_files/check_provision.sh $CLUSTER_NAME
+        $SM_FILES_DIR/check_provision.sh $CLUSTER_NAME
         if [ $? == 0 ]
         then
             echo "Provisioning of the target/cluster is sucessfull!!!"
