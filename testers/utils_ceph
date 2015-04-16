@@ -20,7 +20,12 @@ function search_package_ceph {
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
       if [ $INSTALL_MODE == "SM" ]
       then
-       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer*` || die "Unable to find SM install package"
+       if [ $SM_TYPE == "ubuntu" ]
+       then
+         SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
+       else
+         SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*` || die "Unable to find SM install package"
+       fi  
       fi
     fi
     
