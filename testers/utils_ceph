@@ -7,28 +7,26 @@ export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [cento
 # search_package
 function search_package_ceph {
 
+    if [ $PKG_LOCAL -eq 1 ] && [ $INSTALL_MODE == "SM" ]
+    then
+      SM_INSTALLER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
+    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
+    then
+      SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
+    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "centos" ]
+    then
+      SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*` || die "Unable to find SM install package"
+    fi
+
     if [ $PKG_LOCAL -eq 1 ]
     then
-      if [ $INSTALL_MODE == "SM" ]
-      then
-        SM_INSTALLER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
-      fi
       INSTALL_PKG_FILE=$INSTALL_PKG_FILE_LOCAL
       STORAGE_PKG_FILE=$STORAGE_PKG_FILE_LOCAL  
     else
       INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
-      if [ $INSTALL_MODE == "SM" ]
-      then
-       if [ $SM_TYPE == "ubuntu" ]
-       then
-         SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
-       else
-         SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*` || die "Unable to find SM install package"
-       fi  
-      fi
     fi
-    
+
     export INSTALL_PKG_TYPE="contrail-ubuntu-package"
     export STORAGE_PKG_TYPE="contrail-storage-ubuntu-package"
     export INSTALL_PKG_FILE
@@ -85,12 +83,18 @@ function copy_tbfile {
 }
 
 
+function copy_tbfile_to_api_server {
+
+  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contail/utils/fabric-utils/fabfile/testbeds/testbed.py 
+
+}
+
 #####
 
 function create_testbed_ceph {
 
     search_package_ceph
-    checkout_repo
+    #checkout_repo
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
@@ -266,6 +270,7 @@ function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
     create_testbed_ceph
     reimage_and_bringup_ceph
+    copy_tbfile_to_api_server
     run_ceph_check || die "run_ceph_check step failed"
     #run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
