@@ -50,6 +50,7 @@ env.ostypes = {
     host4:'ubuntu',
 }
 
+minimum_diskGB=32
 #Openstack admin password
 env.test_repo_dir='/homes/stack/ubuntu_sanity/contrail-test'
 env.mail_from='contrail-build@juniper.net'
