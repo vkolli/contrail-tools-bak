@@ -9,7 +9,7 @@ function check_ceph_status() {
     fi
     
     echo "Connect to config node to check ceph -s output"
-    /usr/local/bin/sshpass -p ${TASK_RUNNER_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TASK_RUNNER_HOST_STRING} " (
+    /usr/local/bin/sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
     set -e 
     $SM_FILES_DIR/check_ceph_status.py $CLUSTER_NAME $EXPECTED_OSD_COUNT
 
@@ -32,10 +32,6 @@ function check_ceph_status() {
 
 function reimage_using_SM_ceph() {
 
-    if [ $SKIP_REIMAGE -ne 0 ]
-    then
-        return 0
-    fi
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
         SMID=ubuntu12$SKU${BUILDID}
         server_json="$SM_FILES_DIR/ceph_server.json"
@@ -46,6 +42,11 @@ function reimage_using_SM_ceph() {
 
     
     SMID=`echo $SMID | tr '[:upper:]' '[:lower:]'`
+
+    if [ $SKIP_REIMAGE -ne 0 ]
+    then
+        return 0
+    fi
 
     cluster_json="$SM_FILES_DIR/$CLUSTER_FILE_NAME.json"
 
@@ -198,6 +199,7 @@ function reimage_using_SM_ceph() {
 #Multi-node setup will refer to SM running on ubuntu
 #Single-node setup will refer to SM running on centos
 function bringup_SM_setup_ceph() {
+
     if [ $SKIP_BRINGUP -ne 0 ]
     then
         return 0
@@ -213,11 +215,11 @@ function bringup_SM_setup_ceph() {
 
             echo "file exists, upgrading Server manager"
             cd $SM_FILES_DIR; 
-            if [ $SM_TYPE == "UBUNTU" ]
+            if [ $SM_TYPE == ubuntu ]
             then
-                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+                ./ubuntu_smgr_upgrade.sh $SM_INSTALLER_PKG_FILE
             else
-                ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+                ./centos_smgr_upgrade.sh $SM_INSTALLER_PKG_FILE
             fi
             if [ $? != 0 ] 
             then
