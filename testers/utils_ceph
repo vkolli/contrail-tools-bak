@@ -126,7 +126,8 @@ function create_testbed_ceph {
 }
 
 function reimage_setup_ceph {
-    if [ $SKIP_REIMAGE -ne 0 ] 
+
+    if [ $SKIP_REIMAGE -eq 1 ] 
     then 
         return 0
     fi
