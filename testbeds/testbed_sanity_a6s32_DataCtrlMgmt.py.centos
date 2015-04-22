@@ -107,5 +107,5 @@ env.mail_port='4000'
 env.mx_gw_test=True
 env.testbed_location='US'
 env.interface_rename = True 
-env.image_web_server = '10.84.5.100'
+env.image_web_server = '10.84.5.120'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
