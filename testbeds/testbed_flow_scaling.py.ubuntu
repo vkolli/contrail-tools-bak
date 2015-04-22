@@ -5,9 +5,9 @@ os_password = 'contrail123'
 os_tenant_name = 'demo'
 
 host1 = 'root@10.204.217.45'
-host2 = 'root@10.204.217.1'
-host3 = 'root@10.204.217.2'
-host4 = 'root@10.204.216.58'
+host2 = 'root@10.204.217.47'
+host3 = 'root@10.204.217.48'
+host4 = 'root@10.204.217.49'
 
 ext_routers = [('mx2','10.204.216.245')]
 router_asn = 64512
@@ -29,7 +29,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodeg5.englab.juniper.net', 'nodec16.englab.juniper.net', 'nodec17.englab.juniper.net', 'nodec1.englab.juniper.net']
+    'all': ['nodeg5.englab.juniper.net', 'nodeg7.englab.juniper.net', 'nodeg8.englab.juniper.net', 'nodeg9.englab.juniper.net']
 }
 
 env.openstack_admin_password = 'contrail123'
