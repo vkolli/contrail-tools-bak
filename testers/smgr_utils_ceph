@@ -9,7 +9,7 @@ function check_ceph_status() {
     fi
     
     echo "Connect to config node to check ceph -s output"
-    /usr/local/bin/sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
     set -e 
     $SM_FILES_DIR/check_ceph_status.py $CLUSTER_NAME $EXPECTED_OSD_COUNT
 
@@ -51,7 +51,7 @@ function reimage_using_SM_ceph() {
     cluster_json="$SM_FILES_DIR/$CLUSTER_FILE_NAME.json"
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    /usr/local/bin/sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
@@ -261,7 +261,7 @@ function provision_using_SM_ceph() {
     fi
     
     echo "Connect to SM_SERVER to provision the targets/cluster"
-    /usr/local/bin/sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
         echo "provision the target setup"
         server-manager provision -F --cluster_id $CLUSTER_NAME $SMID

@@ -9,7 +9,10 @@ function search_package_ceph {
 
     if [ $PKG_LOCAL -eq 1 ] && [ $INSTALL_MODE == "SM" ]
     then
-      SM_INSTALLER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
+      SM_INSTALLER_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            ls $PKG_LOCAL_PATH/$SM_SERVER_PKG_FILE_LOCAL
+            "` || die "Unable to find SM LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
+      SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g')
     elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
     then
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
@@ -20,8 +23,14 @@ function search_package_ceph {
 
     if [ $PKG_LOCAL -eq 1 ]
     then
-      INSTALL_PKG_FILE=$INSTALL_PKG_FILE_LOCAL
-      STORAGE_PKG_FILE=$STORAGE_PKG_FILE_LOCAL  
+      INSTALL_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+                     ls $PKG_LOCAL_PATH/$INSTALL_PKG_FILE_LOCAL
+                     "` || die "Unable to find Contrail-install LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
+      INSTALL_PKG_FILE=$(echo "${INSTALL_PKG_FILE}" | sed -e 's/\r//g')
+      STORAGE_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+                     ls $PKG_LOCAL_PATH/$STORAGE_PKG_FILE_LOCAL
+                     "` || die "Unable to find storage LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node" 
+      STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g')
     else
       INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
@@ -29,9 +38,9 @@ function search_package_ceph {
 
     export INSTALL_PKG_TYPE="contrail-ubuntu-package"
     export STORAGE_PKG_TYPE="contrail-storage-ubuntu-package"
-    export INSTALL_PKG_FILE
-    export STORAGE_PKG_FILE
-    export SM_INSTALLER_PKG_FILE
+    export INSTALL_PKG_FILE=$INSTALL_PKG_FILE
+    export STORAGE_PKG_FILE=$STORAGE_PKG_FILE
+    export SM_INSTALLER_PKG_FILE=$SM_INSTALLER_PKG_FILE
 
     export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
     export PKG_FILE_DIR=`dirname $INSTALL_PKG_FILE`
@@ -60,8 +69,12 @@ function update_testbed_file {
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
-
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    else
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+   fi
 }
 
 
@@ -78,8 +91,12 @@ function copy_tbfile {
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
  
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
-
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    else
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+    fi 
 }
 
 
@@ -94,19 +111,19 @@ function copy_tbfile_to_api_server {
 function create_testbed_ceph {
 
     search_package_ceph
-    #checkout_repo
 
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
-   
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
-
-    copy_tbfile
 
     if [ $PKG_LOCAL -eq 1 ]
     then
+     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;git clone git@github.com:Juniper/contrail-fabric-utils.git;"      
+     copy_tbfile
      return
+    else
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
+      copy_tbfile
     fi
 
     if [ $COPY_BUILD_PKG_TO_TASK_RUNNER -eq 1 ]
