@@ -42,8 +42,8 @@ else:
         'collector': [host1],
         'webui': [host1],
         'database': [host1, host2, host3],
-        'storage-master': [host6],
-        'storage-compute': [ host5],
+#        'storage-master': [host6],
+#        'storage-compute': [ host5],
         'build': [host_build],
     }
 env.hostnames = {
