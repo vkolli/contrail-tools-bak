@@ -18,7 +18,6 @@ public_vn_rtgt = 10000
 public_vn_subnet = "10.84.51.96/27"
 
 host_build = 'stack@10.84.24.64'
-
 if os.getenv('HA_TEST',None) == 'True':
     env.roledefs = {
         'all': [host1, host2, host3, host4, host5, host6],
@@ -29,6 +28,8 @@ if os.getenv('HA_TEST',None) == 'True':
         'collector': [host1, host2, host3],
         'webui': [host1, host2, host3],
         'database': [host1, host2, host3],
+        'storage-master': [host1, host2, host3],
+        'storage-compute': [ host5],
         'build': [host_build],
     }
 else:
@@ -41,6 +42,8 @@ else:
         'collector': [host1],
         'webui': [host1],
         'database': [host1, host2, host3],
+        'storage-master': [host6],
+        'storage-compute': [ host5],
         'build': [host_build],
     }
 env.hostnames = {
@@ -97,7 +100,7 @@ if os.getenv('HA_TEST',None) == 'True':
     }
 minimum_diskGB=32
 env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
-env.mail_from='vjoshi@juniper.net'
+env.mail_from='shajuvk@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
@@ -107,4 +110,15 @@ env.mx_gw_test=True
 env.testbed_location='US'
 env.interface_rename = False 
 env.image_web_server = '10.84.5.120'
-env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, CEPH]'
+
+storage_node_config = {
+    host5 : { 'disks' : ['/dev/sdb'] },
+}
+
+live_migration = True
+ceph_nfs_livem = True
+ceph_nfs_livem_subnet = '192.168.101.253/24'
+ceph_nfs_livem_image =  '/store/livemnfs.qcow2'
+ceph_nfs_livem_host = host5
+
