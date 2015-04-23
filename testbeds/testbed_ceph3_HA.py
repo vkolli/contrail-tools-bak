@@ -1,5 +1,5 @@
 from fabric.api import env
-
+import os
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.87.140.213'
 host2 = 'root@10.87.129.224'
