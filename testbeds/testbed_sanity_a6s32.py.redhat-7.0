@@ -125,5 +125,5 @@ env.mx_gw_test=True
 env.testbed_location='US'
 #interface rename not enabled on redhat code
 env.interface_rename = False 
-env.image_web_server = '10.84.5.100'
+env.image_web_server = '10.84.5.120'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
