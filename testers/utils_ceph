@@ -16,7 +16,10 @@ function search_package_ceph {
 
     if [ $PKG_LOCAL -eq 1 ] && [ $INSTALL_MODE == "SM" ]
     then
-      SM_INSTALLER_PKG_FILE=$SM_SERVER_LOCAL_PKG_FILE
+      SM_INSTALLER_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            ls $PKG_LOCAL_PATH/$SM_SERVER_PKG_FILE_LOCAL
+            "` || die "Unable to find SM LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
+      SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g')
     elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
     then
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
@@ -27,8 +30,14 @@ function search_package_ceph {
 
     if [ $PKG_LOCAL -eq 1 ]
     then
-      INSTALL_PKG_FILE=$INSTALL_PKG_FILE_LOCAL
-      STORAGE_PKG_FILE=$STORAGE_PKG_FILE_LOCAL  
+      INSTALL_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+                     ls $PKG_LOCAL_PATH/$INSTALL_PKG_FILE_LOCAL
+                     "` || die "Unable to find Contrail-install LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
+      INSTALL_PKG_FILE=$(echo "${INSTALL_PKG_FILE}" | sed -e 's/\r//g')
+      STORAGE_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+                     ls $PKG_LOCAL_PATH/$STORAGE_PKG_FILE_LOCAL
+                     "` || die "Unable to find storage LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node" 
+      STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g')
     else
       INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
@@ -36,9 +45,9 @@ function search_package_ceph {
 
     export INSTALL_PKG_TYPE="contrail-ubuntu-package"
     export STORAGE_PKG_TYPE="contrail-storage-ubuntu-package"
-    export INSTALL_PKG_FILE
-    export STORAGE_PKG_FILE
-    export SM_INSTALLER_PKG_FILE
+    export INSTALL_PKG_FILE=$INSTALL_PKG_FILE
+    export STORAGE_PKG_FILE=$STORAGE_PKG_FILE
+    export SM_INSTALLER_PKG_FILE=$SM_INSTALLER_PKG_FILE
 
     REIMAGE_PARAM="REIMAGE_PARAM"
     get_ubuntu_image_id ${DISTRO} $REIMAGE_PARAM
@@ -69,6 +78,12 @@ function update_testbed_file {
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    else
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+   fi
 }
 
 function identify_tbfile {
@@ -92,6 +107,7 @@ function copy_tbfile_task_runner {
 
     identify_tbfile
  
+<<<<<<< HEAD
     if [ $PKG_LOCAL -eq 0 ]
     then
       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
@@ -108,6 +124,12 @@ function copy_tbfile_to_api_server {
 
 }
 
+
+function copy_tbfile_to_api_server {
+
+  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contail/utils/fabric-utils/fabfile/testbeds/testbed.py 
+
+}
 
 #####
 
@@ -157,11 +179,6 @@ function create_testbed_ceph {
 
     copy_tbfile_task_runner
 
-    if [ $PKG_LOCAL -eq 1 ]
-    then
-     return
-    else
-     copy_pkgs_to_sm_node
     fi
 
 
@@ -339,6 +356,7 @@ function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
     create_testbed_ceph
     reimage_and_bringup_ceph
+    copy_tbfile_to_api_server
     run_ceph_check || die "run_ceph_check step failed"
     echo "Test Done" 
     collect_tech_support_local || die "Task to collect logs/cores failed"

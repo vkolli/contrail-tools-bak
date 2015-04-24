@@ -43,6 +43,7 @@ else:
         'database': [host1, host2, host3],
         'build': [host_build],
     }
+
 env.hostnames = {
     'all': ['a6s32', 'a6s33', 'a6s38', 'a6s19', 'a6s22', 'a6s44']
 }
@@ -60,21 +61,21 @@ env.passwords = {
 }
 
 env.ostypes = {
-    host1:'ubuntu',
-    host2:'ubuntu',
-    host3:'ubuntu',
-    host4:'ubuntu',
-    host5:'ubuntu',
-    host6:'ubuntu',
+    host1:'centos',
+    host2:'centos',
+    host3:'centos',
+    host4:'centos',
+    host5:'centos',
+    host6:'centos',
 }
 control_data= {
 
-    host1 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'em1' },
-    host2 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'em1' },
-    host3 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'em1' },
-    host4 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'em1' },
-    host5 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'em1' },
-    host6 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'em1' },
+    host1 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'eth0' },
+    host2 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'eth0' },
+    host3 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'eth0' },
+    host4 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'p0p25p0' },
+    host5 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'p0p25p0' },
+    host6 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'eth0' },
 }
 
 # VIP cofiguration for HA
@@ -97,7 +98,7 @@ if os.getenv('HA_TEST',None) == 'True':
     }
 minimum_diskGB=32
 env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
-env.mail_from='vjoshi@juniper.net'
+env.mail_from='shajuvk@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
@@ -105,6 +106,6 @@ env.mail_server='10.84.24.64'
 env.mail_port='4000'
 env.mx_gw_test=True
 env.testbed_location='US'
-env.interface_rename = False 
+env.interface_rename = True 
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
