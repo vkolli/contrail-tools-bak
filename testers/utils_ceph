@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
+source $TOOLS_WS/testers/smgr_utils_ceph
 
 function get_ubuntu_image_id () {
   if [ $1 = ubuntu-12-04 ]; then
@@ -19,7 +20,7 @@ function search_package_ceph {
       SM_INSTALLER_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             ls $PKG_LOCAL_PATH/$SM_SERVER_PKG_FILE_LOCAL
             "` || die "Unable to find SM LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
-      SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g')
+      SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
     elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
     then
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
@@ -33,11 +34,11 @@ function search_package_ceph {
       INSTALL_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
                      ls $PKG_LOCAL_PATH/$INSTALL_PKG_FILE_LOCAL
                      "` || die "Unable to find Contrail-install LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
-      INSTALL_PKG_FILE=$(echo "${INSTALL_PKG_FILE}" | sed -e 's/\r//g')
+      INSTALL_PKG_FILE=$(echo "${INSTALL_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
       STORAGE_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
                      ls $PKG_LOCAL_PATH/$STORAGE_PKG_FILE_LOCAL
                      "` || die "Unable to find storage LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node" 
-      STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g')
+      STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
     else
       INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
@@ -107,7 +108,6 @@ function copy_tbfile_task_runner {
 
     identify_tbfile
  
-<<<<<<< HEAD
     if [ $PKG_LOCAL -eq 0 ]
     then
       sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
@@ -121,13 +121,6 @@ function copy_tbfile_task_runner {
 function copy_tbfile_to_api_server {
 
   sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contrail/utils/fabfile/testbeds/testbed.py 
-
-}
-
-
-function copy_tbfile_to_api_server {
-
-  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contail/utils/fabric-utils/fabfile/testbeds/testbed.py 
 
 }
 
@@ -178,8 +171,6 @@ function create_testbed_ceph {
     fi
 
     copy_tbfile_task_runner
-
-    fi
 
 
 }
@@ -232,24 +223,20 @@ function bringup_setup_contrail {
           " || debug_and_die_local "install_pkg_all failed"
 
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-          cd /opt/contrail/utils;
-          fab upgrade_kernel_all;
-          sleep 60;
-          "
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
           if [ $PKG_LOCAL -eq 1 ];then
               cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
           else
               cd /tmp/$TBFILE_NAME/fabric-utils;
           fi
+          fab upgrade_kernel_all;
+          sleep 60;
           fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
     fi
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd /opt/contrail/utils;
             export HA_TEST=$HA_TEST;
-            cd fabric-utils;
             fab install_contrail" || debug_and_die_local "fab install_contrail failed"
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
@@ -282,7 +269,8 @@ function reimage_and_bringup_ceph {
 
     if [ $SKIP_REIMAGE -eq 0 ]
     then
-      reimage_setup_ceph || debug_and_die_local "Reimage failed!"
+      reimage_using_SM_ceph || debug_and_die_local "Reimage failed!"
+      #reimage_setup_ceph || debug_and_die_local "Reimage failed!"
     fi
 
     update_testbed_file || die "Unable to set the testbed properly for use"
