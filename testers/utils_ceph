@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
-export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0)
+
+function get_ubuntu_image_id () {
+  if [ $1 = ubuntu-12-04 ]; then
+   eval "$2=ubuntu-12.04.3"
+  elif [ $1 = ubuntu-14-04 ];then
+   eval "$2=ubuntu-14.04"
+  fi
+}
 
 ##
 # search_package
@@ -33,7 +40,9 @@ function search_package_ceph {
     export STORAGE_PKG_FILE
     export SM_INSTALLER_PKG_FILE
 
-    export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+    REIMAGE_PARAM="REIMAGE_PARAM"
+    get_ubuntu_image_id ${DISTRO} $REIMAGE_PARAM
+    export REIMAGE_PARAM
     export PKG_FILE_DIR=`dirname $INSTALL_PKG_FILE`
 
 }
@@ -60,12 +69,10 @@ function update_testbed_file {
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
-
 }
 
+function identify_tbfile {
 
-function copy_tbfile {
     folder_path=${TOOLS_WS}/testbeds
     if [ $CEPH_PROFILE == "PROF01" ];then
       PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
@@ -77,51 +84,86 @@ function copy_tbfile {
     tbfile=$folder_path/$PROFILE_TBFILE_NAME
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
+
+}
+
+
+function copy_tbfile_task_runner {
+
+    identify_tbfile
  
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+    if [ $PKG_LOCAL -eq 0 ]
+    then
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+    else
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+    fi
 
 }
 
 
 function copy_tbfile_to_api_server {
 
-  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contail/utils/fabric-utils/fabfile/testbeds/testbed.py 
+  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contrail/utils/fabfile/testbeds/testbed.py 
 
 }
 
+
 #####
 
-function create_testbed_ceph {
-
-    search_package_ceph
-    #checkout_repo
-
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
-   
-    sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
-
-    copy_tbfile
-
-    if [ $PKG_LOCAL -eq 1 ]
-    then
-     return
-    fi
+function copy_pkgs_to_sm_node {
 
     if [ $COPY_BUILD_PKG_TO_TASK_RUNNER -eq 1 ]
     then
-      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf $PKG_FILE_DIR"      
-      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
-      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
+      exec_cmds -s ${SM_NODE_LOGIN}@${SM_NODE_IP} -p ${SM_NODE_PASSWORD} -c "rm -rf $PKG_FILE_DIR"      
+      exec_cmds -s ${SM_NODE_LOGIN}@${SM_NODE_IP} -p ${SM_NODE_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
+      exec_cmds -s ${SM_NODE_LOGIN}@${SM_NODE_IP} -p ${SM_NODE_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$INSTALL_PKG_FILE
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
       if [ $INSTALL_MODE == "SM" ]
       then
         sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$SM_INSTALLER_PKG_FILE
       fi
     fi 
+}
+
+function copy_pkg_to_api_server() {
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"
+
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+      sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $1 ${API_SERVER_HOST_STRING}:$1
+    "
+
+}
+
+function create_testbed_ceph {
+
+    search_package_ceph
+
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
+
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+        cd /tmp/$TBFILE_NAME/;
+        git clone git@github.com:Juniper/contrail-fabric-utils.git
+        "
+    else 
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
+    fi
+
+    copy_tbfile_task_runner
+
+    if [ $PKG_LOCAL -eq 1 ]
+    then
+     return
+    else
+     copy_pkgs_to_sm_node
+    fi
+
 
 }
 
@@ -131,9 +173,13 @@ function reimage_setup_ceph {
     then 
         return 0
     fi
-    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
-        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/$TBFILE_NAME/fabric-utils;
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            if [ $PKG_LOCAL -eq 1 ];then
+              cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            else
+              cd /tmp/$TBFILE_NAME/fabric-utils;
+            fi
+      
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
             if [ $DISTRO == "ubuntu-12-04" ]; then
@@ -146,7 +192,6 @@ function reimage_setup_ceph {
             server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_PARAM;
             fab wait_till_all_up:attempts=180,reimaged=True;
             fab check_reimage_state" || debug_and_die_local "reimage_setup failed"
-    fi
 }
 
 function bringup_setup_contrail {
@@ -155,27 +200,43 @@ function bringup_setup_contrail {
         return 0
     fi
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-          cd /tmp/${TBFILE_NAME}/fabric-utils;
+    copy_pkg_to_api_server $INSTALL_PKG_FILE
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        dpkg -i $INSTALL_PKG_FILE;
+        cd /opt/contrail/contrail_packages/;
+        ./setup.sh
+       "
+    copy_tbfile_to_api_server
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+          cd /opt/contrail/utils;
           fab install_pkg_all:${INSTALL_PKG_FILE} || die 'fab install_pkg_all:${INSTALL_PKG_FILE} failed'
           " || debug_and_die_local "install_pkg_all failed"
 
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
-        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-          cd /tmp/${TBFILE_NAME}/fabric-utils;
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+          cd /opt/contrail/utils;
           fab upgrade_kernel_all;
           sleep 60;
-          fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "kernel upgrade/Failed waiting for nodes to come up"
+          "
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+          if [ $PKG_LOCAL -eq 1 ];then
+              cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+          else
+              cd /tmp/$TBFILE_NAME/fabric-utils;
+          fi
+          fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
     fi
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/fabric-utils;
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd /opt/contrail/utils;
             export HA_TEST=$HA_TEST;
             cd fabric-utils;
             fab install_contrail" || debug_and_die_local "fab install_contrail failed"
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/fabric-utils;
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd /opt/contrail/utils;
             export HA_TEST=$HA_TEST;
             fab setup_interface || exit 1;
             fab add_static_route 
@@ -183,8 +244,17 @@ function bringup_setup_contrail {
 }
 
 function bringup_storage {
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/${TBFILE_NAME}/fabric-utils;
+
+    copy_pkg_to_api_server $STORAGE_PKG_FILE
+        
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        dpkg -i $STORAGE_PKG_FILE;
+        cd /opt/contrail/contrail_packages/;
+        ./setup_storage.sh
+       "
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd /opt/contrail/utils;
             fab install_storage_pkg_all:${STORAGE_PKG_FILE};
             fab install_storage;
             fab setup_storage" || debug_and_die_local "install_storage_pkg_all failed"
@@ -209,8 +279,6 @@ function reimage_and_bringup_ceph {
     then
       bringup_storage || debug_and_die_local "Bringup storage failed!"
     fi
-
-    # bring up ceph
 }
 
 function run_ceph_check {
@@ -237,8 +305,8 @@ function collect_tech_support_local {
     dest_dir_folder=$DEBUG_LOG_DIR/CONFIG_NODE/${SCRIPT_TIMESTAMP}
     debug_cmds="export HA_TEST=$HA_TEST && fab attach_logs_cores:$DEBUG_LOG_DIR/CONFIG_NODE,${SCRIPT_TIMESTAMP} ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
           
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-            cd /tmp/$TBFILE_NAME/fabric-utils;
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd /opt/contrail/utils;
             $debug_cmds"
 }
 
@@ -271,9 +339,7 @@ function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
     create_testbed_ceph
     reimage_and_bringup_ceph
-    copy_tbfile_to_api_server
     run_ceph_check || die "run_ceph_check step failed"
-    #run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
     collect_tech_support_local || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
