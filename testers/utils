@@ -567,7 +567,7 @@ function debug_and_die
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
     cat $tb_lock_file
-    python testers/upload.py --pkg_name $PKG_FILE --jenkins_id $BUILD_TAG
+    python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $BUILD_TAG
     exit 1
 }
 
