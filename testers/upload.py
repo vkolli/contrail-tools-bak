@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import ConfigParser
 import re
@@ -29,6 +30,10 @@ def upload(directory,file_name,path,ip,user,password):
     web_server_username = user
     web_server_password = password
     try:
+        build_url = os.environ.get('BUILD_URL')
+    except Exception as e:
+        print 'build url not found'
+    try:
         with hide('everything'):
             with settings(host_string=web_server,
                           user=web_server_username,
@@ -37,8 +42,12 @@ def upload(directory,file_name,path,ip,user,password):
                 if not exists(path):
                     run('mkdir -p %s' % (path))
                 with cd (path):
-                    run('touch %s'%(fname)) 
-                    append(fname,'Failed')
+                    run('touch %s'%(fname))
+                    try: 
+                        append(fname,build_url)
+                    except Exception as e:
+                        append(fname,'FAILED')
+                        
     except Exception as e:
         pass
         
