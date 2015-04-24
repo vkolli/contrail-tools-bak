@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import ConfigParser
 import re
@@ -10,10 +11,17 @@ from fabric.context_managers import settings, hide
 def parse_pkg(pkg):
     splitted = pkg.split('/')
     branch = splitted[2]
-    p = re.compile('packages-(.*)~')
-    m = p.search(pkg)
-    build = m.group(1)
-    return (branch,build)
+    try:
+        p = re.compile('packages-(.*)~')
+        m = p.search(pkg)
+        build = m.group(1)
+        return (branch,build)
+    except Exception as e:
+        p = re.compile('packages_(.*)~')
+        m = p.search(pkg)
+        build = m.group(1)
+        return (branch,build)
+        
 
 def upload(directory,file_name,path,ip,user,password):
     fname = file_name
@@ -21,6 +29,10 @@ def upload(directory,file_name,path,ip,user,password):
     web_server = ip
     web_server_username = user
     web_server_password = password
+    try:
+        build_url = os.environ.get('BUILD_URL')
+    except Exception as e:
+        print 'build url not found'
     try:
         with hide('everything'):
             with settings(host_string=web_server,
@@ -30,8 +42,12 @@ def upload(directory,file_name,path,ip,user,password):
                 if not exists(path):
                     run('mkdir -p %s' % (path))
                 with cd (path):
-                    run('touch %s'%(fname)) 
-                    append(fname,'Failed')
+                    run('touch %s'%(fname))
+                    try: 
+                        append(fname,build_url)
+                    except Exception as e:
+                        append(fname,'FAILED')
+                        
     except Exception as e:
         pass
         
