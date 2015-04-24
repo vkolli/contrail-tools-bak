@@ -10,10 +10,17 @@ from fabric.context_managers import settings, hide
 def parse_pkg(pkg):
     splitted = pkg.split('/')
     branch = splitted[2]
-    p = re.compile('packages-(.*)~')
-    m = p.search(pkg)
-    build = m.group(1)
-    return (branch,build)
+    try:
+        p = re.compile('packages-(.*)~')
+        m = p.search(pkg)
+        build = m.group(1)
+        return (branch,build)
+    except Exception as e:
+        p = re.compile('packages_(.*)~')
+        m = p.search(pkg)
+        build = m.group(1)
+        return (branch,build)
+        
 
 def upload(directory,file_name,path,ip,user,password):
     fname = file_name
