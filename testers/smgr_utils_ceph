@@ -134,6 +134,8 @@ function reimage_using_SM_ceph() {
 
         server-manager show image
 
+        $SM_FILES_DIR/delete_cluster.py
+
         echo "add cluster to SM database"
         server-manager add cluster -f $cluster_json
         if [ $? == 0 ]
@@ -313,7 +315,8 @@ function provision_using_SM_ceph() {
 }
 function run_smgr_task_ceph() {
     echo "Running tests on $1.."
-    create_testbed_ceph || die "Failed to create required testbed details"
+    search_package_ceph || die "Failed to search packages"
+    copy_pkgs_to_sm_node
     bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
     reimage_using_SM_ceph || die "reimage failed"
     provision_using_SM_ceph || die "provision failed"
