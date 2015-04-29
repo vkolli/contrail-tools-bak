@@ -7,8 +7,8 @@ host4 = 'root@10.204.216.227'
 host5 = 'root@10.204.216.228'
 host6 = 'root@10.204.216.229'
 
-ext_routers = [('hooper', '192.168.249.1')]
-router_asn = 64510
+ext_routers = [('hooper', '192.168.192.253')]
+router_asn = 64512
 public_vn_rtgt = 19006
 public_vn_subnet = "10.204.219.104/29"
 
@@ -32,13 +32,22 @@ env.hostnames = {
 }
 #env.interface_rename = False
 #
-#control_data = {
-#    host1 : { 'ip': '192.168.250.1/24', 'gw' : '192.168.250.254', 'device':'eth0' },
-#    host2 : { 'ip': '192.168.250.2/24', 'gw' : '192.168.250.254', 'device':'eth0' },
-#    host3 : { 'ip': '192.168.250.3/24', 'gw' : '192.168.250.254', 'device':'eth0' },
-#    host4 : { 'ip': '192.168.250.4/24', 'gw' : '192.168.250.254', 'device':'eth0' },
-#    host5 : { 'ip': '192.168.251.5/24', 'gw' : '192.168.251.254', 'device':'eth1' },
-#}
+
+#Inferface Bonding
+bond= {
+    host4 : { 'name': 'bond0', 'member': ['eth2','eth3'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
+    host5 : { 'name': 'bond0', 'member': ['eth1','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
+    host6 : { 'name': 'bond0', 'member': ['eth1','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
+}
+
+control_data = {
+    host1 : { 'ip': '40.43.40.5/24', 'gw' : '40.43.40.1', 'device':'eth1' },
+    host2 : { 'ip': '40.43.40.6/24', 'gw' : '40.43.40.1', 'device':'eth1' },
+    host3 : { 'ip': '40.43.40.7/24', 'gw' : '40.43.40.1', 'device':'eth1' },
+    host4 : { 'ip': '41.41.40.5/24', 'gw' : '41.41.40.2', 'device':'bond0' },
+    host5 : { 'ip': '40.40.40.5/24', 'gw' : '40.40.40.1', 'device':'bond0' },
+    host6 : { 'ip': '40.40.40.6/24','gw' : '40.40.40.1', 'device':'bond0' },
+}
 #
 #static_route  = {
 #    host1 : [{ 'ip': '192.168.251.0', 'netmask' : '255.255.255.0', 'gw':'192.168.250.254', 'intf': 'eth0' },
