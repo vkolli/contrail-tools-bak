@@ -35,8 +35,8 @@ env.hostnames = {
 
 #Inferface Bonding
 bond= {
-    host4 : { 'name': 'bond0', 'member': ['eth2','eth3'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
-    host5 : { 'name': 'bond0', 'member': ['eth1','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
+    host4 : { 'name': 'bond0', 'member': ['eth4','eth3'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
+    host5 : { 'name': 'bond0', 'member': ['eth3','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
 }
 
 control_data = {
