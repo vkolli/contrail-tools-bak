@@ -145,7 +145,8 @@ function provision_using_SM() {
     then
         return 0
     fi
-    
+   
+ 
     echo "Connect to SM_SERVER to provision the targets/cluster"
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
@@ -281,7 +282,7 @@ function reimage_using_SM() {
         fi
         echo "add contrail package to the SM database"
       
-        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE
+        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE1
         if [ $? == 0 ]
         then
             echo "Server-manager adding contrail-package command is successful"
