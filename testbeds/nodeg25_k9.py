@@ -37,16 +37,15 @@ env.hostnames = {
 bond= {
     host4 : { 'name': 'bond0', 'member': ['eth2','eth3'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
     host5 : { 'name': 'bond0', 'member': ['eth1','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
-    host6 : { 'name': 'bond0', 'member': ['eth1','eth2'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
 }
 
 control_data = {
-    host1 : { 'ip': '40.43.40.5/24', 'gw' : '40.43.40.1', 'device':'eth1' },
+    host1 : { 'ip': '40.43.40.5/24', 'gw' : '40.43.40.1', 'device':'eth1'},
     host2 : { 'ip': '40.43.40.6/24', 'gw' : '40.43.40.1', 'device':'eth1' },
     host3 : { 'ip': '40.43.40.7/24', 'gw' : '40.43.40.1', 'device':'eth1' },
-    host4 : { 'ip': '41.41.40.5/24', 'gw' : '41.41.40.2', 'device':'bond0' },
-    host5 : { 'ip': '40.40.40.5/24', 'gw' : '40.40.40.1', 'device':'bond0' },
-    host6 : { 'ip': '40.40.40.6/24','gw' : '40.40.40.1', 'device':'bond0' },
+    host4 : { 'ip': '41.41.40.5/24', 'gw' : '41.41.40.2', 'device':'bond0','vlan': '4001' },
+    host5 : { 'ip': '40.40.40.5/24', 'gw' : '40.40.40.1', 'device':'bond0' ,'vlan': '4000'},
+    host6 : { 'ip': '40.40.40.6/24','gw' : '40.40.40.1', 'device':'eth2','vlan': '4000' },
 }
 #
 #static_route  = {
