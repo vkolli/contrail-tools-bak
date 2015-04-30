@@ -296,7 +296,7 @@ function bringup_setup {
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
         fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
         sleep 60
-        fab wait_till_all_up:waitdown=False,attempts=30 || debug_and_die "Failed waiting for nodes to come up"
+        fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
     fi
 
     # install contrail packages on all node
