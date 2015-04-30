@@ -309,7 +309,7 @@ function bringup_setup {
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 export HA_TEST=$HA_TEST;
                 cd fabric-utils;
-                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
         else
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 export HA_TEST=$HA_TEST;
