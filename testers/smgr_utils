@@ -232,6 +232,8 @@ function reimage_using_SM() {
         SMID=centos65$SKU${BUILDID}
     fi
 
+    pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
+    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*`
     #set the parameters for multi/single node setup
     cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
@@ -282,7 +284,7 @@ function reimage_using_SM() {
         fi
         echo "add contrail package to the SM database"
       
-        server-manager upload_image $SMID ${BUILDID} $pkg_type /cs-shared$PKG_FILE1
+        server-manager upload_image $SMID ${BUILDID} $pkg_type ${pkg_path}${contrail_pkg}
         if [ $? == 0 ]
         then
             echo "Server-manager adding contrail-package command is successful"
