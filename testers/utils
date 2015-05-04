@@ -18,7 +18,7 @@ function try {
 function search_package {
     if [ -z $PKG_FILE ]
     then 
-        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
+        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb` || die "Unable to find install package"
         export PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
