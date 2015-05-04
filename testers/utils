@@ -12,13 +12,24 @@ function try {
     fi
 }
 
+function get_pkg_suffix_to_use {
+    pkg_suffix=""
+    if [[ ${DISTRO} =~ ubuntu ]]; then
+        pkg_suffix=".deb"
+    else
+        pkg_suffix=".rpm"
+    fi
+    export pkg_suffix
+}
+
 
 ##
 # search_package
 function search_package {
     if [ -z $PKG_FILE ]
     then 
-        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb` || die "Unable to find install package"
+        get_pkg_suffix_to_use
+        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
         export PKG_FILE
     else
         pkg_file_name=`basename $PKG_FILE`
