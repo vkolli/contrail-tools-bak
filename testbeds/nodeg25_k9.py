@@ -7,7 +7,7 @@ host4 = 'root@10.204.216.227'
 host5 = 'root@10.204.216.228'
 host6 = 'root@10.204.216.229'
 
-ext_routers = [('hooper', '192.168.192.253')]
+ext_routers = [('hooper', '40.47.1.1')]
 router_asn = 64512
 public_vn_rtgt = 19006
 public_vn_subnet = "10.204.219.104/29"
