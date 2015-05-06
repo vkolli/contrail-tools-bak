@@ -90,13 +90,13 @@ function update_testbed_file {
 function identify_tbfile {
 
     folder_path=${TOOLS_WS}/testbeds
-    if [ $CEPH_PROFILE == "PROF01" ];then
-      PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
-    elif [ $CEPH_PROFILE == "PROF02" ];then
-      PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
-    elif [ $CEPH_PROFILE == "PROF04" ];then
-      PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
-    fi
+    #if [ $CEPH_PROFILE == "PROF01" ];then
+    #  PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
+    #elif [ $CEPH_PROFILE == "PROF02" ];then
+    #  PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
+    #elif [ $CEPH_PROFILE == "PROF04" ];then
+    #  PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
+    #fi
     tbfile=$folder_path/$PROFILE_TBFILE_NAME
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
