@@ -69,7 +69,7 @@ env.keystone = {
     'auth_port'     : '35357',                 #Default is 35357
     'admin_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
     'admin_user'    : 'admin',                 #Default is admin
-    'admin_password': 'contrail123',           #Default is contrail123
+    'admin_password': 'c0ntrail123',           #Default is contrail123
     'service_tenant': 'service',               #Default is service
     'admin_tenant'  : 'admin',                 #Default is admin
     'region_name'   : 'RegionOne',             #Default is RegionOne
