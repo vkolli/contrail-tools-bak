@@ -57,6 +57,7 @@ if __name__ == '__main__' :
         test_obj.argument['err_msg'] += "ERROR: mon IP list is not correct"
         sys.exit(1)
 
+    exp_osd_map_count = testbed_config['%s,osd_count'%profile_name]
     ret = re.search('osdmap .*: (\d+) osds: (\d+) up, (\d+) in',output)
     if ret and ( int(ret.group(1)) == int(exp_osd_map_count) ) and ( int(ret.group(2)) == int(exp_osd_map_count) ) and ( int(ret.group(1)) == int(exp_osd_map_count) ) :
        msg = "INFO: ceph status is PASS and osd count is PASS and all osds are up\n"
