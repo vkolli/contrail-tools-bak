@@ -112,8 +112,11 @@ env.interface_rename = False
 #Ceph related
 
 storage_node_config = {
-    host2 : { 'ssd-disks' : ['/dev/sdc'] , 'local-disks': ['/dev/sdd'] , 'journal' : ['/dev/sdb'] },
-    host3 : { 'ssd-disks' : ['/dev/sdc'] , 'local-disks': ['/dev/sdd'] , 'journal' : ['/dev/sdb'] },
+    host2 : { 
+           'ssd-disks' : ['/dev/sdc'] ,
+           'local-disks': ['/dev/sdd'] ,
+           'nfs' : ['10.87.132.105:/localstore/ceph/multibackend_mount1', '10.87.132.105:/localstore/ceph/multibackend_mount2'],    
+           'journal' : ['/dev/sdb'] },
 }
 
 live_migration = True
