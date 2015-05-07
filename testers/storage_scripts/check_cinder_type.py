@@ -28,6 +28,48 @@ if __name__ == '__main__' :
 
     ostack.init_credentials(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node])
 
+    output = gen_lib.send_cmd(test_obj,fab_node_handle,"ceph -s","#",120)
+    print output
+    ret = re.search('HEALTH_WARN|HEALTH_OK|HEALTH_ERR',output)
+    if ret and ret.group(0) in ['HEALTH_WARN','HEALTH_OK'] :
+       print "CEPH health status is OK"
+    else:
+       print "CEPH health status is NOT OK"
+       test_obj.argument['err_msg'] += "CEPH health status is NOT OK"
+       sys.exit(1)
+
+    if re.search('mons down',output):
+       msg = "ERROR: some mons process is down."
+       print msg
+       test_obj.argument['err_msg'] += msg
+       sys.exit(1)
+       
+    out = re.search('mons at.*',output).group()
+    ret = re.findall('=(.*?):',out)
+    ret.sort()
+    expected_mon_list = testbed_config['%s,mon_ip'%profile_name]
+    expected_mon_list.sort()
+    print ret,expected_mon_list
+    if ret == expected_mon_list :
+        print "INFO: mon IP is correct"
+    else:
+        print "ERROR: mon IP list is not correct"
+        test_obj.argument['err_msg'] += "ERROR: mon IP list is not correct"
+        sys.exit(1)
+
+    ret = re.search('osdmap .*: (\d+) osds: (\d+) up, (\d+) in',output)
+    if ret and ( int(ret.group(1)) == int(exp_osd_map_count) ) and ( int(ret.group(2)) == int(exp_osd_map_count) ) and ( int(ret.group(1)) == int(exp_osd_map_count) ) :
+       msg = "INFO: ceph status is PASS and osd count is PASS and all osds are up\n"
+       print msg
+    else :
+       msg = "ERROR: ceph status is NOT OK, osdmap count does not match"
+       print msg
+       test_obj.argument['err_msg'] += msg
+       sys.exit(1)
+
+    print "CEPH_STATUS_CHECK_OK"
+
+
     cinder_type_list = ostack.get_cinder_type_list(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node])
     cinder_type_list.sort()
 
