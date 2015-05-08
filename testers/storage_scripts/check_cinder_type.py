@@ -23,8 +23,8 @@ if __name__ == '__main__' :
 
     fab_node_host = testbed_config['%s,fab_node'%profile_name]
     fab_node = testbed_config['%s,node_name'%fab_node_host]
-
-    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True)
+   
+    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True,run_time=test_conf['runtime'])
 
     ostack.init_credentials(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node])
 

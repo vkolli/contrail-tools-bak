@@ -280,7 +280,7 @@ def upgrade_kernel(test_obj,handle,prompt,setup_data_interface,host_list=None):
        for host in host_list:
           node = testbed_config['%s,node_name'%host]
           cmd = "uname -a"
-          test_obj.argument['%s_handle'%node] = test_obj.create_ssh_handle(node_name=node,ntp_update=True)
+          test_obj.argument['%s_handle'%node] = test_obj.create_ssh_handle(node_name=node,ntp_update=True,run_time=test_conf['runtime'])
           output = gen_lib.send_cmd(test_obj,test_obj.argument['%s_handle'%node],cmd,testbed_config['%s,prompt'%node],10)
           if re.search(exp_kernel_version,output):
              msg = "INFO: %s kernel upgrade done\n"%node

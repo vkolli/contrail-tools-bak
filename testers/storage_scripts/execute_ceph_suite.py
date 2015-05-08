@@ -5,6 +5,7 @@ import sys
 
 testbed = sys.argv[1]
 profile = sys.argv[2]
+runtime = sys.argv[3] # FAB or SM
 
 if testbed == "testbed_ceph3.py" :
    tb_file = "SMOKE_CEPH3.config"
@@ -21,6 +22,9 @@ for tests in profiles_tests[profile] :
   print script_cmd
   script_config_file = script_cmd[2]
   cmd = """sed -i "s/\(test_conf\['profile_name'\]\).*/\\1='%s'/" %s"""%(profile,script_config_file)
+  print cmd
+  commands.getoutput(cmd)
+  cmd = """sed -i "s/\(test_conf\['runtime'\]\).*/\\1='%s'/" %s"""%(runtime,script_config_file)
   print cmd
   commands.getoutput(cmd)
   script_cmd.append(tb_file)
