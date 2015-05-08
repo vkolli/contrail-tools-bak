@@ -360,7 +360,11 @@ function reimage_setup {
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
-            fab all_sm_reimage:$REIMAGE_PARAM ;
+            # Workaround till Server manager is fixed.
+            if [ "$TBFILE_NAME == "testbed_sanity_a6s32.py" ]; then
+                /cs-shared/server-manager/client/server-manager reimage --no_confirm --cluster_id Sanity_a6s32_tb ${BUILD_MAP}
+            else
+                fab all_sm_reimage:$REIMAGE_PARAM ;
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
             else
