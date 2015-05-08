@@ -24,6 +24,13 @@ function check_ceph_status() {
 
 }
 
+function start_ntp_server_SM() {
+  sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} "
+   service ntp stop;
+   service ntp start;
+  "
+}
+
 # This function will reimage the provided setup.
 # Performs the following steps:
 # Adds the iso and contrail packages to SM database
@@ -320,6 +327,7 @@ function run_smgr_task_ceph() {
     bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
     reimage_using_SM_ceph || die "reimage failed"
     provision_using_SM_ceph || die "provision failed"
+    start_ntp_server_SM 
     #check_ceph_status || die "Run_sanity step failed"
     collect_tech_support_local || die "Task to collect logs/cores failed"
     echo "Ending test on $1"
