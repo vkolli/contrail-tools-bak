@@ -92,7 +92,19 @@ def live_migrate(test_obj,handle,prompt):
   print "New host:",new_host
   ostack.live_migrate_vm(test_obj,handle,prompt,vm_id,new_host)
 
-  time.sleep(600)
+  time.sleep(60)
+
+  args = {}
+  args['handle']     = handle
+  args['prompt']     = prompt
+  args['test_obj']   = test_obj
+  args['vm_name']    = "VM1"
+  args['status'] = "ACTIVE"
+  args['power_state'] = "Running"
+  args['timeout']     = 600
+  ostack.wait_until_vm_status(args)
+
+
   current_hostname2 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
 
   if current_hostname2 == new_host :
