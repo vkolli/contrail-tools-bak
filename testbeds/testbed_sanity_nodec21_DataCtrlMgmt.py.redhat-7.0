@@ -58,7 +58,7 @@ env.passwords = {
 
     host_build: 'c0ntrail123',
 }
-
+env.openstack_admin_password = 'c0ntrail123'
 env.keystone = {
     'keystone_ip'   : '10.204.217.4',
     'auth_protocol' : 'http',                  #Default is http
