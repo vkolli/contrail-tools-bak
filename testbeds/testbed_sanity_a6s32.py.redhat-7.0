@@ -90,7 +90,7 @@ env.keystone = {
     'region_name'   : 'RegionOne',             #Default is RegionOne
     'insecure'      : 'True',                  #Default = False
 }
-
+env.openstack_admin_password = 'c0ntrail123'
 env.openstack = {
     'service_token' : '01f316f31345433597f7e62c8ecc5957',
     'amqp_host' : '192.168.10.6',
