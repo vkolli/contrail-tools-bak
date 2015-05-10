@@ -83,19 +83,19 @@ class lib:
            print str(handle)
        else:
            print "SSH session login successful"
-           if run_time == "SM" :
-             cmd = "service ntp stop"
-             output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
-             cmd = "service ntp start"
-             output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
-           else: # for FAB env
-             cmd = "service ntp stop"
-             output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
-             ntp_ip = "172.17.31.136"
-             cmd = "ntpdate %s"%ntp_ip
-             output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
-             if re.search('timed-out',output):
-               handle = None
+           #if run_time == "SM" :
+           #  cmd = "service ntp stop"
+           #  output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
+           #  cmd = "service ntp start"
+           #  output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
+           #else: # for FAB env
+           #  cmd = "service ntp stop"
+           #  output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
+           #  ntp_ip = "172.17.31.136"
+           #  cmd = "ntpdate %s"%ntp_ip
+           #  output = gen_lib.send_cmd(self,handle,cmd,prompt,120,True,False)
+           #  if re.search('timed-out',output):
+           #    handle = None
      except :
         traceback.print_exc()
         print "SSH session failed on login."
