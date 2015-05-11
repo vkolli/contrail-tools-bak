@@ -177,6 +177,35 @@ function create_testbed_ceph {
 
 }
 
+function install_contrail_pkg_on_node(){
+  NODEIP=$1
+  NODELOGIN=$2
+  NODEPASSWORD=$3
+  CONTRAIL_PKG=$4
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "mkdir -p $PKG_FILE_DIR"
+  sshpass -p ${NODEPASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $CONTRAIL_PKG $NODELOGIN@$NODEIP:$CONTRAIL_PKG
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "
+   dpkg -i $CONTRAIL_PKG;
+   cd /opt/contrail/contrail_packages;
+   ./setup.sh;
+  "
+}
+
+
+function install_storage_pkg_on_node(){
+  NODEIP=$1
+  NODELOGIN=$2
+  NODEPASSWORD=$3
+  STORAGE_PKG=$4
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts"
+  sshpass -p ${NODEPASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG $NODELOGIN@$NODEIP:$STORAGE_PKG
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "
+   dpkg -i $STORAGE_PKG;
+   cd /opt/contrail/contrail_packages;
+   ./setup_storage.sh;
+  "
+}
+
 function reimage_setup_ceph {
 
     if [ $SKIP_REIMAGE -eq 1 ] 
@@ -210,60 +239,87 @@ function bringup_setup_contrail {
         return 0
     fi
 
-    copy_pkg_to_api_server $INSTALL_PKG_FILE
+    if [ $INSTALL_ALL -eq 1 ] 
+    then
 
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        dpkg -i $INSTALL_PKG_FILE;
-        cd /opt/contrail/contrail_packages/;
-        ./setup.sh
-       "
+       copy_pkg_to_api_server $INSTALL_PKG_FILE
+   
+       exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+           dpkg -i $INSTALL_PKG_FILE;
+           cd /opt/contrail/contrail_packages/;
+           ./setup.sh
+          "
+
+       exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+             cd /opt/contrail/utils;
+             fab install_pkg_all:${INSTALL_PKG_FILE} || die 'fab install_pkg_all:${INSTALL_PKG_FILE} failed'
+             " || debug_and_die_local "install_pkg_all failed"
+    else
+       for (( i=1; i <= $NODE_COUNT;i++ ))
+       do
+        ipvar="NODE${i}_IP"
+        loginvar="NODE${i}_LOGIN"
+        passvar="NODE${i}_PASSWD"
+        install_contrail_pkg_on_node ${!ipvar} ${!loginvar} ${!passvar} ${INSTALL_PKG_FILE}
+      done
+    fi
+
     copy_tbfile_to_api_server
 
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-          cd /opt/contrail/utils;
-          fab install_pkg_all:${INSTALL_PKG_FILE} || die 'fab install_pkg_all:${INSTALL_PKG_FILE} failed'
-          " || debug_and_die_local "install_pkg_all failed"
-
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
-        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-          if [ $PKG_LOCAL -eq 1 ];then
-              cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
-          else
-              cd /tmp/$TBFILE_NAME/fabric-utils;
-          fi
-          fab upgrade_kernel_all;
-          sleep 60;
-          fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
+           exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+             if [ $PKG_LOCAL -eq 1 ];then
+                 cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+             else
+                 cd /tmp/$TBFILE_NAME/fabric-utils;
+             fi
+             fab upgrade_kernel_all;
+             sleep 60;
+             fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
     fi
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd /opt/contrail/utils;
-            export HA_TEST=$HA_TEST;
-            fab install_contrail" || debug_and_die_local "fab install_contrail failed"
-
+               cd /opt/contrail/utils;
+               export HA_TEST=$HA_TEST;
+               fab install_contrail" || debug_and_die_local "fab install_contrail failed"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd /opt/contrail/utils;
-            export HA_TEST=$HA_TEST;
-            fab setup_interface || exit 1;
-            fab add_static_route 
-            fab setup_all" || debug_and_die_local "fab setup_interface or setup_all task failed"
+               cd /opt/contrail/utils;
+               export HA_TEST=$HA_TEST;
+               fab setup_interface || exit 1;
+               fab add_static_route 
+               fab setup_all" || debug_and_die_local "fab setup_interface or setup_all task failed"
 }
 
 function bringup_storage {
+    if [ $INSTALL_ALL -eq 1 ] 
+    then
 
-    copy_pkg_to_api_server $STORAGE_PKG_FILE
-        
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        dpkg -i $STORAGE_PKG_FILE;
-        cd /opt/contrail/contrail_packages/;
-        ./setup_storage.sh
-       "
+       copy_pkg_to_api_server $STORAGE_PKG_FILE
+           
+       exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+           dpkg -i $STORAGE_PKG_FILE;
+           cd /opt/contrail/contrail_packages/;
+           ./setup_storage.sh
+          "
 
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd /opt/contrail/utils;
-            fab install_storage_pkg_all:${STORAGE_PKG_FILE};
-            fab install_storage;
-            fab setup_storage" || debug_and_die_local "install_storage_pkg_all failed"
+       exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+               cd /opt/contrail/utils;
+               fab install_storage_pkg_all:${STORAGE_PKG_FILE};
+               "
+     else
+       for (( i=1; i <= $NODE_COUNT;i++ ))
+       do
+        ipvar="NODE${i}_IP"
+        loginvar="NODE${i}_LOGIN"
+        passvar="NODE${i}_PASSWD"
+        install_storage_pkg_on_node ${!ipvar} ${!loginvar} ${!passvar} ${STORAGE_PKG_FILE}
+      done
+     fi
+
+     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+               cd /opt/contrail/utils;
+               fab install_storage;
+               fab setup_storage" || debug_and_die_local "install_storage/setup_storage failed"
 
 }
 
