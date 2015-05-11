@@ -28,7 +28,7 @@ if __name__ == '__main__' :
 
       for host in testbed_config['%s,hosts_list'%profile_name] :
          node = testbed_config['%s,node_name'%host]
-         test_obj.argument['%s_handle'%node] = test_obj.create_ssh_handle(node_name=node,ntp_update=True)
+         test_obj.argument['%s_handle'%node] = test_obj.create_ssh_handle(node_name=node,ntp_update=True,run_time=test_conf['runtime'])
 
       fab_node_host = testbed_config['%s,fab_node'%profile_name]
       fab_node = testbed_config['%s,node_name'%fab_node_host]

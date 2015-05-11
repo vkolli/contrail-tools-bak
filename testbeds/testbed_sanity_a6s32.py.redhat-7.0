@@ -73,7 +73,7 @@ control_data= {
     host1 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'eno1' },
     host2 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'eno1' },
     host3 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'eno1' },
-    host4 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'eno1' },
+    host4 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'eno2' },
     host5 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'eno1' },
     host6 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'eno1' },
 }
@@ -90,7 +90,7 @@ env.keystone = {
     'region_name'   : 'RegionOne',             #Default is RegionOne
     'insecure'      : 'True',                  #Default = False
 }
-
+env.openstack_admin_password = 'c0ntrail123'
 env.openstack = {
     'service_token' : '01f316f31345433597f7e62c8ecc5957',
     'amqp_host' : '192.168.10.6',

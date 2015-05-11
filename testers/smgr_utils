@@ -233,7 +233,7 @@ function reimage_using_SM() {
     fi
 
     pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
-    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*`
+    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
     echo ${contrail_pkg}
     echo ${pkg_path}  
     #set the parameters for multi/single node setup

@@ -90,13 +90,13 @@ function update_testbed_file {
 function identify_tbfile {
 
     folder_path=${TOOLS_WS}/testbeds
-    if [ $CEPH_PROFILE == "PROF01" ];then
-      PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
-    elif [ $CEPH_PROFILE == "PROF02" ];then
-      PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
-    elif [ $CEPH_PROFILE == "PROF04" ];then
-      PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
-    fi
+    #if [ $CEPH_PROFILE == "PROF01" ];then
+    #  PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
+    #elif [ $CEPH_PROFILE == "PROF02" ];then
+    #  PROFILE_TBFILE_NAME=$AVAILABLE_TESTBEDS
+    #elif [ $CEPH_PROFILE == "PROF04" ];then
+    #  PROFILE_TBFILE_NAME="testbed_ceph_perf_prof04.py"
+    #fi
     tbfile=$folder_path/$PROFILE_TBFILE_NAME
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
     export ABS_PATH_TBFILE=$tbfile
@@ -347,7 +347,7 @@ function run_ceph_fab_sanity() {
     create_testbed_ceph
     reimage_and_bringup_ceph
     copy_tbfile_to_api_server
-    run_ceph_check || die "run_ceph_check step failed"
+    #run_ceph_check || die "run_ceph_check step failed"
     echo "Test Done" 
     collect_tech_support_local || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"

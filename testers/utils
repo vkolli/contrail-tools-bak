@@ -12,26 +12,26 @@ function try {
     fi
 }
 
+function get_pkg_suffix_to_use {
+    pkg_suffix=""
+    if [[ ${DISTRO} =~ ubuntu ]]; then
+        pkg_suffix=".deb"
+    else
+        pkg_suffix=".rpm"
+    fi
+    export pkg_suffix
+}
+
 
 ##
 # search_package
 function search_package {
-    PKG_FILE_TYPE1="contrail-installer-package"
-    PKG_FILE_TYPE2="contrail-install-packages"
     if [ -z $PKG_FILE ]
     then 
-        mypath=/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}
-        if ls ${mypath}/${PKG_FILE_TYPE1}* 1>/dev/null 2>&1; then
-            PKG_FILE=`ls ${mypath}/${PKG_FILE_TYPE1}*` || die "Unable to find install package"
-            PKG_FILE1=`ls ${mypath}/${PKG_FILE_TYPE2}*` || die "Unable to find install package"
-            export PKG_FILE1
-        else
-            PKG_FILE=`ls ${mypath}/${PKG_FILE_TYPE2}*` || die "Unable to find install package"
-            unset PKG_FILE1
-        fi
+        get_pkg_suffix_to_use
+        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
         export PKG_FILE
     else
-        # !!!! DO NOT SET PKG_FILE directly as of now !!!!
         pkg_file_name=`basename $PKG_FILE`
         re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
         re_centos="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
@@ -53,7 +53,7 @@ function search_package {
 }
 
 function search_third_party_package {
-    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*`
+    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
 }
 
 ##
@@ -257,15 +257,7 @@ function use_testbed_file {
 
 function run_setup_shell_script {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-        if [ -d /opt/contrail/contrail_installer_package ]; then
-            bash -x /opt/contrail/contrail_installer_package/setup.sh;
-        fi
-        if [ -f /opt/contrail/contrail_install_packages/setup.sh ]; then
-            bash -x /opt/contrail/contrail_install_packages/setup.sh;
-        fi
-        if [ -f /opt/contrail/contrail_packages/setup.sh ]; then
-            bash -x /opt/contrail/contrail_packages/setup.sh;
-        fi "  || debug_and_die "Failed while running setup.sh" 
+        find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 }
 
 # bringup_setup
@@ -282,9 +274,6 @@ function bringup_setup {
     fab prov_esxi
     sleep 60
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
-    if [ -n "$PKG_FILE1" ]; then
-        fab install_pkg_all:${PKG_FILE1} || die "fab install_pkg_all:${PKG_FILE1} failed"
-    fi
     run_setup_shell_script
 
     # Upgrade biosdevname if ubuntu-14-04
@@ -371,7 +360,12 @@ function reimage_setup {
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
-            fab all_sm_reimage:$REIMAGE_PARAM ;
+            # Workaround till Server manager is fixed.
+            if [ "$TBFILE_NAME" == "testbed_sanity_a6s32.py" ]; then
+                /cs-shared/server-manager/client/server-manager reimage --no_confirm --cluster_id Sanity_a6s32_tb $REIMAGE_PARAM
+            else
+                fab all_sm_reimage:$REIMAGE_PARAM ;
+            fi
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
             else
