@@ -79,10 +79,10 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'eth1' },
-   host2 : { 'ip': '13.0.0.1/24', 'gw' : '13.0.0.1', 'device':'eth1' },
-   host3 : { 'ip': '13.0.0.2/24', 'gw' : '13.0.0.1', 'device':'eth1' },
-   host4 : { 'ip': '13.0.0.4/24', 'gw' : '13.0.0.1', 'device':'em1' },
+   host1 : { 'ip': '13.0.0.1/24', 'gw' : '13.0.0.1', 'device':'p6p1' },
+   host2 : { 'ip': '13.0.0.2/24', 'gw' : '13.0.0.1', 'device':'eth1' },
+   host3 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'eth1' },
+   host4 : { 'ip': '13.0.0.5/24', 'gw' : '13.0.0.1', 'device':'em1' },
 }
 
 #To disable installing contrail interface rename package
