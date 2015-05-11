@@ -92,7 +92,19 @@ def live_migrate(test_obj,handle,prompt):
   print "New host:",new_host
   ostack.live_migrate_vm(test_obj,handle,prompt,vm_id,new_host)
 
-  time.sleep(600)
+  time.sleep(60)
+
+  args = {}
+  args['handle']     = handle
+  args['prompt']     = prompt
+  args['test_obj']   = test_obj
+  args['vm_name']    = "VM1"
+  args['status'] = "ACTIVE"
+  args['power_state'] = "Running"
+  args['timeout']     = 600
+  ostack.wait_until_vm_status(args)
+
+
   current_hostname2 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
 
   if current_hostname2 == new_host :
@@ -164,7 +176,7 @@ if __name__ == '__main__' :
     fab_node_host = testbed_config['%s,fab_node'%profile_name]
     fab_node = testbed_config['%s,node_name'%fab_node_host]
 
-    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True)
+    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True,run_time=test_conf['runtime'])
 
     configure_livem(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node],fab_node)
 

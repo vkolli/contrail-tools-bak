@@ -23,8 +23,8 @@ if __name__ == '__main__' :
 
     fab_node_host = testbed_config['%s,fab_node'%profile_name]
     fab_node = testbed_config['%s,node_name'%fab_node_host]
-
-    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True)
+   
+    fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True,run_time=test_conf['runtime'])
 
     ostack.init_credentials(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node])
 
@@ -57,6 +57,7 @@ if __name__ == '__main__' :
         test_obj.argument['err_msg'] += "ERROR: mon IP list is not correct"
         sys.exit(1)
 
+    exp_osd_map_count = testbed_config['%s,osd_count'%profile_name]
     ret = re.search('osdmap .*: (\d+) osds: (\d+) up, (\d+) in',output)
     if ret and ( int(ret.group(1)) == int(exp_osd_map_count) ) and ( int(ret.group(2)) == int(exp_osd_map_count) ) and ( int(ret.group(1)) == int(exp_osd_map_count) ) :
        msg = "INFO: ceph status is PASS and osd count is PASS and all osds are up\n"
