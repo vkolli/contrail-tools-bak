@@ -117,6 +117,11 @@ storage_node_config = {
            'local-disks': ['/dev/sdd'] ,
            'nfs' : ['10.87.132.105:/localstore/ceph/multibackend_mount1', '10.87.132.105:/localstore/ceph/multibackend_mount2'],    
            'journal' : ['/dev/sdb'] },
+    host3 : { 
+           'ssd-disks' : ['/dev/sdc'] ,
+           'local-disks': ['/dev/sdd'] ,
+           'nfs' : ['10.87.132.105:/localstore/ceph/multibackend_mount3', '10.87.132.105:/localstore/ceph/multibackend_mount4'],    
+           'journal' : ['/dev/sdb'] },
 }
 
 live_migration = True
