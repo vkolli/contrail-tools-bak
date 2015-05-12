@@ -44,6 +44,12 @@ if __name__ == '__main__' :
        test_obj.argument['err_msg'] += msg
        sys.exit(1)
        
+    if re.search('stuck|degraded|unclean|undersized',output):
+       msg = "ERROR: ceph status has issue."
+       print msg
+       test_obj.argument['err_msg'] += msg
+       sys.exit(1)
+       
     out = re.search('mons at.*',output).group()
     ret = re.findall('=(.*?):',out)
     ret.sort()
