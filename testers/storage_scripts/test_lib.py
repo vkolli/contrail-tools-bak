@@ -64,7 +64,7 @@ class lib:
 
      ip = testbed_config['%s,ip'%node_name]
 
-     run_time = kwargs['run_time']
+     #run_time = kwargs['run_time']
 
      try:
        login   = testbed_config['%s,login'%node_name]
