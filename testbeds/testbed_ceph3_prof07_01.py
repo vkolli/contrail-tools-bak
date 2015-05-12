@@ -114,9 +114,9 @@ env.interface_rename = False
 storage_node_config = {
     host2 : { 
            'disks' : ['/dev/sdc','/dev/sdd'] ,
-           'journal' : ['/dev/sdb'] }
-           }
-}
+           'journal' : ['/dev/sdb'] 
+            }
+   }
 
 live_migration = True
 ceph_nfs_livem = True

@@ -114,11 +114,11 @@ env.interface_rename = False
 storage_node_config = {
     host2 : { 
            'disks' : ['/dev/sdc','/dev/sdd'] ,
-           'journal' : ['/dev/sdb'] }
+           'journal' : ['/dev/sdb'] 
            },
     host3 : { 
            'disks' : ['/dev/sdc','/dev/sdd'] ,
-           'journal' : ['/dev/sdb'] }
+           'journal' : ['/dev/sdb'] 
            }
 }
 
