@@ -291,6 +291,12 @@ function bringup_setup_contrail {
 }
 
 function bringup_storage {
+
+    if [ $SKIP_CONTRAIL_BRINGUP -eq 1 ]
+    then 
+     copy_tbfile_to_api_server
+    fi
+ 
     if [ $INSTALL_ALL -eq 1 ] 
     then
 
