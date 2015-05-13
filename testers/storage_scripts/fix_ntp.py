@@ -26,7 +26,7 @@ if __name__ == '__main__' :
 
      node_name = testbed_config['%s,node_name'%host] 
      handle = test_obj.create_ssh_handle(node_name=node_name)
-     prompt = testbed_config['%s,prompt'%host]
+     prompt = testbed_config['%s,prompt'%node_name]
 
      cmd = "service ntp stop"
      output = gen_lib.send_cmd(test_obj,handle,cmd,prompt,120,True,False)
