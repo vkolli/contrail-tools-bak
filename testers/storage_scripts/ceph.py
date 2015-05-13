@@ -453,13 +453,6 @@ def update_testbed_file(test_obj,fab_node_handle,testbed_file,info):
    fab_node_host = testbed_config['%s,fab_node'%profile_name]
    fab_node = testbed_config['%s,node_name'%fab_node_host]
 
-   if testbed_config['node1,data_link,ip'] == testbed_config['node1,ip'] : 
-     # for CEPH1 testbed,no need to update the interface details.its already hardcoded in testbed.py
-     src_file = testbed_file
-     dest       = '/opt/contrail/utils/fabfile/testbeds/testbed.py'
-     test_obj.remote_scp_from(fab_node_handle,testbed_config['%s,prompt'%fab_node],src_file,src_ip,src_login,src_passwd,dest)
-     return
-
    d,f = os.path.split(testbed_file)
 
    for host in testbed_config['%s,hosts_list'%profile_name] :
