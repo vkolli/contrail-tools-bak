@@ -45,7 +45,7 @@ if __name__ == '__main__' :
            sys.exit()
 
      cmd = "python %s"%dest
-     output = gen_lib.send_cmd(test_obj,fab_node_handle,cmd,fab_node_prompt,600)
+     output = gen_lib.send_cmd(test_obj,fab_node_handle,cmd,fab_node_prompt,1200)
 
      ret = re.search('TOTAL_OBJECT:(\d+),TEST_STATUS:(\S+)',output)
      if ret and int(ret.group(1)) != 0 and ret.group(2) == 'True' :
