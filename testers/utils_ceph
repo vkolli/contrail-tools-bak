@@ -99,7 +99,8 @@ function identify_tbfile {
     #fi
     tbfile=$folder_path/$PROFILE_TBFILE_NAME
     [ -f $tbfile ] || die "Testbed file $tbfile not found"
-    export ABS_PATH_TBFILE=$tbfile
+    cp $tbfile ~
+    export ABS_PATH_TBFILE=~/$PROFILE_TBFILE_NAME
 
 }
 
@@ -336,6 +337,7 @@ function reimage_and_bringup_ceph {
     if [ $SKIP_REIMAGE -eq 0 ]
     then
       reimage_using_SM_ceph || debug_and_die_local "Reimage failed!"
+      sleep 180
       #reimage_setup_ceph || debug_and_die_local "Reimage failed!"
     fi
 
