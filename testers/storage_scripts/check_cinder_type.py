@@ -34,7 +34,6 @@ if __name__ == '__main__' :
       if re.search('Error initializing cluster client: Error',output):
         msg = "PASS : ceph status is correct.Error seen due to local-only disks or nfs-only disks"
         print msg
-        sys.exit(0)
       else:
         msg = "ERROR : ceph status is incorrect.supposed to see \"Error initializing cluster client: Error\""
         print msg
