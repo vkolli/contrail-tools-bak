@@ -23,3 +23,8 @@ profiles_tests['PROF07'] = []
 profiles_tests['PROF07'].append('python,fix_ntp.py,fix_ntp.conf')
 profiles_tests['PROF07'].append('python,check_cinder_type.py,check_cinder_type.conf')
 profiles_tests['PROF07'].append('python,add_storage_node.py,add_storage_node.conf')
+
+profiles_tests['PROF08'] = []
+profiles_tests['PROF08'].append('python,fix_ntp.py,fix_ntp.conf')
+profiles_tests['PROF08'].append('python,check_cinder_type.py,check_cinder_type.conf')
+profiles_tests['PROF08'].append('python,multi_chassis_test.py,multi_chassis_test.conf')
