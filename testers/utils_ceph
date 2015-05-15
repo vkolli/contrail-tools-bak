@@ -289,8 +289,18 @@ function bringup_setup_contrail {
                cd /opt/contrail/utils;
                export HA_TEST=$HA_TEST;
                fab setup_interface || exit 1;
-               fab add_static_route 
+               fab add_static_route " || debug_and_die_local "fab setup_interface/add_static_route failed"
+    if [ $NODE_COUNT -eq 1 ] 
+    then 
+      exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+               cd /opt/contrail/utils;
                fab setup_all" || debug_and_die_local "fab setup_interface or setup_all task failed"
+    else
+      exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+               cd /opt/contrail/utils;
+               fab setup_all" 
+      sleep 300
+    fi
 }
 
 function bringup_storage {
@@ -327,9 +337,14 @@ function bringup_storage {
 
      exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                cd /opt/contrail/utils;
-               fab install_storage;
-               fab setup_storage" || debug_and_die_local "install_storage/setup_storage failed"
+               fab install_storage; " || debug_and_die_local "install_storage failed"
 
+     if [ $SKIP_SETUP_STORAGE -eq 0 ]
+     then
+      exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+               cd /opt/contrail/utils;
+               fab setup_storage" || debug_and_die_local "setup_storage failed"
+     fi 
 }
 
 function reimage_and_bringup_ceph {
