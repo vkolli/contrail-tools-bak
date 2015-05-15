@@ -19,7 +19,7 @@ objects_list = re.findall('benchmark_data\S+',objects_list)
 
 status = True
 
-for object in objects_list:
+for object in objects_list[:5000]:
 
   cmd = "ceph osd map volumes %s"%object
   object_output = commands.getoutput(cmd)
