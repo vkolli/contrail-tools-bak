@@ -30,7 +30,7 @@ if __name__ == '__main__' :
 
     output = gen_lib.send_cmd(test_obj,fab_node_handle,"ceph -s","#",120)
     print output
-    if testbed_config['PROF05,osd_count'] == -1 :
+    if testbed_config['%s,osd_count'%profile_name] == -1 :
       if re.search('Error initializing cluster client: Error',output):
         msg = "PASS : ceph status is correct.Error seen due to local-only disks or nfs-only disks"
         print msg
