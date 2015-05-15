@@ -40,7 +40,7 @@ function search_package_ceph {
                      "` || die "Unable to find storage LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node" 
       STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
     else
-      INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*` || die "Unable to find install package"
+      INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${SKU}_all.deb` || die "Unable to find install package"
       STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
     fi
 
