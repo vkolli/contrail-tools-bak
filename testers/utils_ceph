@@ -252,6 +252,7 @@ function bringup_setup_contrail {
            cd /opt/contrail/contrail_packages/;
            ./setup.sh
           "
+       copy_tbfile_to_api_server
 
        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
              cd /opt/contrail/utils;
@@ -265,9 +266,9 @@ function bringup_setup_contrail {
         passvar="NODE${i}_PASSWD"
         install_contrail_pkg_on_node ${!ipvar} ${!loginvar} ${!passvar} ${INSTALL_PKG_FILE}
       done
+      copy_tbfile_to_api_server
     fi
 
-    copy_tbfile_to_api_server
 
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
