@@ -245,13 +245,13 @@ function bringup_setup_contrail {
     if [ $INSTALL_ALL -eq 1 ] 
     then
 
+       copy_pkg_to_api_server $INSTALL_PKG_FILE
    
        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
            dpkg -i $INSTALL_PKG_FILE;
            cd /opt/contrail/contrail_packages/;
            ./setup.sh
           "
-       copy_pkg_to_api_server $INSTALL_PKG_FILE
 
        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
              cd /opt/contrail/utils;
