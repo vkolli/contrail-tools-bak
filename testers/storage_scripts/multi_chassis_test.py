@@ -42,7 +42,7 @@ if __name__ == '__main__' :
      status = test_obj.remote_scp_from(fab_node_handle,fab_node_prompt,src_file,src_ip,src_login,src_passwd,dest)
      if not status :
            test_obj.argument['err_msg'] += "test_obj.remote_scp for %s failed"%src_file
-           sys.exit()
+           sys.exit(1)
 
      cmd = "python %s"%dest
      output = gen_lib.send_cmd(test_obj,fab_node_handle,cmd,fab_node_prompt,1200)
@@ -54,14 +54,19 @@ if __name__ == '__main__' :
           msg =  "ERROR: multi-chassis configuration failed"
           print msg
           test_obj.argument['err_msg'] += msg
-     
-     test_obj.cleanup()
-     test_obj.PostResult()
+
+  except SystemExit:
+     pass
      
   except Exception:
 
      traceback.print_exc()
      test_obj.argument['err_msg'] += 'ERROR: exception seen'
-     test_obj.PostResult()
-     test_obj.cleanup()
+  test_obj.PostResult()
+  test_obj.cleanup()
+
+  if test_obj.argument['err_msg'] == "" :
+    sys.exit(0)
+  else:
+    sys.exit(1)
 
