@@ -31,9 +31,9 @@ if __name__ == '__main__' :
      fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True)
      fab_node_prompt   = testbed_config['%s,prompt'%fab_node]
 
-     src_ip     = testbed_config['regression,ip']
-     src_login  = testbed_config['regression,login']
-     src_passwd = testbed_config['regression,password']
+     src_ip     = testbed_config['sm_node,ip']
+     src_login  = testbed_config['sm_node,login']
+     src_passwd = testbed_config['sm_node,password']
 
      src_file = "%s/multi_chassis_internal.py"%os.getcwd()
 
