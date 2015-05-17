@@ -81,9 +81,9 @@ function update_testbed_file {
 
     if [ $PKG_LOCAL -eq 1 ]
     then
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE/contrail-fabric-utils/fabfile/testbeds/testbed.py
     else
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils/fabfile/testbeds/testbed.py
    fi
 }
 
@@ -111,9 +111,9 @@ function copy_tbfile_task_runner {
  
     if [ $PKG_LOCAL -eq 0 ]
     then
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/fabric-utils/fabfile/testbeds/testbed.py
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils/fabfile/testbeds/testbed.py
     else
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/contrail-fabric-utils/fabfile/testbeds/testbed.py
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE/contrail-fabric-utils/fabfile/testbeds/testbed.py
     fi
 
 }
@@ -159,20 +159,20 @@ function create_testbed_ceph {
 
     search_package_ceph
 
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/"      
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/"      
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/$CEPH_PROFILE"      
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/$CEPH_PROFILE"      
 
     if [ $PKG_LOCAL -eq 1 ]
     then
       exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
-        cd /tmp/$TBFILE_NAME/;
+        cd /tmp/$TBFILE_NAME/$CEPH_PROFILE;
         ssh-keygen -R github.com;
         ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts;
         git clone git@github.com:Juniper/contrail-fabric-utils.git
         "
     else 
-      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/
-      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/;tar xzf contrail-fabric-utils*.tgz" 
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${TASK_RUNNER_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE
+      exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/$CEPH_PROFILE;tar xzf contrail-fabric-utils*.tgz" 
     fi
 
     copy_tbfile_task_runner
@@ -217,9 +217,9 @@ function reimage_setup_ceph {
     fi
     exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             if [ $PKG_LOCAL -eq 1 ];then
-              cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+              cd /tmp/$TBFILE_NAME/$CEPH_PROFILE/contrail-fabric-utils;
             else
-              cd /tmp/$TBFILE_NAME/fabric-utils;
+              cd /tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils;
             fi
       
             export HA_TEST=$HA_TEST;
@@ -273,9 +273,9 @@ function bringup_setup_contrail {
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
              if [ $PKG_LOCAL -eq 1 ];then
-                 cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+                 cd /tmp/$TBFILE_NAME/$CEPH_PROFILE/contrail-fabric-utils;
              else
-                 cd /tmp/$TBFILE_NAME/fabric-utils;
+                 cd /tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils;
              fi
              fab upgrade_kernel_all;
              sleep 60;
