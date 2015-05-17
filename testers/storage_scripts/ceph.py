@@ -6,7 +6,6 @@ import traceback
 import commands
 from threading import Thread
 
-sys.path.append('/var/nkn/qa/smoke/lib/ceph')
 import gen_lib
 import os_lib
 
