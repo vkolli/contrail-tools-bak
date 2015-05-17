@@ -9,6 +9,8 @@ runtime = sys.argv[3] # FAB or SM
 
 if testbed == "testbed_ceph3.py" :
    tb_file = "SMOKE_CEPH3.config"
+elif testbed == "testbed_smgr_ci_multi_node.py":
+   tb_file = "SMOKE_ci_multi_node.config"
 else:
    tb_file = "None"
 
