@@ -166,6 +166,8 @@ if __name__ == '__main__' :
     test_conf      = test_obj.argument['test_conf']['test_conf']
 
     profile_name = test_conf['profile_name']
+    
+    runtime = test_conf['runtime']
 
     if testbed_config.has_key('%s,local_only_disks'%profile_name) and testbed_config['%s,local_only_disks'%profile_name] :
        print "INFO : local_only_disks.livem will not work.skipping the test."
@@ -178,7 +180,8 @@ if __name__ == '__main__' :
 
     fab_node_handle   = test_obj.create_ssh_handle(node_name=fab_node,ntp_update=True,run_time=test_conf['runtime'])
 
-    configure_livem(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node],fab_node)
+    if runtime == "FAB":
+      configure_livem(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node],fab_node)
 
     ostack.init_credentials(test_obj,fab_node_handle,testbed_config['%s,prompt'%fab_node])
 
