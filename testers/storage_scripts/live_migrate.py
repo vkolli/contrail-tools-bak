@@ -169,6 +169,12 @@ if __name__ == '__main__' :
     
     runtime = test_conf['runtime']
 
+    if testbed_config['%s,live_migration'%profile_name] == False :
+       print "INFO : live_migration test cannot be done in this testbed.skipping the test."
+       test_obj.PostResult()
+       test_obj.cleanup()
+       sys.exit() 
+      
     if testbed_config.has_key('%s,local_only_disks'%profile_name) and testbed_config['%s,local_only_disks'%profile_name] :
        print "INFO : local_only_disks.livem will not work.skipping the test."
        test_obj.PostResult()
