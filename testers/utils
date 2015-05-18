@@ -419,7 +419,7 @@ function run_sanity {
     # check venv exist before running test
     check_venv_exists
     setup_sanity_base
-    #stop_on_failure
+    stop_on_failure
 }
 
 #Lock testbed if the test failures are more than the 
@@ -428,7 +428,7 @@ function run_sanity {
 
 function stop_on_failure {
     files='result*'
-    limit=0
+    limit=80
     if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
         limit=$TEST_FAILURE_THRESHOLD
     else
