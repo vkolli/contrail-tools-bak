@@ -361,7 +361,7 @@ function reimage_setup {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
             # Workaround till Server manager is fixed.
-            if [ "$TBFILE_NAME" == "testbed_sanity_a6s32.py" ]; then
+            if [ `echo $TBFILE_NAME | grep -c "a6s32" ` -gt 0 ]; then
                 /cs-shared/server-manager/client/server-manager reimage --no_confirm --cluster_id Sanity_a6s32_tb $REIMAGE_PARAM
             else
                 fab all_sm_reimage:$REIMAGE_PARAM ;
