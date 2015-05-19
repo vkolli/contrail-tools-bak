@@ -366,7 +366,9 @@ function reimage_setup {
             else
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
-            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+            if [[ "$BRANCH" == "R2.2" ] || [ ${BRANCH} == "mainline" ]]; then
+                fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+            fi
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
             else
@@ -377,7 +379,9 @@ function reimage_setup {
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
-        fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+        if [[ "$BRANCH" == "R2.2" ] || [ ${BRANCH} == "mainline" ]]; then
+            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+        fi
         if [[ "$BRANCH" < "R2.0" ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
         else
