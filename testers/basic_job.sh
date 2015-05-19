@@ -7,5 +7,6 @@ testbeds=(${AVAILABLE_TESTBEDS//,/ })
 echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 
 get_testbed
-run_task
+reimage_setup
+#run_task
 unlock_testbed $TBFILE_NAME
