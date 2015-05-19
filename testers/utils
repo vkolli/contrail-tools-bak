@@ -367,7 +367,7 @@ function reimage_setup {
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
             if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
-                fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+                fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed" ;
             fi
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
