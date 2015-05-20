@@ -366,7 +366,7 @@ function reimage_setup {
             else
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
-            if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
+            if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
                 fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
             if [[ "$BRANCH" < "R2.0" ]]; then
@@ -379,7 +379,7 @@ function reimage_setup {
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
-        if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
+        if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
             fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
         fi
         if [[ "$BRANCH" < "R2.0" ]]; then
