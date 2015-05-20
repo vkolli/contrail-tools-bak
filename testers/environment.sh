@@ -61,6 +61,9 @@ export EMAIL_SUBJECT_PREFIX=${EMAIL_SUBJECT_PREFIX:-""}
 # Location where locks are maintained for testbeds
 export LOCK_FILE_DIR=${LOCK_FILE_DIR:-/cs-shared/testbed_locks}
 
+# Location of Server Manager client used to reimage nodes.
+export SMGR_CLIENT=${SMGR_CLIENT:-/cs-shared/server-manager/client/server-manager}
+
 # Folder where debug logs/cores etc. are put
 export DEBUG_LOG_DIR=${DEBUG_LOG_DIR:-/cs-shared/test_runs}
 
