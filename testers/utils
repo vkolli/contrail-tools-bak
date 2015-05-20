@@ -367,12 +367,12 @@ function reimage_setup {
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
             if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
-                fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed" ;
+                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
             else
-                fab wait_till_all_up:attempts=180,reimaged=True;
+                fab wait_till_all_up:attempts=180,waitdown=False;
             fi
             fab check_reimage_state" || debug_and_die "reimage_setup failed"
     else
@@ -385,7 +385,7 @@ function reimage_setup {
         if [[ "$BRANCH" < "R2.0" ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
         else
-            fab wait_till_all_up:attempts=180,reimaged=True || debug_and_die "Not all nodes are up after reimage"
+            fab wait_till_all_up:attempts=180,waitdown=False || debug_and_die "Not all nodes are up after reimage"
         fi
         # verify reimage is successful or failure
         fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
