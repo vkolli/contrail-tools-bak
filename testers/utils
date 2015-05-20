@@ -413,6 +413,15 @@ function run_build_fab {
     )
 } 
 
+function add_to_sources_list {
+   set -x
+   echo $API_SERVER_HOST_STRING
+   if [ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]; then
+       sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
+       cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
+       echo "sources.list modified" )'
+       fi
+}
 # run_sanity serial/parallel
 function run_sanity {
     if [ $SKIP_SANITY -ne 0 ]
@@ -421,6 +430,7 @@ function run_sanity {
     fi
     search_package
     copy_fabric_test_artifacts
+    add_to_sources_list
     run_fab "setup_test_env"
     # check venv exist before running test
     check_venv_exists
