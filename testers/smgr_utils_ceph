@@ -41,11 +41,11 @@ function reimage_using_SM_ceph() {
 
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
         SMID=ubuntu12$SKU${BUILDID}
-        server_json="$SM_FILES_DIR/ceph_server.json"
     elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
         SMID=ubuntu14$SKU${BUILDID}
-        server_json="$SM_FILES_DIR/ceph_server_14.json"
     fi
+
+    server_json="$SM_FILES_DIR/$SERVER_FILE_NAME.json"
 
     
     SMID=`echo $SMID | tr '[:upper:]' '[:lower:]'`
