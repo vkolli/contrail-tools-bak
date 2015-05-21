@@ -11,4 +11,5 @@ echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 
 get_testbed
 run_smgr_task_ceph
+run_ceph_sanity.sh
 unlock_testbed $TBFILE_NAME
