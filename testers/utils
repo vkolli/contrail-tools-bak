@@ -366,26 +366,26 @@ function reimage_setup {
             else
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
-            if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
-                fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed" ;
+            if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
+                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
             if [[ "$BRANCH" < "R2.0" ]]; then
                 fab wait_till_all_up:attempts=180;
             else
-                fab wait_till_all_up:attempts=180,reimaged=True;
+                fab wait_till_all_up:attempts=180,waitdown=False;
             fi
             fab check_reimage_state" || debug_and_die "reimage_setup failed"
     else
         cd ${TOOLS_WS}/contrail-fabric-utils
         # server-manager reimage
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
-        if [[ ("$BRANCH" == "R2.2" ) || ( ${BRANCH} == "mainline" ) ]]; then
+        if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
             fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
         fi
         if [[ "$BRANCH" < "R2.0" ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
         else
-            fab wait_till_all_up:attempts=180,reimaged=True || debug_and_die "Not all nodes are up after reimage"
+            fab wait_till_all_up:attempts=180,waitdown=False || debug_and_die "Not all nodes are up after reimage"
         fi
         # verify reimage is successful or failure
         fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
@@ -413,6 +413,15 @@ function run_build_fab {
     )
 } 
 
+function add_to_sources_list {
+   set -x
+   echo $API_SERVER_HOST_STRING
+   if [ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]; then
+       sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
+       cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
+       echo "sources.list modified" )'
+       fi
+}
 # run_sanity serial/parallel
 function run_sanity {
     if [ $SKIP_SANITY -ne 0 ]
@@ -421,6 +430,7 @@ function run_sanity {
     fi
     search_package
     copy_fabric_test_artifacts
+    add_to_sources_list
     run_fab "setup_test_env"
     # check venv exist before running test
     check_venv_exists
