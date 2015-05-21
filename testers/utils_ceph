@@ -138,9 +138,10 @@ function copy_pkgs_to_sm_node {
       if [ $INSTALL_MODE == "SM" ]
       then
         sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$SM_INSTALLER_PKG_FILE
-        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$INSTALL_PKG_FILE
-        sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
-      fi
+      fi 
+
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$INSTALL_PKG_FILE
+      sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$STORAGE_PKG_FILE
     fi 
 }
 
