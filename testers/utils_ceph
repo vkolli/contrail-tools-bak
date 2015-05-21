@@ -427,6 +427,9 @@ function debug_and_die_local
 function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
     create_testbed_ceph
+
+    copy_pkgs_to_sm_node
+
     reimage_and_bringup_ceph
     copy_tbfile_to_api_server
     #run_ceph_check || die "run_ceph_check step failed"
