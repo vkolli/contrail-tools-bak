@@ -122,3 +122,5 @@ ceph_nfs_livem_subnet = '192.168.101.253/24'
 ceph_nfs_livem_image =  '/store/livemnfs.qcow2'
 ceph_nfs_livem_host = host2
 
+
+storage_replica_size = 2
