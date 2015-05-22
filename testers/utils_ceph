@@ -419,6 +419,7 @@ function debug_and_die_local
         ) 5>${LOCK_FILE_DIR}/lockfile
     else
         collect_tech_support_local
+        unlock_testbed $TBFILE_NAME
     fi
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
