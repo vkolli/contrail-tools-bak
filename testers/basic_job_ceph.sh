@@ -10,6 +10,9 @@ echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 get_testbed
 run_ceph_fab_sanity
 
+if [ $SKIP_CEPH_TESTS -eq 0 ]
+then
+
 return_val=`exec_cmds -s $TASK_RUNNER_HOST_STRING -p $TASK_RUNNER_HOST_PASSWORD -c "
     mkdir -p /tmp/$AVAILABLE_TESTBEDS/$CEPH_PROFILE;
     cd /tmp/$AVAILABLE_TESTBEDS/$CEPH_PROFILE;
@@ -27,5 +30,6 @@ else
     die "CEPH_SANITY : FAILED"
 fi
 
+fi
 
 unlock_testbed $TBFILE_NAME
