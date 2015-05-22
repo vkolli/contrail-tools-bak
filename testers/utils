@@ -466,22 +466,22 @@ function set_threshold {
 
     case "$DISTRO" in
         'ubuntu-12-04')
-            echo 15
+            echo 85
             ;;
         'centos64_os')
-            echo 25
+            echo 85
             ;;
         'centos65')
-            echo 25
+            echo 85
             ;;
         'ubuntu-14-04')
-            echo 15
+            echo 85
             ;;
         'redhat70')
-            echo 25
+            echo 85
             ;;
          *)
-            echo 30
+            echo 85
             ;;
     esac
 
