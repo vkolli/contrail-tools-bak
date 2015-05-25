@@ -46,6 +46,7 @@ export ADD_IMAGES=${ADD_IMAGES:-0}
 # If REMOTE, reimage command will be triggered from TASK_RUNNER_HOST_STRING
 export TESTBED_LOCATION=${TESTBED_LOCATION:-"LOCAL"}
 export ESXI_ONLY_TESTBED=${ESXI_ONLY_TESTBED:-0}
+export VCENTER_ONLY_TESTBED=${VCENTER_ONLY_TESTBED:-0}
 export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 export NODEHOME=${NODEHOME:-/root}
