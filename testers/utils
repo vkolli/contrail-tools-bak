@@ -371,10 +371,10 @@ function reimage_setup {
             if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
                 fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
-            if [[ "$BRANCH" < "R2.0" ]]; then
+            if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
                 fab wait_till_all_up:attempts=180;
             else
-                fab wait_till_all_up:attempts=180,waitdown=False;
+                fab wait_till_all_up:attempts=180,waitdown=False,reimaged=True;
             fi
             fab check_reimage_state" || debug_and_die "reimage_setup failed"
     else
@@ -386,10 +386,10 @@ function reimage_setup {
         if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
             fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
         fi
-        if [[ "$BRANCH" < "R2.0" ]]; then
+        if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
         else
-            fab wait_till_all_up:attempts=180,waitdown=False || debug_and_die "Not all nodes are up after reimage"
+            fab wait_till_all_up:attempts=180,waitdown=False,reimaged=True || debug_and_die "Not all nodes are up after reimage"
         fi
         # verify reimage is successful or failure
         fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
@@ -466,22 +466,22 @@ function set_threshold {
 
     case "$DISTRO" in
         'ubuntu-12-04')
-            echo 15
+            echo 85
             ;;
         'centos64_os')
-            echo 25
+            echo 85
             ;;
         'centos65')
-            echo 25
+            echo 85
             ;;
         'ubuntu-14-04')
-            echo 15
+            echo 85
             ;;
         'redhat70')
-            echo 25
+            echo 85
             ;;
          *)
-            echo 30
+            echo 85
             ;;
     esac
 
