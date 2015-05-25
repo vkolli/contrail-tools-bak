@@ -38,9 +38,9 @@ env.hostnames = {
 }
 
 #Openstack admin password
-env.openstack_admin_password = 'n1keenA'
+env.openstack_admin_password = 'c0ntrail123'
 
-env.password = 'n1keenA'
+env.password = 'c0ntrail123'
 #Passwords of each host
 env.passwords = {
     host1: 'c0ntrail123',
@@ -94,11 +94,11 @@ control_data = {
    host2 : { 'ip': '172.16.80.3/24',  'gw' : '172.16.80.253', 'device':'bond0' },
    host3 : { 'ip': '172.16.80.4/24',  'gw' : '172.16.80.253', 'device':'bond0' },
    host4 : { 'ip': '172.16.80.7/24',  'gw' : '172.16.80.253', 'device':'bond0' },
-   host4 : { 'ip': '172.16.80.8/24',  'gw' : '172.16.80.253', 'device':'bond0' },
-   host4 : { 'ip': '172.16.80.9/24',  'gw' : '172.16.80.253', 'device':'bond0' },
-   host4 : { 'ip': '172.16.80.10/24', 'gw' : '172.16.80.253', 'device':'bond0' },
-   host4 : { 'ip': '172.16.80.11/24', 'gw' : '172.16.80.253', 'device':'bond0' },
-   host4 : { 'ip': '172.16.80.12/24', 'gw' : '172.16.80.253', 'device':'bond0' },
+   host5 : { 'ip': '172.16.80.8/24',  'gw' : '172.16.80.253', 'device':'bond0' },
+   host6 : { 'ip': '172.16.80.9/24',  'gw' : '172.16.80.253', 'device':'bond0' },
+   host7 : { 'ip': '172.16.80.10/24', 'gw' : '172.16.80.253', 'device':'bond0' },
+   host8 : { 'ip': '172.16.80.11/24', 'gw' : '172.16.80.253', 'device':'bond0' },
+   host9 : { 'ip': '172.16.80.12/24', 'gw' : '172.16.80.253', 'device':'bond0' },
 }
 
 #To disable installing contrail interface rename package
