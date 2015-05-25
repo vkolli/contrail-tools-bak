@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
+source $TOOLS_WS/testers/environment_ceph.sh
 source $TOOLS_WS/testers/smgr_utils_ceph
 
 function get_ubuntu_image_id () {
