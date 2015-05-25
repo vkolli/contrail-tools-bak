@@ -358,7 +358,10 @@ function reimage_and_bringup_ceph {
       #reimage_setup_ceph || debug_and_die_local "Reimage failed!"
     fi
 
-    update_testbed_file || die "Unable to set the testbed properly for use"
+    if [ $UPDATE_TB_IFACE_DETAILS -eq 1 ]
+    then
+      update_testbed_file || die "Unable to set the testbed properly for use"
+    fi
 
     if [ $SKIP_CONTRAIL_BRINGUP -eq 0 ]
     then
