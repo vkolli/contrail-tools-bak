@@ -30,19 +30,18 @@ env.hostnames = {
     'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec18']
 }
 
-# Dont use bond intf for redhat for now
 bond= {
-    host4 : { 'name': 'bond0', 'member': ['p2p0p0','p2p0p1','p2p0p2','p2p0p3'],'mode':'802.3ad' },
-    host5 : { 'name': 'bond0', 'member': ['p2p0p0','p2p0p1','p2p0p2','p2p0p3'],'mode':'802.3ad' },
-    host6 : { 'name': 'bond0', 'member': ['p2p0p0','p2p0p1'],'mode':'balance-xor' },
+    host4 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
+    host5 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
+    host6 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0'],'mode':'balance-xor' },
 }
 
 # Dont use bond intf for redhat for now
 control_data= {
 
-    host1 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'eth1' },
+    host1 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
 #    host2 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'eth1' },
-    host3 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'eth1' },
+    host3 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
     host4 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'bond0' },
     host5 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'bond0' },
     host6 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'bond0' },
@@ -58,6 +57,7 @@ env.passwords = {
 
     host_build: 'c0ntrail123',
 }
+
 env.openstack_admin_password = 'c0ntrail123'
 env.keystone = {
     'keystone_ip'   : '10.204.217.4',
