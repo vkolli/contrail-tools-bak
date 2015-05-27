@@ -29,12 +29,12 @@ env.roledefs = {
 env.hostnames = {
     'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec18']
 }
-
-bond= {
-    host4 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
-    host5 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
-    host6 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0'],'mode':'balance-xor' },
-}
+## Disabling bond temporary in redhat. Will enable normal provision works fine.
+#bond= {
+#    host4 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
+#    host5 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0','enp2s0f1','enp2s0f2'],'mode':'802.3ad' },
+#    host6 : { 'name': 'bond0', 'member': ['enp1s0f1','enp2s0f0'],'mode':'balance-xor' },
+#}
 
 # Dont use bond intf for redhat for now
 control_data= {
@@ -42,9 +42,9 @@ control_data= {
     host1 : { 'ip': '192.168.10.4/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
 #    host2 : { 'ip': '192.168.10.5/24', 'gw' : '192.168.10.254', 'device':'eth1' },
     host3 : { 'ip': '192.168.10.6/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
-    host4 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'bond0' },
-    host5 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'bond0' },
-    host6 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'bond0' },
+    host4 : { 'ip': '192.168.10.1/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
+    host5 : { 'ip': '192.168.10.2/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
+    host6 : { 'ip': '192.168.10.3/24', 'gw' : '192.168.10.254', 'device':'enp1s0f1' },
 }
 
 env.passwords = {
