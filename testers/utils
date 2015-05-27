@@ -275,17 +275,21 @@ function bringup_setup {
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
-    # for vcenter: setup the datastore on each esx
-    fab prov_vcenter_datastores
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter: setup the datastore on each esx
+        fab prov_vcenter_datastores
+    fi
     fab prov_esxi
     sleep 60
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
-    # register the setup with vcenter server
-    run_fab cleanup_vcenter
-    run_fab setup_vcenter
-    sleep 120
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # register the setup with vcenter server
+        run_fab cleanup_vcenter
+        run_fab setup_vcenter
+        sleep 120
+    fi
 
     # Upgrade biosdevname if ubuntu-14-04
     if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
@@ -331,8 +335,10 @@ function bringup_setup {
         fab compute_reboot
     fi
 
-    # for vcenter deployments
-    fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
+    fi
 
     # setup multi interface, if any
     # provision contrail
