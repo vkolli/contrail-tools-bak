@@ -16,20 +16,20 @@ function get_ubuntu_image_id () {
 # search_package
 function search_package_ceph {
 
-    if [ $PKG_LOCAL -eq 1 ] && [ $INSTALL_MODE == "SM" ]
-    then
+    if [ $SKIP_SM_INSTALL -eq 0 ] && [ $PKG_LOCAL -eq 1 ]
+    then 
       SM_INSTALLER_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             ls $PKG_LOCAL_PATH/$SM_SERVER_PKG_FILE_LOCAL
             "` || die "Unable to find SM LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
       SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
-    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
-    then
+    elif [ $SKIP_SM_INSTALL -eq 0 ] && [ $SM_TYPE == "ubuntu" ]
+    then 
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
-    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "centos" ]
-    then
+    elif [ $SKIP_SM_INSTALL -eq 0 ] && [ $SM_TYPE == "centos" ]
+    then 
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*` || die "Unable to find SM install package"
-    fi
-
+    fi 
+   
     if [ $PKG_LOCAL -eq 1 ]
     then
       INSTALL_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
@@ -136,7 +136,7 @@ function copy_pkgs_to_sm_node {
       exec_cmds -s $TASK_RUNNER_HOST_STRING -p ${TASK_RUNNER_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
       exec_cmds -s $TASK_RUNNER_HOST_STRING -p ${TASK_RUNNER_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
-      if [ $INSTALL_MODE == "SM" ]
+      if [ $SKIP_SM_INSTALL -eq 0 ]
       then
         sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$SM_INSTALLER_PKG_FILE
       fi 
