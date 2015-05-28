@@ -275,15 +275,18 @@ function bringup_setup {
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
+
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
         # for vcenter: setup the datastore on each esx
         fab prov_vcenter_datastores
     fi
     fab prov_esxi
     sleep 60
+
     # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
+
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
         # register the setup with vcenter server
         run_fab cleanup_vcenter
