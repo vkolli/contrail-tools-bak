@@ -37,7 +37,7 @@ function start_ntp_server_SM() {
 # Adds cluster and servers to SM database
 # Does reimage of the setup.
 
-function reimage_using_SM_ceph() {
+function add_server_and_images_to_SM() {
 
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
         SMID=ubuntu12$SKU${BUILDID}
@@ -165,6 +165,21 @@ function reimage_using_SM_ceph() {
             echo "Adding server to server-manager failed, aborting the process"
             exit 1
         fi
+       )"
+    if [ $? == 0 ]
+    then
+        echo "reimaged the target $CLUSTER_NAME successfully"
+        sleep 150
+    else
+        echo "reimage of target $CLUSTER_NAME failed!!!"
+        exit 1
+    fi
+}
+
+function reimage_using_SM_ceph() {
+
+   sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+        set -e
 
         server-manager show server --detail
 
@@ -325,6 +340,7 @@ function run_smgr_task_ceph() {
     search_package_ceph || die "Failed to search packages"
     copy_pkgs_to_sm_node
     bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
+    add_server_and_images_to_SM || die "Failed to bringup SM setup"
     reimage_using_SM_ceph || die "reimage failed"
     provision_using_SM_ceph || die "provision failed"
     start_ntp_server_SM 
