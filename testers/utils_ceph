@@ -211,6 +211,16 @@ function install_storage_pkg_on_node(){
   "
 }
 
+function fix_etc_hosts(){
+  NODEIP=$1
+  NODELOGIN=$2
+  NODEPASSWORD=$3
+  NODENAME=$4
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '#!/bin/sh -e' > /etc/rc.local"
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo 'ntpdate 172.17.31.136' >> /etc/rc.local"
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '%s %s' >> /etc/hosts"%($NODEIP,$NODENAME)
+}
+
 function reimage_setup_ceph {
 
     if [ $SKIP_REIMAGE -eq 1 ] 
@@ -283,6 +293,16 @@ function bringup_setup_contrail {
              sleep 60;
              fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
     fi
+
+    for (( i=1; i <= $NODE_COUNT;i++ ))
+    do
+        ipvar="NODE${i}_IP"
+        loginvar="NODE${i}_LOGIN"
+        passvar="NODE${i}_PASSWD"
+        nodename="NODE${i}_HOSTNAME"
+        fix_etc_hosts ${!ipvar} ${!loginvar} ${!passvar} ${nodename}
+    done
+
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                cd /opt/contrail/utils;
