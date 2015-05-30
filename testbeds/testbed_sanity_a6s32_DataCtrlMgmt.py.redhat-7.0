@@ -79,7 +79,7 @@ control_data= {
 }
 
 env.keystone = {
-    'keystone_ip'   : '192.168.10.6',
+    'keystone_ip'   : '10.84.13.44',
     'auth_protocol' : 'http',                  #Default is http
     'auth_port'     : '35357',                 #Default is 35357
     'admin_token' : '01f316f31345433597f7e62c8ecc5957',
@@ -93,7 +93,7 @@ env.keystone = {
 env.openstack_admin_password = 'c0ntrail123'
 env.openstack = {
     'service_token' : '01f316f31345433597f7e62c8ecc5957',
-    'amqp_host' : '192.168.10.6',
+    'amqp_host' : '10.84.13.44',
 }
 # VIP cofiguration for HA
 if os.getenv('HA_TEST',None) == 'True':
