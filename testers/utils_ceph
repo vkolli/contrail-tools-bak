@@ -218,7 +218,7 @@ function fix_etc_hosts(){
   NODENAME=$4
   exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '#!/bin/sh -e' > /etc/rc.local"
   exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo 'ntpdate 172.17.31.136' >> /etc/rc.local"
-  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '%s %s' >> /etc/hosts"%($NODEIP,$NODENAME)
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '$NODEIP $NODENAME' >> /etc/hosts"
 }
 
 function reimage_setup_ceph {
