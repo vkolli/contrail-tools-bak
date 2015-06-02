@@ -184,8 +184,8 @@ function reimage_using_SM_ceph() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        echo "server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
+        echo "server-manager reimage -F --cluster_id $CLUSTER_NAME $REIMAGE_PARAM"
+        server-manager reimage -F --cluster_id $CLUSTER_NAME $REIMAGE_PARAM
 
         if [ $? == 0 ]
         then
