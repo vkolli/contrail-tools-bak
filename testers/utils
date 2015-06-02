@@ -464,7 +464,7 @@ function run_build_fab {
 function add_to_sources_list {
    set -x
    echo $API_SERVER_HOST_STRING
-   if [ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]; then
+   if [[ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]] && [[ $REIMAGE_PARAM == ubuntu* ]]; then
        sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
        cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
        echo "sources.list modified" )'
