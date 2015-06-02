@@ -106,6 +106,9 @@ def live_migrate(test_obj,handle,prompt):
 
 
   current_hostname2 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
+  domain_name = "englab.juniper.net"
+  current_hostname2 = current_hostname2.rsplit("." + domain_name)[0]
+  new_host = new_host.rsplit("." + domain_name)[0]
 
   if current_hostname2 == new_host :
     gen_lib.Print("PASS: Live-migration working...")
