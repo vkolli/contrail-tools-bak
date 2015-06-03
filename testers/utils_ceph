@@ -93,21 +93,24 @@ function copy_tbfile_to_fab_server {
 
 #####
 
-function copy_pkgs_to_sm_node {
+function copy_pkgs_to_sm_fab_node {
 
     if [ $COPY_BUILD_PKG_TO_TASK_RUNNER -eq 1 ]
     then
       exec_cmds -s $SM_HOST_STRING -p ${SM_HOST_PASSWORD}  -c "rm -rf $PKG_FILE_DIR"      
       exec_cmds -s $SM_HOST_STRING -p ${SM_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
       exec_cmds -s $SM_HOST_STRING -p ${SM_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
+      exec_cmds -s $FAB_HOST_STRING -p ${FAB_HOST_PASSWORD}  -c "rm -rf $PKG_FILE_DIR"      
+      exec_cmds -s $FAB_HOST_STRING -p ${FAB_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
+      exec_cmds -s $FAB_HOST_STRING -p ${FAB_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
       if [ $SKIP_SM_INSTALL -eq 0 ]
       then
         sshpass -p ${SM_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${SM_HOST_STRING}:$SM_INSTALLER_PKG_FILE
       fi 
 
-      sshpass -p ${SM_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${SM_HOST_STRING}:$INSTALL_PKG_FILE
-      sshpass -p ${SM_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${SM_HOST_STRING}:$STORAGE_PKG_FILE
+      sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $INSTALL_PKG_FILE ${FAB_HOST_STRING}:$INSTALL_PKG_FILE
+      sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $STORAGE_PKG_FILE ${FAB_HOST_STRING}:$STORAGE_PKG_FILE
     fi 
 }
 
@@ -304,6 +307,7 @@ function reimage_and_bringup_ceph {
     if [ $SKIP_REIMAGE -eq 0 ]
     then
       reimage_using_SM_ceph || debug_and_die_local "Reimage failed!"
+      sleep 300
     fi
 
     if [ $UPDATE_TB_IFACE_DETAILS -eq 1 ]
@@ -346,8 +350,8 @@ function collect_tech_support_local {
     dest_dir_folder=$DEBUG_LOG_DIR/CONFIG_NODE/${SCRIPT_TIMESTAMP}
     debug_cmds="export HA_TEST=$HA_TEST && fab attach_logs_cores:$DEBUG_LOG_DIR/CONFIG_NODE,${SCRIPT_TIMESTAMP} ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
           
-    exec_cmds -s ${SM_HOST_STRING} -p ${SM_HOST_PASSWORD} -c "
-            cd /opt/contrail/utils;
+    exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
+            cd $UTILS_DIR;
             $debug_cmds"
 }
 
@@ -382,7 +386,7 @@ function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
     create_testbed_ceph
 
-    copy_pkgs_to_sm_node
+    copy_pkgs_to_sm_fab_node
 
     reimage_and_bringup_ceph
     echo "Test Done" 
