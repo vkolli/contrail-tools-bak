@@ -4,14 +4,6 @@ source $TOOLS_WS/testers/environment.sh
 source $TOOLS_WS/testers/environment_ceph.sh
 source $TOOLS_WS/testers/smgr_utils_ceph
 
-function get_ubuntu_image_id () {
-  if [ $1 = ubuntu-12-04 ]; then
-   eval "$2=ubuntu-12.04.3"
-  elif [ $1 = ubuntu-14-04 ];then
-   eval "$2=ubuntu-14.04"
-  fi
-}
-
 ##
 # search_package
 function search_package_ceph {
@@ -51,9 +43,6 @@ function search_package_ceph {
     export STORAGE_PKG_FILE=$STORAGE_PKG_FILE
     export SM_INSTALLER_PKG_FILE=$SM_INSTALLER_PKG_FILE
 
-    REIMAGE_PARAM="REIMAGE_PARAM"
-    get_ubuntu_image_id ${DISTRO} $REIMAGE_PARAM
-    export REIMAGE_PARAM
     export PKG_FILE_DIR=`dirname $INSTALL_PKG_FILE`
 
 }
@@ -236,13 +225,8 @@ function reimage_setup_ceph {
       
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
-            if [ $DISTRO == "ubuntu-12-04" ]; then
-              server-manager delete image --image_id ubuntu-12.04.3;
-              server-manager add image -f /home/stack/image_12.04.3.json;
-            else
-              server-manager delete image --image_id ubuntu-14.04;
-              server-manager add image -f /home/stack/image_14.04.json;
-            fi 
+            server-manager delete image --image_id $REIMAGE_PARAM;
+            server-manager add image -f /home/stack/$IMAGE_JSON;
             server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_PARAM;
             fab wait_till_all_up:attempts=180,reimaged=True;
             fab check_reimage_state" || debug_and_die_local "reimage_setup failed"
