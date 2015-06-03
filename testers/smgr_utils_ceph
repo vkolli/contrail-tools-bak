@@ -9,7 +9,7 @@ function check_ceph_status() {
     fi
     
     echo "Connect to config node to check ceph -s output"
-    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
     set -e 
     $SM_FILES_DIR/check_ceph_status.py $CLUSTER_NAME $EXPECTED_OSD_COUNT
 
@@ -25,7 +25,7 @@ function check_ceph_status() {
 }
 
 function start_ntp_server_SM() {
-  sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} "
+  sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} "
    service ntp stop;
    service ntp start;
   "
@@ -58,7 +58,7 @@ function add_server_and_images_to_SM() {
     cluster_json="$SM_FILES_DIR/$CLUSTER_FILE_NAME.json"
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
@@ -178,7 +178,7 @@ function add_server_and_images_to_SM() {
 
 function reimage_using_SM_ceph() {
 
-   sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+   sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
 
         server-manager show server --detail
@@ -234,7 +234,7 @@ function bringup_SM_setup_ceph() {
     #copy the SM PKGs to SM server.
 
     echo "Connect to SM_SERVER to install/upgrade SM packages"
-    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
             set -e
 
             echo "file exists, upgrading Server manager"
@@ -285,7 +285,7 @@ function provision_using_SM_ceph() {
     fi
     
     echo "Connect to SM_SERVER to provision the targets/cluster"
-    sshpass -p ${SM_NODE_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
+    sshpass -p ${SM_HOST_PASSWORD} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ${SM_NODE_LOGIN} ${SM_NODE_IP} " (
         set -e
         echo "provision the target setup"
         server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
