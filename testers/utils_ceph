@@ -300,7 +300,7 @@ function bringup_setup_contrail {
         loginvar="NODE${i}_LOGIN"
         passvar="NODE${i}_PASSWD"
         nodename="NODE${i}_HOSTNAME"
-        fix_etc_hosts ${!ipvar} ${!loginvar} ${!passvar} ${nodename}
+        fix_etc_hosts ${!ipvar} ${!loginvar} ${!passvar} ${!nodename}
     done
 
 
