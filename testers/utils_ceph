@@ -224,10 +224,10 @@ function reimage_setup_ceph {
             fi
       
             export HA_TEST=$HA_TEST;
-            #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
-            server-manager delete image --image_id $REIMAGE_PARAM;
+            #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_ID ;
+            server-manager delete image --image_id $REIMAGE_ID;
             server-manager add image -f /home/stack/$IMAGE_JSON;
-            server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_PARAM;
+            server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_ID;
             fab wait_till_all_up:attempts=180,reimaged=True;
             fab check_reimage_state" || debug_and_die_local "reimage_setup failed"
 }
