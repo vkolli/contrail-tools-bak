@@ -30,7 +30,9 @@ function search_package {
     then 
         get_pkg_suffix_to_use
         PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
         export PKG_FILE
+        export VCENTER_PLUGIN
     else
         pkg_file_name=`basename $PKG_FILE`
         re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
@@ -230,6 +232,9 @@ function use_testbed_file {
     if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.esx
     fi
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.vcenter
+    fi
     if [ -f ${tbfile_hyper}.$image_name ]; then
             cp -f ${tbfile_hyper}.$image_name ${tbfile}
     elif [ -f ${tbfile_hyper}.${base_distro} ]; then
@@ -270,11 +275,24 @@ function bringup_setup {
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
-    # copy contrail-package on all node
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter: setup the datastore on each esx
+        fab prov_vcenter_datastores
+    fi
     fab prov_esxi
     sleep 60
+
+    # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # register the setup with vcenter server
+        run_fab cleanup_vcenter
+        run_fab setup_vcenter
+        sleep 120
+    fi
 
     # Upgrade biosdevname if ubuntu-14-04
     if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
@@ -318,6 +336,11 @@ function bringup_setup {
     then
         cd ${TOOLS_WS}/contrail-fabric-utils
         fab compute_reboot
+    fi
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
     fi
 
     # setup multi interface, if any
