@@ -37,7 +37,7 @@ env.passwords = {
 env.ostypes = { 
     host1: 'ubuntu',
     }
-
+minimum_diskGB=32
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
 #env.test_repo_dir='/homes/ganeshahv/commit_queue/Feb-02/contrail-test'
 env.mail_from='ganeshahv@juniper.net'
