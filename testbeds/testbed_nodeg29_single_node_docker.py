@@ -46,6 +46,13 @@ env.hypervisor = {
 }
 #  Specify the hypervisor to be provisioned in the compute node.(Default=libvirt)
 
+#To disable installing contrail interface rename package
+env.interface_rename = True
+minimum_diskGB=32
+#To enable multi-tenancy feature
+multi_tenancy = True
+
+
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
 #env.test_repo_dir='/homes/ganeshahv/commit_queue/Feb-02/contrail-test'
 #env.mail_from='ganeshahv@juniper.net'
