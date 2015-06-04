@@ -50,7 +50,7 @@ env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
 #env.test_repo_dir='/homes/ganeshahv/commit_queue/Feb-02/contrail-test'
 #env.mail_from='ganeshahv@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-
+env.log_scenario='Docker Single-Node Sanity'
 #To enable haproxy feature
 #haproxy = True
 
