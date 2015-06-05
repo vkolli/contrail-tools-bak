@@ -697,7 +697,7 @@ function create_testbed {
         export NEW_TEST_INFRA=0
     fi
 
-    checkout_repo || die "Unable to checkout fab/test repos"
+ #   checkout_repo || die "Unable to checkout fab/test repos"
     use_testbed_file || die "Unable to set the testbed properly for use"
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
