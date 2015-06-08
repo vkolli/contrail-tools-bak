@@ -127,6 +127,6 @@ env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
-env.log_scenario='MultiNode Single Intf Sanity'
+env.log_scenario='Vcenter MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
