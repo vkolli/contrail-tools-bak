@@ -629,6 +629,10 @@ function debug_and_die
         ) 5>${LOCK_FILE_DIR}/lockfile
     else
         collect_tech_support
+        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            # deregister the setup from vcenter server
+            run_fab cleanup_vcenter
+        fi
     fi
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
