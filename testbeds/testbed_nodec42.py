@@ -1,10 +1,10 @@
 from fabric.api import env
  
-host1 = 'root@10.204.221.24'
-host2 = 'root@10.204.221.27'
-host3 = 'root@10.204.221.28'
-host4 = 'root@10.204.221.25'
-host5 = 'root@10.204.221.26' 
+host1 = 'root@10.204.221.33'
+host2 = 'root@10.204.221.34'
+host3 = 'root@10.204.221.35'
+host4 = 'root@10.204.221.36'
+host5 = 'root@10.204.221.37' 
 
 host_build = 'pbharat@10.204.217.4'
 #multi_tenancy = True
@@ -33,7 +33,7 @@ env.roledefs = {
 }
  
 env.hostnames ={
-    'all': ['nodeg34', 'nodec48', 'nodec49', 'nodec51', 'nodec63']
+    'all': ['nodec42', 'nodec44', 'nodec45', 'nodec46', 'nodec47']
 }
 env.ostypes = {
      host1 : 'ubuntu',
@@ -56,4 +56,3 @@ env.passwords = {
 env.test_repo_dir='/homes/pbharat/github/contrail-test'
 #env.mail_from='pbharat@juniper.net'
 env.mail_to='dl-contrail-server-manager@juniper.net'
-env.subject='Multi node sanity'

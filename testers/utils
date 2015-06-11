@@ -51,7 +51,9 @@ function search_package {
     then 
         get_pkg_suffix_to_use
         PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
         export PKG_FILE
+        export VCENTER_PLUGIN
     else
         pkg_file_name=`basename $PKG_FILE`
         re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
@@ -251,6 +253,9 @@ function use_testbed_file {
     if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.esx
     fi
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.vcenter
+    fi
     if [ -f ${tbfile_hyper}.$image_name ]; then
             cp -f ${tbfile_hyper}.$image_name ${tbfile}
     elif [ -f ${tbfile_hyper}.${base_distro} ]; then
@@ -291,11 +296,24 @@ function bringup_setup {
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
-    # copy contrail-package on all node
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter: setup the datastore on each esx
+        fab prov_vcenter_datastores
+    fi
     fab prov_esxi
     sleep 60
+
+    # copy contrail-package on all node
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # register the setup with vcenter server
+        run_fab cleanup_vcenter
+        run_fab setup_vcenter
+        sleep 120
+    fi
 
     # Upgrade biosdevname if ubuntu-14-04
     if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
@@ -339,6 +357,11 @@ function bringup_setup {
     then
         cd ${TOOLS_WS}/contrail-fabric-utils
         fab compute_reboot
+    fi
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
     fi
 
     # setup multi interface, if any
@@ -390,7 +413,7 @@ function reimage_setup {
             # Wait a minute before checking the status of the servers after issuing reimage command.
             sleep 1m
             if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
-                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT || debug_and_die \"all_sm_reimage_status failed\" ;
+                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT,attempts=270 || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
             if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
                 fab wait_till_all_up:attempts=180;
@@ -405,7 +428,7 @@ function reimage_setup {
         # Wait a minute before checking the status of the servers after issuing reimage command.
         sleep 1m
         if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
-            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT" || debug_and_die "all_sm_reimage_status failed"
+            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT",attempts=270 || debug_and_die "all_sm_reimage_status failed"
         fi
         if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
@@ -441,7 +464,7 @@ function run_build_fab {
 function add_to_sources_list {
    set -x
    echo $API_SERVER_HOST_STRING
-   if [ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]; then
+   if [[ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]] && [[ $REIMAGE_PARAM == ubuntu* ]]; then
        sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
        cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
        echo "sources.list modified" )'
@@ -606,6 +629,10 @@ function debug_and_die
         ) 5>${LOCK_FILE_DIR}/lockfile
     else
         collect_tech_support
+        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            # deregister the setup from vcenter server
+            run_fab cleanup_vcenter
+        fi
     fi
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2

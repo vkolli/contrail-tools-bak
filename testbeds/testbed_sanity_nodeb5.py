@@ -80,6 +80,7 @@ multi_tenancy = True
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/github_ubuntu_single_node/havana/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Single Node Sanity'

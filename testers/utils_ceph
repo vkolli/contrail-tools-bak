@@ -4,32 +4,24 @@ source $TOOLS_WS/testers/environment.sh
 source $TOOLS_WS/testers/environment_ceph.sh
 source $TOOLS_WS/testers/smgr_utils_ceph
 
-function get_ubuntu_image_id () {
-  if [ $1 = ubuntu-12-04 ]; then
-   eval "$2=ubuntu-12.04.3"
-  elif [ $1 = ubuntu-14-04 ];then
-   eval "$2=ubuntu-14.04"
-  fi
-}
-
 ##
 # search_package
 function search_package_ceph {
 
-    if [ $PKG_LOCAL -eq 1 ] && [ $INSTALL_MODE == "SM" ]
-    then
+    if [ $SKIP_SM_INSTALL -eq 0 ] && [ $PKG_LOCAL -eq 1 ]
+    then 
       SM_INSTALLER_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             ls $PKG_LOCAL_PATH/$SM_SERVER_PKG_FILE_LOCAL
             "` || die "Unable to find SM LOCAL PACKAGE.Copy it to SM/TASK_RUNNER node"
       SM_INSTALLER_PKG_FILE=$(echo "${SM_INSTALLER_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
-    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "ubuntu" ]
-    then
+    elif [ $SKIP_SM_INSTALL -eq 0 ] && [ $SM_TYPE == "ubuntu" ]
+    then 
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*` || die "Unable to find SM install package"
-    elif [ $INSTALL_MODE == "SM" ] && [ $SM_TYPE == "centos" ]
-    then
+    elif [ $SKIP_SM_INSTALL -eq 0 ] && [ $SM_TYPE == "centos" ]
+    then 
       SM_INSTALLER_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-server-manager-installer-*\.*-${BUILDID}\~$SKU.el6.noarch.rpm*` || die "Unable to find SM install package"
-    fi
-
+    fi 
+   
     if [ $PKG_LOCAL -eq 1 ]
     then
       INSTALL_PKG_FILE=`exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
@@ -51,9 +43,6 @@ function search_package_ceph {
     export STORAGE_PKG_FILE=$STORAGE_PKG_FILE
     export SM_INSTALLER_PKG_FILE=$SM_INSTALLER_PKG_FILE
 
-    REIMAGE_PARAM="REIMAGE_PARAM"
-    get_ubuntu_image_id ${DISTRO} $REIMAGE_PARAM
-    export REIMAGE_PARAM
     export PKG_FILE_DIR=`dirname $INSTALL_PKG_FILE`
 
 }
@@ -136,7 +125,7 @@ function copy_pkgs_to_sm_node {
       exec_cmds -s $TASK_RUNNER_HOST_STRING -p ${TASK_RUNNER_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"      
       exec_cmds -s $TASK_RUNNER_HOST_STRING -p ${TASK_RUNNER_HOST_PASSWORD}  -c "mkdir -p $PKG_FILE_DIR/artifacts/"      
      
-      if [ $INSTALL_MODE == "SM" ]
+      if [ $SKIP_SM_INSTALL -eq 0 ]
       then
         sshpass -p ${TASK_RUNNER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_INSTALLER_PKG_FILE ${TASK_RUNNER_HOST_STRING}:$SM_INSTALLER_PKG_FILE
       fi 
@@ -211,6 +200,16 @@ function install_storage_pkg_on_node(){
   "
 }
 
+function fix_etc_hosts(){
+  NODEIP=$1
+  NODELOGIN=$2
+  NODEPASSWORD=$3
+  NODENAME=$4
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '#!/bin/sh -e' > /etc/rc.local"
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo 'ntpdate 172.17.31.136' >> /etc/rc.local"
+  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '$NODEIP $NODENAME' >> /etc/hosts"
+}
+
 function reimage_setup_ceph {
 
     if [ $SKIP_REIMAGE -eq 1 ] 
@@ -226,13 +225,8 @@ function reimage_setup_ceph {
       
             export HA_TEST=$HA_TEST;
             #fab all_sm_reimage:$CLUSTER_NAME,$REIMAGE_PARAM ;
-            if [ $DISTRO == "ubuntu-12-04" ]; then
-              server-manager delete image --image_id ubuntu-12.04.3;
-              server-manager add image -f /home/stack/image_12.04.3.json;
-            else
-              server-manager delete image --image_id ubuntu-14.04;
-              server-manager add image -f /home/stack/image_14.04.json;
-            fi 
+            server-manager delete image --image_id $REIMAGE_PARAM;
+            server-manager add image -f /home/stack/$IMAGE_JSON;
             server-manager reimage --no_confirm --cluster_id $CLUSTER_NAME $REIMAGE_PARAM;
             fab wait_till_all_up:attempts=180,reimaged=True;
             fab check_reimage_state" || debug_and_die_local "reimage_setup failed"
@@ -284,6 +278,16 @@ function bringup_setup_contrail {
              fab wait_till_all_up:waitdown=False,attempts=30 " || debug_and_die_local "ERROR: kernel upgrade/Failed waiting for nodes to come up"
     fi
 
+    for (( i=1; i <= $NODE_COUNT;i++ ))
+    do
+        ipvar="NODE${i}_IP"
+        loginvar="NODE${i}_LOGIN"
+        passvar="NODE${i}_PASSWD"
+        nodename="NODE${i}_HOSTNAME"
+        fix_etc_hosts ${!ipvar} ${!loginvar} ${!passvar} ${!nodename}
+    done
+
+
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                cd /opt/contrail/utils;
                export HA_TEST=$HA_TEST;
@@ -293,7 +297,7 @@ function bringup_setup_contrail {
                export HA_TEST=$HA_TEST;
                fab setup_interface || exit 1;
                fab add_static_route " || debug_and_die_local "fab setup_interface/add_static_route failed"
-    if [ $NODE_COUNT -eq 1 ] 
+    if [ $NODE_COUNT -ne 1 ] 
     then 
       exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                cd /opt/contrail/utils;

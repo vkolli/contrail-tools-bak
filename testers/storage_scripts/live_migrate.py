@@ -76,13 +76,17 @@ def live_migrate(test_obj,handle,prompt):
   testbed_config = test_obj.argument['testbed_config']['testbed_config']
   test_conf = test_obj.argument['test_conf']['test_conf']
 
+  domain_name = "englab.juniper.net"
+
   vm_name = "VM1"
   vm_id = ostack.get_vm_id(test_obj,handle,prompt,vm_name)
   current_hostname1 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
+  current_hostname1 = current_hostname1.rsplit("." + domain_name)[0]
   new_host = ""
   compute_host_list = ceph.get_storage_host_list(test_obj,handle,prompt)
   print compute_host_list,current_hostname1
   for host in compute_host_list:
+     host = host.rsplit("." + domain_name)[0]
      print host,current_hostname1
      if host != current_hostname1 :
        new_host = host
@@ -106,6 +110,8 @@ def live_migrate(test_obj,handle,prompt):
 
 
   current_hostname2 = ostack.get_vm_hostinfo(test_obj,handle,prompt,vm_name) 
+  current_hostname2 = current_hostname2.rsplit("." + domain_name)[0]
+  new_host = new_host.rsplit("." + domain_name)[0]
 
   if current_hostname2 == new_host :
     gen_lib.Print("PASS: Live-migration working...")
