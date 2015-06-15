@@ -41,6 +41,7 @@ env.ostypes = {
 }
 
 minimum_diskGB=32
+enable_ceilometer = True
 
 #env.test_repo_dir='/home/sandipd/multinode/contrail-test/contrail-test/'
 env.test_repo_dir='/home/sandipd/testr_bhushana_fork/contrail-test/'
