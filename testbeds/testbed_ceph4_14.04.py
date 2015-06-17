@@ -111,7 +111,7 @@ env.interface_rename = False
 #multi_tenancy = True
 
 #To enable haproxy feature
-haproxy = True
+#haproxy = True
 
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
@@ -121,12 +121,15 @@ haproxy = True
 
 #Ceph related
 #if os.getenv('HA_TEST',None) == 'True':
+
 env.ha = {
-        'internal_vip' : '16.0.0.7',
-        'external_vip' : '10.87.141.92'
-    }
+    'internal_vip' : '16.0.0.92',
+    'external_vip' : '10.87.141.92',
+
+}
+
 # HA Test configuration
-ha_setup = 'True'
+#ha_setup = 'True'
 #    ipmi_username = 'ADMIN'
 #    ipmi_password = 'ADMIN'
 #    env.hosts_ipmi = {
@@ -135,7 +138,7 @@ ha_setup = 'True'
 #        '10.87.129.226': '10.87.129.233',
 #        '10.87.141.26' : '10.87.141.25',
 #    }
-minimum_diskGB=32
+minimum_diskGB=128
 env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
 env.mail_from='vivekgarg@juniper.net'
 env.mail_to='vivekgarg@juniper.net'
@@ -149,13 +152,3 @@ env.interface_rename = False
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, CEPH]'
 
-storage_node_config = {
-    host4 : { 'disks' : ['/dev/sdb:/dev/sdj','/dev/sdc:/dev/sdj','/dev/sdd:/dev/sdj','/dev/sde:/dev/sdj','/dev/sdf:/dev/sdk','/dev/sdg:/dev/sdk','/dev/sdh:/dev/sdk','/dev/sdi:/dev/sdk','/dev/sdl:/dev/sdk'],'ssd-disks': ['/dev/sdm','/dev/sdn','/dev/sdo'],"storage_chassis_id" : "CH-SCALE1"},
-    host5 : { 'disks' : ['/dev/sdb:/dev/sdj','/dev/sdc:/dev/sdj','/dev/sdd:/dev/sdj','/dev/sde:/dev/sdj','/dev/sdf:/dev/sdk','/dev/sdg:/dev/sdk','/dev/sdh:/dev/sdk'],'ssd-disks': ['/dev/sdm','/dev/sdn'],"storage_chassis_id" : "CH-SCALE2"},
-}
-
-live_migration = True
-ceph_nfs_livem = True
-ceph_nfs_livem_subnet = '192.168.101.253/24'
-ceph_nfs_livem_image =  '/store/livemnfs.qcow2'
-ceph_nfs_livem_host = host4
