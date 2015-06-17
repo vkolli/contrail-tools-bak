@@ -1,21 +1,21 @@
 from fabric.api import env
 
-host1 = 'root@10.204.217.133'
-host2 = 'root@10.204.217.134'
-host3 = 'root@10.204.217.135'
-host4 = 'root@10.204.217.136'
-host5 = 'root@10.204.217.137'
+host1 = 'root@10.204.217.72'
+host2 = 'root@10.204.217.105'
+host3 = 'root@10.204.217.106'
+host4 = 'root@10.204.217.116'
+host5 = 'root@10.204.217.117'
 
-ext_routers = [('hooper','192.168.193.253')]
+ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
-public_vn_rtgt = 2224
-public_vn_subnet = '10.204.221.192/28'
+public_vn_rtgt = 2225
+public_vn_subnet = '10.204.221.128/28'
 
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3,host4,host5],
-    'cfgm': [host1],
+    'cfgm': [host1, host2],
     'webui': [host1],
     'openstack': [host1],
     'control': [host2, host3],
@@ -26,17 +26,9 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodei21', 'nodei22', 'nodei23', 'nodei24', 'nodei25']
+    'all': ['nodeg32', 'nodeh1', 'nodeh2', 'nodei4', 'nodei5']
 }
-env.interface_rename = False
-
-control_data = {
-    host1 : { 'ip': '192.168.193.1/24', 'gw' : '192.168.193.254', 'device':'eth3' },
-    host2 : { 'ip': '192.168.193.2/24', 'gw' : '192.168.193.254', 'device':'eth3' },
-    host3 : { 'ip': '192.168.193.3/24', 'gw' : '192.168.193.254', 'device':'eth3' },
-    host4 : { 'ip': '192.168.193.4/24', 'gw' : '192.168.193.254', 'device':'eth3' },
-    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'eth3' },
-}
+env.interface_rename = True
 
 env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'
@@ -49,6 +41,14 @@ env.passwords = {
     host_build: 'stack@123',
 }
 
+control_data = {
+    host1 : { 'ip': '192.168.194.1/24', 'gw' : '192.168.194.254', 'device':'eth1' },
+    host2 : { 'ip': '192.168.194.2/24', 'gw' : '192.168.194.254', 'device':'eth1' },
+    host3 : { 'ip': '192.168.194.3/24', 'gw' : '192.168.194.254', 'device':'eth1' },
+    host4 : { 'ip': '192.168.194.4/24', 'gw' : '192.168.194.254', 'device':'eth1' },
+    host5 : { 'ip': '192.168.194.5/24', 'gw' : '192.168.194.254', 'device':'eth1' },
+}
+
 env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
@@ -56,14 +56,13 @@ env.ostypes = {
     host4:'ubuntu',
     host5:'ubuntu',
 }
-
 minimum_diskGB=32
-env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/multi_interface_parallel/ubuntu/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
-env.interface_rename = False
+env.interface_rename = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
-env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+env.log_scenario='MultiNode Multi Intf Sanity'
 env.enable_lbaas = True
+do_parallel = True

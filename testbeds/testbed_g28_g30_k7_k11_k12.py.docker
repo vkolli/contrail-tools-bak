@@ -1,11 +1,11 @@
 from fabric.api import env
 
-host1 = 'root@10.204.217.123'
-host2 = 'root@10.204.217.124'
-host3 = 'root@10.204.217.125'
-host4 = 'root@10.204.217.126'
-host5 = 'root@10.204.217.127'
-host6 = 'root@10.204.217.138'
+host1 = 'root@10.204.217.68'
+host2 = 'root@10.204.217.69'
+host3 = 'root@10.204.217.70'
+host4 = 'root@10.204.216.227'
+host5 = 'root@10.204.216.231'
+host6 = 'root@10.204.216.232'
 
 ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
@@ -27,9 +27,18 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodei11', 'nodei12', 'nodei13', 'nodei14', 'nodei15', 'nodei26']
+    'all': ['nodeg28', 'nodeg29', 'nodeg30', 'nodek7', 'nodek11', 'nodek12']
 }
-env.interface_rename = True
+
+# OPTIONAL COMPUTE HYPERVISOR CHOICE:
+#======================================
+# Compute Hypervisor
+env.hypervisor = {
+    host4: 'docker',
+    host5: 'docker',
+    host6: 'libvirt'
+}
+#  Specify the hypervisor to be provisioned in the compute node.(Default=libvirt)
 
 env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'
@@ -44,20 +53,18 @@ env.passwords = {
 }
 
 env.ostypes = {
-    host1:'centos65',
-    host2:'centos65',
-    host3:'centos65',
-    host4:'centos65',
-    host5:'centos65',
-    host6:'centos65',
+    host1:'ubuntu',
+    host2:'ubuntu',
+    host3:'ubuntu',
+    host4:'ubuntu',
+    host5:'ubuntu',
+    host6:'ubuntu',
 }
+
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-multi_tenancy=True
 env.interface_rename = True
-env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
-env.log_scenario='MultiNode Single Intf Sanity'
-env.enable_lbaas = True
-do_parallel = True
+multi_tenancy=True
+env.log_scenario='MultiNode docker Sanity'

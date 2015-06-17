@@ -4,15 +4,15 @@ os_username = 'admin'
 os_password = 'contrail123'
 os_tenant_name = 'demo'
 
-host1 = 'root@10.204.216.5'
+host1 = 'root@10.204.217.69'
 
-
-ext_routers = [('blr-mx2', '10.204.216.245')]
+ext_routers = []
+#ext_routers = [('blr-mx2', '10.204.216.245')]
 router_asn = 64512
 public_vn_rtgt = 19005
 public_vn_subnet = "10.204.219.96/29"
 
-host_build = 'ganeshahv@10.204.216.3'
+host_build = 'kalok@10.204.216.3'
 
 env.roledefs = {
     'all': [host1],
@@ -27,7 +27,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-     'all': ['nodeb12']
+     'all': ['nodeg29']
 }
 
 env.passwords = {
@@ -37,12 +37,27 @@ env.passwords = {
 env.ostypes = { 
     host1: 'ubuntu',
     }
+
+# OPTIONAL COMPUTE HYPERVISOR CHOICE:
+#======================================
+# Compute Hypervisor
+env.hypervisor = {
+    host1: 'docker'
+}
+#  Specify the hypervisor to be provisioned in the compute node.(Default=libvirt)
+
+#To disable installing contrail interface rename package
+env.interface_rename = True
 minimum_diskGB=32
+#To enable multi-tenancy feature
+multi_tenancy = True
+
+
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
 #env.test_repo_dir='/homes/ganeshahv/commit_queue/Feb-02/contrail-test'
-env.mail_from='ganeshahv@juniper.net'
-env.mail_to='ganeshahv@juniper.net'
-
+#env.mail_from='ganeshahv@juniper.net'
+env.mail_to='dl-contrail-sw@juniper.net'
+env.log_scenario='Docker Single-Node Sanity'
 #To enable haproxy feature
 #haproxy = True
 
