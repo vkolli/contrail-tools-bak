@@ -46,12 +46,12 @@ env.passwords = {
 }
 
 env.ostypes = {
-    host1:'ubuntu',
-    host2:'ubuntu',
-    host3:'ubuntu',
-    host4:'ubuntu',
-    host5:'ubuntu',
-    host6:'ubuntu',
+    host1:'centos65',
+    host2:'centos65',
+    host3:'centos65',
+    host4:'centos65',
+    host5:'centos65',
+    host6:'centos65',
 }
 
 control_data = {
