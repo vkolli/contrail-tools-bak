@@ -286,7 +286,9 @@ function check_contrail_status {
      contrail-database-nodemgr supervisor-support-service: rabbitmq-server
      #contrail-storage-stats: 
  do
-   if [[ $result =~ "$mod\s*active" ]]
+   val=`echo $res | grep -c '$mod\s*active'`
+   echo $val
+   if [[ $val -ne 0 ]]
    then
     continue 
    else
