@@ -119,9 +119,7 @@ function copy_pkg_to_fab_server() {
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts_extra/"
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "mkdir -p $PKG_FILE_DIR/artifacts/"
 
-    exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
-      sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $1 ${FAB_HOST_STRING}:$1
-    "
+    sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $1 ${FAB_HOST_STRING}:$1
 
 }
 
@@ -144,9 +142,10 @@ function create_testbed_ceph {
         "
       export UTILS_DIR=/tmp/$TBFILE_NAME/$CEPH_PROFILE/contrail-fabric-utils
     else 
-      sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${FAB_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE
-      exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/$CEPH_PROFILE;tar xzf contrail-fabric-utils*.tgz" 
-      export UTILS_DIR=/tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils
+      #sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz ${FAB_HOST_STRING}:/tmp/$TBFILE_NAME/$CEPH_PROFILE
+      #exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "cd /tmp/$TBFILE_NAME/$CEPH_PROFILE;tar xzf contrail-fabric-utils*.tgz" 
+      #export UTILS_DIR=/tmp/$TBFILE_NAME/$CEPH_PROFILE/fabric-utils
+      export UTILS_DIR=/opt/contrail/utils;
     fi
 
 }
@@ -187,7 +186,16 @@ function fix_etc_hosts(){
   NODENAME=$4
   exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '#!/bin/sh -e' > /etc/rc.local"
   exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo 'ntpdate 172.17.31.136' >> /etc/rc.local"
-  exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '$NODEIP $NODENAME' >> /etc/hosts"
+
+  for (( ii=1; ii <= $NODE_COUNT;ii++ ))
+  do
+        ipvar="NODE${ii}_IP"
+        loginvar="NODE${ii}_LOGIN"
+        passvar="NODE${ii}_PASSWD"
+        nodename="NODE${ii}_HOSTNAME"
+        exec_cmds -s $NODELOGIN@$NODEIP -p ${NODEPASSWORD}  -c "echo '${!ipvar} ${!nodename}' >> /etc/hosts"
+ done
+
 }
 
 
@@ -203,6 +211,9 @@ function bringup_setup_contrail {
        copy_pkg_to_fab_server $INSTALL_PKG_FILE
    
        exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
+           dpkg -P contrail-setup;
+           dpkg -P contrail-install-packages;
+           dpkg -P contrail-fabric-utils;
            dpkg -i $INSTALL_PKG_FILE;
            cd /opt/contrail/contrail_packages/;
            ./setup.sh
@@ -256,6 +267,35 @@ function bringup_setup_contrail {
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
                cd $UTILS_DIR;
                fab setup_all" || debug_and_die_local "fab setup_interface or setup_all task failed"
+}
+
+function check_contrail_status {
+
+  ipvar="NODE1_IP"
+  loginvar="NODE1_LOGIN"
+  passvar="NODE1_PASSWD"
+  nodename="NODE1_HOSTNAME"
+  result=`exec_cmds -s ${!loginvar}@${!ipvar} -p ${!passvar}  -c "contrail-status"`
+  for mod in supervisor-control: contrail-control contrail-control-nodemgr \
+     contrail-dns contrail-named supervisor-analytics: contrail-analytics-api\
+     contrail-analytics-nodemgr contrail-collector contrail-query-engine\
+     contrail-snmp-collector contrail-topology supervisor-config: contrail-api:0\
+     contrail-config-nodemgr contrail-device-manager contrail-discovery:0\
+     contrail-schema contrail-svc-monitor ifmap supervisor-webui: contrail-webui\
+     contrail-webui-middleware supervisor-database: contrail-database\
+     contrail-database-nodemgr supervisor-support-service: rabbitmq-server
+     #contrail-storage-stats: 
+ do
+   if [[ $result =~ "$mod\s*active" ]]
+   then
+    continue 
+   else
+    die "ERROR: contrail-status failed for module : $mod"
+   fi
+ done
+
+ echo "PASS: contrail-status"
+
 }
 
 function bringup_storage {
@@ -389,6 +429,7 @@ function run_ceph_fab_sanity() {
     copy_pkgs_to_sm_fab_node
 
     reimage_and_bringup_ceph
+    check_contrail_status
     echo "Test Done" 
     collect_tech_support_local || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
