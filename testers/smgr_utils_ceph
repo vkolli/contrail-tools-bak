@@ -345,6 +345,6 @@ function run_smgr_task_ceph() {
     provision_using_SM_ceph || die "provision failed"
     start_ntp_server_SM 
     #check_ceph_status || die "Run_sanity step failed"
-    collect_tech_support_local || die "Task to collect logs/cores failed"
+    #collect_tech_support_local || die "Task to collect logs/cores failed"
     echo "Ending test on $1"
 }
