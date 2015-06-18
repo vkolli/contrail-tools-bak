@@ -12,6 +12,10 @@ echo "Running tests on $TBFILE_NAME .."
 reimage_setup || debug_and_die "Reimage failed!"
 search_third_party_package
 run_build_fab "cleanup_repo"
+
+# Workaround for Bug #1463953; Adding carriage return to authorized keys
+(cd $TOOLS_WS/contrail-fabric-utils; fab -R openstack -- 'echo "$(cat ~/.ssh/authorized_keys)" > ~/.ssh/authorized_keys')
+
 if [ "$SKU" == icehouse ]; then
 run_build_fab install_rhosp5_repo || debug_and_die "Failed during installing rhosp5 repo"
 else
