@@ -3,14 +3,14 @@ import os
 
 host1 = 'root@10.204.216.64'
 host2 = 'root@10.204.216.65'
-host1 = 'root@10.204.217.71'
-host1 = 'root@10.204.217.113'
-host1 = 'root@10.204.217.114'
-host1 = 'root@10.204.217.115'
+host3 = 'root@10.204.217.71'
+host4 = 'root@10.204.217.113'
+host5 = 'root@10.204.217.114'
+host6 = 'root@10.204.217.115'
 
 ext_routers = [('hooper','192.168.192.253')]
 router_asn = 64512
-public_vn_rtgt = 2225
+public_vn_rtgt = 2223
 public_vn_subnet = '10.204.221.176/28'
 
 host_build = 'stack@10.204.216.49'
@@ -46,12 +46,12 @@ env.passwords = {
 }
 
 env.ostypes = {
-    host1:'centos65',
-    host2:'centos65',
-    host3:'centos65',
-    host4:'centos65',
-    host5:'centos65',
-    host6:'centos65',
+    host1:'ubuntu',
+    host2:'ubuntu',
+    host3:'ubuntu',
+    host4:'ubuntu',
+    host5:'ubuntu',
+    host6:'ubuntu',
 }
 
 control_data = {
