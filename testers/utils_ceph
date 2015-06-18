@@ -276,12 +276,18 @@ function check_contrail_status {
   passvar="NODE1_PASSWD"
   nodename="NODE1_HOSTNAME"
   result=`exec_cmds -s ${!loginvar}@${!ipvar} -p ${!passvar}  -c "contrail-status"`
+ 
+  # status for following modules will be backup and hence skipped
+  # contrail-device-manager
+  # contrail-schema
+  # contrail-svc-monitor
+ 
   for mod in supervisor-control: contrail-control contrail-control-nodemgr \
      contrail-dns contrail-named supervisor-analytics: contrail-analytics-api\
      contrail-analytics-nodemgr contrail-collector contrail-query-engine\
      contrail-snmp-collector contrail-topology supervisor-config: contrail-api:0\
-     contrail-config-nodemgr contrail-device-manager contrail-discovery:0\
-     contrail-schema contrail-svc-monitor ifmap supervisor-webui: contrail-webui\
+     contrail-config-nodemgr contrail-discovery:0\
+     ifmap supervisor-webui: contrail-webui\
      contrail-webui-middleware supervisor-database: contrail-database\
      contrail-database-nodemgr supervisor-support-service: rabbitmq-server
      #contrail-storage-stats: 
