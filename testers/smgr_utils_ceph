@@ -338,7 +338,7 @@ function provision_using_SM_ceph() {
 function run_smgr_task_ceph() {
     echo "Running tests on $1.."
     search_package_ceph || die "Failed to search packages"
-    copy_pkgs_to_sm_node
+    copy_pkgs_to_sm_fab_node
     bringup_SM_setup_ceph || die "Failed to bringup SM setup" 
     add_server_and_images_to_SM || die "Failed to bringup SM setup"
     reimage_using_SM_ceph || die "reimage failed"
