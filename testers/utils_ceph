@@ -214,6 +214,7 @@ function bringup_setup_contrail {
            dpkg -P contrail-setup;
            dpkg -P contrail-install-packages;
            dpkg -P contrail-fabric-utils;
+           dpkg -P contrail-storage-packages;
            dpkg -i $INSTALL_PKG_FILE;
            cd /opt/contrail/contrail_packages/;
            ./setup.sh
