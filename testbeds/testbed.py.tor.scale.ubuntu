@@ -116,9 +116,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.5',
                       'standby_tor_agent_tor_id':'5',
-                      'standby_tor_agent_tor_ovs_port':'4320',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'contrail123',
                       },
                       {
                       'tor_ip':'192.168.11.2',
@@ -134,9 +132,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.5',
                       'standby_tor_agent_tor_id':'7',
-                      'standby_tor_agent_tor_ovs_port':'4318',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'Embe1mpls',
                       },
                       {
                       'tor_ip':'192.168.11.3',
@@ -152,9 +148,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.5',
                       'standby_tor_agent_tor_id':'8',
-                      'standby_tor_agent_tor_ovs_port':'4317',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'c0ntrail123',
                       }
                       ],
                  host5:
@@ -172,9 +166,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.4',
                       'standby_tor_agent_tor_id':'1',
-                      'standby_tor_agent_tor_ovs_port':'4321',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'contrail123',
                       },
                       {
                       'tor_ip':'192.168.11.2',
@@ -190,9 +182,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.4',
                       'standby_tor_agent_tor_id':'3',
-                      'standby_tor_agent_tor_ovs_port':'4323',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'Embe1mpls',
                       },
                       {
                       'tor_ip':'192.168.11.3',
@@ -208,9 +198,7 @@ env.tor_agent = {host4:
                       'tor_vendor_name':'Juniper',
                       'standby_tor_agent_ip':'192.168.22.4',
                       'standby_tor_agent_tor_id':'4',
-                      'standby_tor_agent_tor_ovs_port':'4324',
                       'ca_cert_file':'/root/cacert.pem',
-                      'tor_root_password':'c0ntrail123',
                       }
                       ]
                 }
