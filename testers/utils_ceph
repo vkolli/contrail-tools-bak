@@ -130,7 +130,7 @@ function create_testbed_ceph {
     identify_tbfile 
 
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "rm -rf /tmp/$TBFILE_NAME/$CEPH_PROFILE"      
-    exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "mkdir /tmp/$TBFILE_NAME/$CEPH_PROFILE"      
+    exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "mkdir -p /tmp/$TBFILE_NAME/$CEPH_PROFILE"      
 
     if [ $PKG_LOCAL -eq 1 ]
     then
