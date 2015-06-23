@@ -2,8 +2,7 @@ from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.84.14.6'
-host2 = 'root@10.84.7.18'
-host3 = 'root@10.84.14.10'
+host2 = 'root@10.84.14.10'
 contrail_vm1 = 'root@10.84.14.207'
 contrail_vm2 = 'root@10.84.14.208'
 
@@ -20,18 +19,18 @@ host_build = 'stack@10.204.216.49'
 env.orchestrator = 'vcenter'
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3, contrail_vm1, contrail_vm2,],
-    'cfgm': [host1, host2, host3],
-    'control': [host1, host2, host3],
+    'all': [host1, host2, contrail_vm1, contrail_vm2,],
+    'cfgm': [host1, host2],
+    'control': [host1, host2],
     'compute': [contrail_vm1, contrail_vm2],
     'collector': [host1],
     'webui': [host1],
-    'database': [host1, host2, host3],
+    'database': [host1],
     'build': [host_build],
 }
 
 env.hostnames = {
-    'all': ['a5s6' 'a2s18' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
+    'all': ['a5s6' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
 }
 minimum_diskGB=32
 #Openstack admin password
@@ -42,7 +41,6 @@ env.password = 'c0ntrail123'
 env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
-    host3: 'c0ntrail123',
     contrail_vm1: 'c0ntrail123',
     contrail_vm2: 'c0ntrail123',
     host_build: 'stack@123',
@@ -55,17 +53,16 @@ env.mail_to='shajuvk@juniper.net'
 env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
-    host3:'ubuntu',
     contrail_vm1:'ubuntu',
     contrail_vm2:'ubuntu',
 }
 env.vcenter = {
-        'server':'10.84.22.104',
+        'server':'10.84.23.111',
         'port': '443',
-        'username': 'Administrator@vsphere.local',
-        'password': 'Contrail123!',
+        'username': 'Administrator',
+        'password': 'Con123trail',
         'auth': 'https',
-        'datacenter': 'shaju-GE',
+        'datacenter': 'shaju-14-04',
         'cluster': ['sec_cluster','third_cluster'],
         'dv_switch': { 'dv_switch_name': 'sec_dvswitch',
                      },
