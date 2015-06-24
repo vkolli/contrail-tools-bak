@@ -2,7 +2,8 @@ from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.84.14.6'
-host2 = 'root@10.84.14.10'
+host2 = 'root@10.84.14.9'
+host3 = 'root@10.84.14.10'
 contrail_vm1 = 'root@10.84.14.207'
 contrail_vm2 = 'root@10.84.14.208'
 
@@ -19,18 +20,18 @@ host_build = 'stack@10.204.216.49'
 env.orchestrator = 'vcenter'
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, contrail_vm1, contrail_vm2,],
-    'cfgm': [host1, host2],
-    'control': [host1, host2],
+    'all': [host1, host2, host3, contrail_vm1, contrail_vm2,],
+    'cfgm': [host1, host2, host3],
+    'control': [host1, host2, host3],
     'compute': [contrail_vm1, contrail_vm2],
     'collector': [host1],
     'webui': [host1],
-    'database': [host1],
+    'database': [host1, host2, host3],
     'build': [host_build],
 }
 
 env.hostnames = {
-    'all': ['a5s6' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
+    'all': ['a5s6' 'a5s9' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
 }
 minimum_diskGB=32
 #Openstack admin password
@@ -41,6 +42,7 @@ env.password = 'c0ntrail123'
 env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
+    host3: 'c0ntrail123',
     contrail_vm1: 'c0ntrail123',
     contrail_vm2: 'c0ntrail123',
     host_build: 'stack@123',
@@ -48,21 +50,19 @@ env.passwords = {
 env.test_repo_dir='/home/stack/multi_interface_parallel/vcenter/contrail-test'
 env.mail_from='shajuvk@juniper.net'
 env.mail_to='shajuvk@juniper.net'
-#do_parallel = True
+do_parallel = True
 
 env.ostypes = {
     host1:'ubuntu',
-    host2:'ubuntu',
     contrail_vm1:'ubuntu',
-    contrail_vm2:'ubuntu',
 }
 env.vcenter = {
-        'server':'10.84.23.111',
+        'server':'10.84.22.104',
         'port': '443',
-        'username': 'Administrator',
-        'password': 'Con123trail',
+        'username': 'Administrator@vsphere.local',
+        'password': 'Contrail123!',
         'auth': 'https',
-        'datacenter': 'shaju-14-04',
+        'datacenter': 'shaju-GE',
         'cluster': ['sec_cluster','third_cluster'],
         'dv_switch': { 'dv_switch_name': 'sec_dvswitch',
                      },
@@ -84,7 +84,7 @@ esxi_hosts = {
             'mac' : '00:50:56:09:ac:ab',
             'host' : 'root@10.84.14.207',
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-           # 'vmdk': "/root/12.04-3.13.0-34-generic-ContrailVM-disk1.vmdk",
+         #   'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
         }
     },
     'a5s8' : {
@@ -97,25 +97,10 @@ esxi_hosts = {
             'name' : 'ContrailVM-a5s8',
             'mac' : '00:50:56:09:ac:ac',
             'host' : 'root@10.84.14.208',
-        #    'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-            'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+        #    'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
         }
     },
- #   'a5s9' : {
- #       'ip' : '10.84.14.9',
- #       'username' : 'root',
- #       'password' : 'c0ntrail123',
- #       'datastore': "/vmfs/volumes/a5s9-250ssd",
- #       'cluster': 'third_cluster',
- #       'contrail_vm' : {
- #           'name' : 'ContrailVM-a5s9',
- #           'mac' : '00:50:56:09:ac:ad',
- #           'host' : 'root@10.84.14.209',
-#            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-          #  'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
- #       }
-    #},
-
 
 }
 
@@ -125,9 +110,12 @@ env.mail_server='10.84.24.64'
 env.mail_port='4000'
 env.mx_gw_test=True
 env.testbed_location='US'
-env.interface_rename = False 
+env.interface_rename = False
 env.image_web_server = '10.84.5.100'
 env.log_scenario='single_int_Vcenter Sanity[mgmt, ctrl=data]'
+
+#To disable installing contrail interface rename package
+#env.interface_rename = False
 
 #To enable multi-tenancy feature
 #multi_tenancy = True
