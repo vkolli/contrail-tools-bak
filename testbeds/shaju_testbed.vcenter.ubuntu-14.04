@@ -2,7 +2,7 @@ from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.84.14.6'
-host2 = 'root@10.84.7.18'
+host2 = 'root@10.84.14.9'
 host3 = 'root@10.84.14.10'
 contrail_vm1 = 'root@10.84.14.207'
 contrail_vm2 = 'root@10.84.14.208'
@@ -31,7 +31,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['a5s6' 'a2s18' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
+    'all': ['a5s6' 'a5s9' 'a5s10' 'ContrailVM-a5s7' 'ContrailVM-a5s8']
 }
 minimum_diskGB=32
 #Openstack admin password
@@ -50,14 +50,11 @@ env.passwords = {
 env.test_repo_dir='/home/stack/multi_interface_parallel/vcenter/contrail-test'
 env.mail_from='shajuvk@juniper.net'
 env.mail_to='shajuvk@juniper.net'
-#do_parallel = True
+do_parallel = True
 
 env.ostypes = {
     host1:'ubuntu',
-    host2:'ubuntu',
-    host3:'ubuntu',
     contrail_vm1:'ubuntu',
-    contrail_vm2:'ubuntu',
 }
 env.vcenter = {
         'server':'10.84.22.104',
@@ -87,7 +84,7 @@ esxi_hosts = {
             'mac' : '00:50:56:09:ac:ab',
             'host' : 'root@10.84.14.207',
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-           # 'vmdk': "/root/12.04-3.13.0-34-generic-ContrailVM-disk1.vmdk",
+         #   'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
         }
     },
     'a5s8' : {
@@ -100,25 +97,10 @@ esxi_hosts = {
             'name' : 'ContrailVM-a5s8',
             'mac' : '00:50:56:09:ac:ac',
             'host' : 'root@10.84.14.208',
-        #    'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-            'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+        #    'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
         }
     },
- #   'a5s9' : {
- #       'ip' : '10.84.14.9',
- #       'username' : 'root',
- #       'password' : 'c0ntrail123',
- #       'datastore': "/vmfs/volumes/a5s9-250ssd",
- #       'cluster': 'third_cluster',
- #       'contrail_vm' : {
- #           'name' : 'ContrailVM-a5s9',
- #           'mac' : '00:50:56:09:ac:ad',
- #           'host' : 'root@10.84.14.209',
-#            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-          #  'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
- #       }
-    #},
-
 
 }
 
@@ -128,9 +110,12 @@ env.mail_server='10.84.24.64'
 env.mail_port='4000'
 env.mx_gw_test=True
 env.testbed_location='US'
-env.interface_rename = False 
+env.interface_rename = False
 env.image_web_server = '10.84.5.100'
 env.log_scenario='single_int_Vcenter Sanity[mgmt, ctrl=data]'
+
+#To disable installing contrail interface rename package
+#env.interface_rename = False
 
 #To enable multi-tenancy feature
 #multi_tenancy = True
