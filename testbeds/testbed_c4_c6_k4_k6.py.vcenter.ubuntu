@@ -21,8 +21,8 @@ esx3 = 'root@' + k6
 
 ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
-public_vn_rtgt = 2225
-public_vn_subnet = '10.204.221.160/28'
+public_vn_rtgt = 2227
+public_vn_subnet = '10.204.221.224/28'
 
 host_build = 'stack@10.204.216.49'
 
