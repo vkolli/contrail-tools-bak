@@ -259,6 +259,8 @@ function bringup_setup_contrail {
                export HA_TEST=$HA_TEST;
                fab install_contrail" || debug_and_die_local "fab install_contrail failed"
 
+    sleep 300; # to let servers to reboot with kernel
+
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
                cd $UTILS_DIR;
                export HA_TEST=$HA_TEST;
