@@ -104,7 +104,7 @@ esxi_hosts = {
 
 }
 
-env.mail_to='dl-contrail-sw@juniper.net'
+#env.mail_to='dl-contrail-sw@juniper.net'
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.mail_server='10.84.24.64'
 env.mail_port='4000'
