@@ -7,10 +7,14 @@ host3 = 'root@10.84.14.10'
 contrail_vm1 = 'root@10.84.14.207'
 contrail_vm2 = 'root@10.84.14.208'
 
-#External routers if any
-#for eg. 
-#ext_routers = [('mx1', '10.204.216.253')]
-ext_routers = []
+#If there is only single interface,  MX ip is 10.84.13.200
+#ext_routers = [('a5-mx80-2', '10.84.13.200')]
+#For multi-interface setup, mx ip is 192.168.10.200
+
+ext_routers = [('a5-mx80-2', '10.84.13.200')]
+router_asn = 64512
+public_vn_rtgt = 10000
+public_vn_subnet = "10.84.51.96/27"
 
 #Autonomous system number
 router_asn = 64512
