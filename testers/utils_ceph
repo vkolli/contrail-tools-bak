@@ -91,6 +91,9 @@ function copy_tbfile_to_fab_server {
 
 }
 
+function copy_tbfile_to_api_server {
+  sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${API_SERVER_HOST_STRING}:/opt/contrail/utils/fabfile/testbeds/testbed.py
+}
 #####
 
 function copy_pkgs_to_sm_fab_node {
@@ -382,6 +385,9 @@ function reimage_and_bringup_ceph {
     then
       bringup_storage || debug_and_die_local "Bringup storage failed!"
     fi
+
+    copy_tbfile_to_api_server
+
 }
 
 function run_ceph_check {
