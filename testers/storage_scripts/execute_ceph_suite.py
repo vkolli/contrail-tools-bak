@@ -11,6 +11,8 @@ if testbed == "testbed_ceph3.py" :
    tb_file = "SMOKE_CEPH3.config"
 elif testbed == "testbed_smgr_ci_multi_node.py":
    tb_file = "SMOKE_ci_multi_node.config"
+elif testbed == "testbed_ceph_perf.py":
+   tb_file = "SMOKE_CEPH_PERF.config"
 else:
    tb_file = "None"
 

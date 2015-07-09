@@ -69,7 +69,7 @@ function update_testbed_file {
       )'`
     sed -i "s/HOST4_IFACE/$iface/" $ABS_PATH_TBFILE
 
-    sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${FAB_HOST_STRING}:$UTILS_DIR/fabfile/testbeds/testbed.py
+    #sshpass -p ${FAB_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $ABS_PATH_TBFILE ${FAB_HOST_STRING}:$UTILS_DIR/fabfile/testbeds/testbed.py
 
 }
 
@@ -259,6 +259,8 @@ function bringup_setup_contrail {
                export HA_TEST=$HA_TEST;
                fab install_contrail" || debug_and_die_local "fab install_contrail failed"
 
+    sleep 300; # to let servers to reboot with kernel
+
     exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
                cd $UTILS_DIR;
                export HA_TEST=$HA_TEST;
@@ -437,6 +439,8 @@ function run_ceph_fab_sanity() {
 
     copy_pkgs_to_sm_fab_node
 
+    bringup_SM_setup_ceph || die "Failed to bringup SM setup"
+ 
     reimage_and_bringup_ceph
     check_contrail_status
     echo "Test Done" 
