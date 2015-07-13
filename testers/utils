@@ -405,6 +405,11 @@ function reimage_setup {
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
             export HA_TEST=$HA_TEST;
             # Workaround till Server manager is fixed.
+            if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+                # for vcenter: Do not reimage esxi all the time during sanity.Setting esxi reimage parameter 'No' for sanity
+                fab all_sm_reimage:$REIMAGE_PARAM,esxi_reimage=no;
+            fi
+
             if [ `echo $TBFILE_NAME | grep -c "a6s32" ` -gt 0 ]; then
                 /cs-shared/server-manager/client/server-manager reimage --no_confirm --cluster_id Sanity_a6s32_tb $REIMAGE_PARAM
             else
