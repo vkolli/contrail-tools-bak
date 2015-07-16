@@ -15,7 +15,7 @@ public_vn_subnet = '10.204.221.192/28'
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
-    'all': [host1, host2, host3,host4,host5],
+    'all': [host1,host2,host3,host4,host5,host6],
     'cfgm': [host1, host2],
     'webui': [host1],
     'openstack': [host1],
