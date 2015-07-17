@@ -28,11 +28,11 @@ function check_SM_pkg_availability() {
     count=0
     if [ $SM_TYPE -eq 1 ] 
     then
-        if [ ${SKU} == "juno" ]
+        if [ ${TEST_SETUP} == "MULTIINTERFACE" ]
         then
             pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
         else
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/${SKU}/artifacts"
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts"
         fi
     else
         pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
@@ -76,15 +76,16 @@ function bringup_SM_setup() {
     #multi-node uses ubuntu SM and single node uses centos SM.
     if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
     then
+        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
         #SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}*_all.deb*`
-        if  [ $SKU == "juno" ] 
-        then
-            SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~icehouse\_all.deb*`
-            echo $SM_SERVER_PKG_FILE
-        else
-            SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
-            echo $SM_SERVER_PKG_FILE
-        fi
+        #if  [ $SKU == "juno" ] 
+        #then
+        #    SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~icehouse\_all.deb*`
+        #    echo $SM_SERVER_PKG_FILE
+        #else
+        #    SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
+        #    echo $SM_SERVER_PKG_FILE
+        #fi
     else
         SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm*`
         echo $SM_SERVER_PKG_FILE
@@ -263,7 +264,7 @@ function reimage_using_SM() {
         echo "add base ISO image to server manager database"
         if [ ${DISTRO} == "ubuntu-14-04" ]
         then
-            server-manager add image -f /root/images/image14.json
+            server-manager add image -f /root/images/image142.json
         else
             #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
             server-manager add image -f /root/images/image12.json
@@ -277,7 +278,7 @@ function reimage_using_SM() {
         fi
 
         echo "check if the image was added successfully"
-        server-manager show image | grep $DISTRO
+        server-manager show image | grep ubuntu-14-04-2
         if [ $? != 0 ] 
         then
             echo "Adding Base ISO image failed"
@@ -337,7 +338,7 @@ function reimage_using_SM() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
+        server-manager reimage -F --cluster_id $CLUSTER_NAME ubuntu-14-04-2
         if [ $? == 0 ]
         then
             echo "Issue of Reimage command to reimage target nodes is sucessful!!!"

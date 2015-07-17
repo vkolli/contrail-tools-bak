@@ -2,6 +2,7 @@
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 source $TOOLS_WS/testers/environment.sh
 export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
+IS_UBUNTU_14042=0
 ##
 # try
 function try {
@@ -71,7 +72,16 @@ function search_package {
             export DISTRO=${DISTRO:-centos65}
         fi 
     fi
-    export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+    if [[ ${BUILD_MAP[${DISTRO}]} =~ ubuntu-14 ]]; then
+        if [[ ("$BRANCH" > "R2.1" ) || ( ${BRANCH} == "mainline" ) ]]; then
+            export REIMAGE_PARAM="ubuntu-14.04.2"
+            IS_UBUNTU_14042=1
+        else
+            export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+        fi
+    else
+        export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+    fi
     export PKG_FILE_DIR=`dirname $PKG_FILE`
 }
 
@@ -247,7 +257,7 @@ function use_testbed_file {
         [ -f $tbfile ] || die "Testbed file $tbfile not found"
     fi
     
-    image_name=${BUILD_MAP[${DISTRO}]}
+    image_name=${REIMAGE_PARAM}
     base_distro=`echo $image_name | cut -d - -f1`
     tbfile_hyper=${tbfile}
     if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
@@ -256,7 +266,10 @@ function use_testbed_file {
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.vcenter
     fi
-    if [ -f ${tbfile_hyper}.$image_name ]; then
+    if [ $IS_UBUNTU_14042 -eq 1 ]; then
+        distro_name="ubuntu-14.04"
+        cp -f ${tbfile_hyper}.$distro_name ${tbfile}
+    elif [ -f ${tbfile_hyper}.$image_name ]; then
             cp -f ${tbfile_hyper}.$image_name ${tbfile}
     elif [ -f ${tbfile_hyper}.${base_distro} ]; then
             cp -f ${tbfile_hyper}.${base_distro} ${tbfile}
@@ -346,10 +359,18 @@ function bringup_setup {
             need_reboot=1
         fi
     else
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            export HA_TEST=$HA_TEST;
-            cd fabric-utils;
-            fab install_contrail" || debug_and_die "fab install_contrail failed"
+        if [ $IS_UBUNTU_14042 -eq 1 ]; then
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+        else
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
+        fi
+        
     fi
 
     # reboot compute nodes after intf rename package install

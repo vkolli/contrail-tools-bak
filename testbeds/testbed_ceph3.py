@@ -80,7 +80,7 @@ control_data = {
    host1 : { 'ip': '13.0.0.1/24', 'gw' : '13.0.0.1', 'device':'HOST1_IFACE' },
    host2 : { 'ip': '13.0.0.2/24', 'gw' : '13.0.0.1', 'device':'HOST2_IFACE' },
    host3 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'HOST3_IFACE' },
-   host4 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'HOST4_IFACE' },
+   host4 : { 'ip': '13.0.0.4/24', 'gw' : '13.0.0.1', 'device':'HOST4_IFACE' },
 }
 
 #To disable installing contrail interface rename package

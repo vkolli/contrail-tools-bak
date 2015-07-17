@@ -24,6 +24,8 @@ export API_SERVER_HOST_USER=`echo $API_SERVER_HOST_STRING | cut -d @ -f1`
 export API_SERVER_HOST_PASSWORD=${API_SERVER_HOST_PASSWORD:-c0ntrail123}
 #-------
 
+#declare -i IS_UBUNTU_14042
+
 export SKIP_REIMAGE=${SKIP_REIMAGE:-0}
 export SKIP_BRINGUP=${SKIP_BRINGUP:-0}
 export SKIP_ZONES=${SKIP_ZONES:-0}
@@ -74,7 +76,12 @@ fi
 
 declare -A BUILD_MAP
 BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
-export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+
+if [ $IS_UBUNTU_14042 -eq 1 ]; then
+    export REIMAGE_PARAM="ubuntu-14.04.2"
+else
+    export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+fi
 lsb_dist=''
 
 ###########
