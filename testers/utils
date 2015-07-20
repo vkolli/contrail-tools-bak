@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
-source $TOOLS_WS/testers/environment.sh
-export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
+IS_UBUNTU_14041=0
 IS_UBUNTU_14042=0
+source $TOOLS_WS/testers/environment.sh
+declare -A BUILD_MAP
+export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
 ##
 # try
 function try {
@@ -51,7 +53,12 @@ function search_package {
     if [ -z $PKG_FILE ]
     then 
         get_pkg_suffix_to_use
-        PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        if [[ ${BUILD_MAP[${DISTRO}]} = "ubuntu-14.04.1" ]]; then
+            PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+            IS_UBUNTU_14041=1
+        else
+            PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        fi
         VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
         export PKG_FILE
         export VCENTER_PLUGIN
@@ -72,12 +79,19 @@ function search_package {
             export DISTRO=${DISTRO:-centos65}
         fi 
     fi
+    #if build is greater than R2.20 and DISTRO is ubuntu, set ubuntu-14.04.2 as default base OS.
+    #but keep 14.04.1 as is.
     if [[ ${BUILD_MAP[${DISTRO}]} =~ ubuntu-14 ]]; then
-        if [[ ("$BRANCH" > "R2.1" ) || ( ${BRANCH} == "mainline" ) ]]; then
-            export REIMAGE_PARAM="ubuntu-14.04.2"
-            IS_UBUNTU_14042=1
+        if [ $IS_UBUNTU_14041 -eq 0 ]; then
+            if [[ ("$BRANCH" > "R2.1" ) || ( ${BRANCH} == "mainline" ) ]]; then
+                export REIMAGE_PARAM="ubuntu-14.04.2"
+                IS_UBUNTU_14042=1
+            else
+                export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            fi
         else
             export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            IS_UBUNTU_14041=1
         fi
     else
         export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
@@ -266,7 +280,7 @@ function use_testbed_file {
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.vcenter
     fi
-    if [ $IS_UBUNTU_14042 -eq 1 ]; then
+    if [[ ($IS_UBUNTU_14042 -eq 1)  || ($IS_UBUNTU_14041 -eq 1) ]]; then
         distro_name="ubuntu-14.04"
         cp -f ${tbfile_hyper}.$distro_name ${tbfile}
     elif [ -f ${tbfile_hyper}.$image_name ]; then
@@ -284,7 +298,6 @@ function use_testbed_file {
 
     if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
         source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
-        source $TOOLS_WS/testers/environment.sh
         sed 's/export //' ${TOOLS_WS}/contrail-fabric-utils/testbed_env > ${TOOLS_WS}/contrail-fabric-utils/plain_testbed_env
     fi
     sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
