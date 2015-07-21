@@ -274,12 +274,6 @@ function bringup_setup_contrail {
                cd $UTILS_DIR;
                fab setup_all" || debug_and_die_local "fab setup_interface or setup_all task failed"
 
-    exec_cmds -s ${FAB_HOST_STRING} -p ${FAB_HOST_PASSWORD} -c "
-               cd $UTILS_DIR;
-               export HA_TEST=$HA_TEST;
-               fab setup_interface || exit 1;
-               fab add_static_route " || debug_and_die_local "fab setup_interface/add_static_route failed"
-
 }
 
 function check_contrail_status {

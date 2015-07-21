@@ -72,9 +72,6 @@ if [ ${BRANCH} == "mainline" ]; then
     FAB_GIT_BRANCH='master'
 fi
 
-declare -A BUILD_MAP
-BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
-export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
 lsb_dist=''
 
 ###########
