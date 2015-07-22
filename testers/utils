@@ -280,6 +280,9 @@ function use_testbed_file {
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.vcenter
     fi
+    if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
+            tbfile_hyper=${tbfile}.docker
+    fi 
     if [[ ($IS_UBUNTU_14042 -eq 1)  || ($IS_UBUNTU_14041 -eq 1) ]]; then
         distro_name="ubuntu-14.04"
         cp -f ${tbfile_hyper}.$distro_name ${tbfile}
