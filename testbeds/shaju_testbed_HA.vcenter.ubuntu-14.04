@@ -29,7 +29,7 @@ env.roledefs = {
     'control': [host1, host2, host3],
     'compute': [contrail_vm1, contrail_vm2],
     'collector': [host1],
-    'webui': [host1],
+    'webui': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
 }
@@ -126,6 +126,10 @@ env.log_scenario='single_int_Vcenter Sanity[mgmt, ctrl=data]'
 
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
-
+env.ha = {
+    'contrail_internal_vip' : '10.84.14.215',
+  #  'contrail_external_vip' : '10.84.14.215',
+}
+env.ntp_server = '10.84.5.100'
 # To configure the encapsulation priority. Default: MPLSoGRE 
 #env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"

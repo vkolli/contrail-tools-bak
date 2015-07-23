@@ -264,7 +264,7 @@ function reimage_using_SM() {
         echo "add base ISO image to server manager database"
         if [ ${DISTRO} == "ubuntu-14-04" ]
         then
-            server-manager add image -f /root/images/image14.json
+            server-manager add image -f /root/images/image142.json
         else
             #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
             server-manager add image -f /root/images/image12.json
@@ -278,7 +278,7 @@ function reimage_using_SM() {
         fi
 
         echo "check if the image was added successfully"
-        server-manager show image | grep $DISTRO
+        server-manager show image | grep ubuntu-14-04-2
         if [ $? != 0 ] 
         then
             echo "Adding Base ISO image failed"
@@ -338,7 +338,7 @@ function reimage_using_SM() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
+        server-manager reimage -F --cluster_id $CLUSTER_NAME ubuntu-14-04-2
         if [ $? == 0 ]
         then
             echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
