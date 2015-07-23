@@ -179,6 +179,10 @@ def parse_cli(args):
                         action='store',
                         default=None,
                         help="Root password for mysql, reqd in case of n_vms")
+    parser.add_argument('--cleanup',
+                        action='store',
+                        default=1,
+                        help="do cleanup at the end of test")
 
     pargs = parser.parse_args(args)
     return pargs
@@ -389,7 +393,6 @@ def cleanup(test_obj):
 
 if __name__ == "__main__" :
 
- try:
     pargs = parse_cli(sys.argv[1:])
 
     test_obj = TestObj(pargs)
@@ -400,14 +403,13 @@ if __name__ == "__main__" :
 
     ret = test_obj.setUp()
 
-    ret = "0"
     fp = open("/tmp/last_cmd_status","w")
     fp.write(ret)
     fp.close()
- finally:
 
-    pass
-    #cleanup(test_obj)          
+
+    if sys.args.cleanup :
+       cleanup(test_obj)          
     
 
 
