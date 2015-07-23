@@ -307,6 +307,7 @@ class TestObj:
            query = 'select vm_state from instances where uuid="%s"'%vm_id
            result_dict = self.db.query_db(query)[0]
            if result_dict['vm_state'] == 'active':
+             print "VM is up.instance_id :%s"%vm_id
              self.vm_ids.remove(vm_id)
 
         if len(self.vm_ids) == 0 :
