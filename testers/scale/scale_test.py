@@ -48,6 +48,7 @@ def retry(tries=12, delay=5):
         def f_retry(*args, **kwargs):
             mtries, result = tries, False
             while mtries > 0:
+                lib.Print("Try count: %d"%mtries)
                 mtries -= 1
                 try:
                     result = f(*args, **kwargs)
@@ -253,14 +254,14 @@ class TestObj:
         # Create VN
         for vn_index in range(0, self.args.n_vns):
             vn_name = self.get_name(tenant_name,'VN', vn_index)
-            print "Creating VN : ",vn_name
+            lib.Print("Creating VN : %s"%vn_name)
             lib.create_network(self.ostack_admin_obj,vn_name=vn_name)
 
         # Create Ports
         for vn_name in self.ostack_admin_obj.id.vn_uuid.keys():
             for port_index in range(0, self.args.n_ports):
                 port_name = vn_name+'-Port'+str(port_index)
-                print "Creating Port: ",port_name
+                lib.Print("Creating Port: %s"%port_name)
                 lib.create_port(self.ostack_admin_obj,vn_name, port_name)
 
 
@@ -294,12 +295,12 @@ class TestObj:
             for vm_index in range(0, self.args.n_vms):
                 vm_name = vn_name+'-VM'+random_string(str(vm_index))
                 port_name = vn_name+'-Port'+str(vm_index)
-                print 'creating vm', vm_name,vn_name,port_name
+                lib.Print('creating vm : %s,%s,%s'%(vm_name,vn_name,port_name))
                 lib.create_vm(self.ostack_admin_obj,image_id=self.args.image_id,
                                        vm_name=vm_name, port_name=port_name,
                                        vn_name=vn_name,flavor=4)
 
-        print "VM ids:",self.ostack_admin_obj.id.vm_id
+        lib.Print("VM ids:%s"%self.ostack_admin_obj.id.vm_id)
         exit_value = self.verify_vms()
 
         queue.put(exit_value)
@@ -310,8 +311,9 @@ class TestObj:
         for vm_id in self.vm_ids :
            query = 'select vm_state from instances where uuid="%s"'%vm_id
            result_dict = self.db.query_db(query)[0]
+           lib.Print(result_dict)
            if result_dict['vm_state'] == 'active':
-             print "VM is up.instance_id :%s"%vm_id
+             lib.Print("VM is up.instance_id :%s"%vm_id)
              self.vm_ids.remove(vm_id)
 
         if len(self.vm_ids) == 0 :
@@ -326,10 +328,10 @@ class TestObj:
        self.get_vm_states()
 
        if len(self.vm_ids) == 0 :
-          print "PASS : ALL %d VMs came up correctly"%len(self.ostack_admin_obj.id.vm_id.values())
+          lib.Print("PASS : ALL %d VMs came up correctly"%len(self.ostack_admin_obj.id.vm_id.values()))
           return 1
        else:
-          print "ERROR : Some VMs did not come up correctly.Expected Active VM Count : %d,Actual ACtive VM Count: %d"%(len(self.ostack_admin_obj.id.vm_id.values()),(len(self.ostack_admin_obj.id.vm_id.values())-len(self.vm_ids)))
+          lib.Print("ERROR : Some VMs did not come up correctly.Expected Active VM Count : %d,Actual ACtive VM Count: %d"%(len(self.ostack_admin_obj.id.vm_id.values()),(len(self.ostack_admin_obj.id.vm_id.values())-len(self.vm_ids))))
           return -1  
 
     def setUp(self):
@@ -352,11 +354,11 @@ class TestObj:
                                                kwargs_list,
                                                self.timeout,
                                                callback=self.read_from_queue)
-        print 'Time to create all tenants', timediff
+        lib.Print('Time to create all tenants:%s'%str(timediff))
 
-        print "####List of VMs running..."
+        lib.Print("####List of VMs running...")
         lib.list_all_vms(self.ostack_admin_obj)
-        print "###########################"
+        lib.Print("###########################")
 
     def upload_glance_image(self):
 
@@ -370,7 +372,7 @@ class TestObj:
           pass
 
        try:
-          lib.add_glance_image(self.ostack_admin_obj,'ubuntu','ovf','raw','http://%s/contrail/images/livemnfs.qcow2'%self.args.sm_node_ip)            
+          lib.add_glance_image(self.ostack_admin_obj,'ubuntu','ovf','raw','http://%s/contrail/images/livemnfs.qcow2'%self.args.sm_node_ip) 
           image = self.ostack_admin_obj.nova_client.images.find(name='ubuntu')
           image_id = image.id
           self.args.image_id = image_id
@@ -382,7 +384,7 @@ class TestObj:
 
 def cleanup(test_obj):
 
-    print "calling cleanup..."
+    lib.Print("calling cleanup...")
     lib.delete_test_vms(test_obj.ostack_admin_obj)
     lib.delete_test_tenants(test_obj.ostack_admin_obj)
     lib.delete_test_network(test_obj.ostack_admin_obj)
