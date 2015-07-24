@@ -1,3 +1,4 @@
+import sys
 import time
 import commands
 import struct
@@ -7,6 +8,19 @@ import random
 from netaddr import *
 from multiprocessing import Process, Queue
 from datetime import datetime
+
+def stripCtrl(str):
+  result = ""
+  for i in range(len(str)):
+     #if (str[i] != '\r') and (str[i] != '\x08'):
+     if (str[i] != '\x08'):
+        result = result+str[i]
+  return result
+
+def Print(str,DEBUG=True):
+   if DEBUG:
+     print time.ctime()+"\n"+stripCtrl(str)
+     sys.stdout.flush()
 
 def list_all_vms(ostack_admin_obj):
 
