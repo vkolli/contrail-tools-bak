@@ -141,10 +141,13 @@ def delete_test_network(ostack_admin_obj):
              subnet_id = subnet['id']
              for port in port_list:
                 if port['network_id'] == net_id:
+                  Print("deleting port:%s"%port['id'])
                   ostack_admin_obj.neutron_client.delete_port(port['id'])
                   port_list.remove(port)
+             Print("deleting subnet:%s"%subnet_id)
              ostack_admin_obj.neutron_client.delete_subnet(subnet_id)
              subnet_list.remove(subnet)
+         Print("deleting net:%s"%net_id)
          ostack_admin_obj.neutron_client.delete_network(net_id)
            
            
