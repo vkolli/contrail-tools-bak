@@ -15,7 +15,7 @@ result=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c
 result=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cat /tmp/last_cmd_status"`
 
 result=`echo $result | sed 's/\\r//g'`
-if [ $result != 0 ]; then
+if [ "$result" != '0' ]; then
         echo "ERROR: scale test failed"
         exit 1
 else
