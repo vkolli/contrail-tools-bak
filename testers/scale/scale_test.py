@@ -413,13 +413,13 @@ if __name__ == "__main__" :
 
     fp = open("/tmp/last_cmd_status","w")
     if ret == 100 :
-      fp.write("1")
-    else:
       fp.write("0")
+    else:
+      fp.write("1")
     fp.close()
 
 
-    if sys.args.cleanup :
+    if test_obj.args.cleanup :
        cleanup(test_obj)          
     
 
