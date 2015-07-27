@@ -305,16 +305,20 @@ class TestObj:
 
         queue.put(exit_value)
 
-    @retry(30,60)
+    @retry(60,60)
     def get_vm_states(self):
 
+        print "List of pending VMs:",self.vm_ids
         for vm_id in self.vm_ids :
            query = 'select vm_state from instances where uuid="%s"'%vm_id
+           lib.Print(query)
            result_dict = self.db.query_db(query)[0]
-           lib.Print(result_dict)
+           lib.Print(str(result_dict))
            if result_dict['vm_state'] == 'active':
-             lib.Print("VM is up.instance_id :%s"%vm_id)
+             lib.Print("VM is UP.instance_id :%s"%vm_id)
              self.vm_ids.remove(vm_id)
+           else:
+             lib.Print("VM is not UP.instance_id :%s"%vm_id)
 
         if len(self.vm_ids) == 0 :
            return True
@@ -359,6 +363,8 @@ class TestObj:
         lib.Print("####List of VMs running...")
         lib.list_all_vms(self.ostack_admin_obj)
         lib.Print("###########################")
+
+        return success
 
     def upload_glance_image(self):
 
@@ -406,7 +412,10 @@ if __name__ == "__main__" :
     ret = test_obj.setUp()
 
     fp = open("/tmp/last_cmd_status","w")
-    fp.write(ret)
+    if ret == 100 :
+      fp.write("1")
+    else:
+      fp.write("0")
     fp.close()
 
 
