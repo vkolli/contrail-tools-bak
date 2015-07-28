@@ -234,16 +234,20 @@ def create_vm(ostack_admin_obj, vm_name, image_id, port_name=None,
 
         print vm_name,flavor,image_id,nics,launch_on
 
-        response = ostack_admin_obj.nova_client.servers.create(name=vm_name,
+        try:
+          response = ostack_admin_obj.nova_client.servers.create(name=vm_name,
                                             flavor=flavor,
                                             image=image_id,
                                             nics=nics,
                                             availability_zone=launch_on,
                                             max_count=1)
-        ostack_admin_obj.id.vm_id[vm_name] = response.id
-        print response
-        print vm_name
-        print ostack_admin_obj.id.vm_id   
+          ostack_admin_obj.id.vm_id[vm_name] = response.id
+          print response
+          print vm_name
+          print ostack_admin_obj.id.vm_id   
+        except:
+          lib.Print("exception seen for vm : %s"%vm_name)
+
         return response, vm_name,ostack_admin_obj.id.vm_id
 
 def delete_all_routers(ostack_admin_obj):
