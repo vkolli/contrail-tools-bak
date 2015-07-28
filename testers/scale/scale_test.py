@@ -364,6 +364,7 @@ class TestObj:
         lib.list_all_vms(self.ostack_admin_obj)
         lib.Print("###########################")
 
+        lib.Print("Return value :%d"%success)
         return success
 
     def upload_glance_image(self):
