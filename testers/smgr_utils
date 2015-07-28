@@ -258,7 +258,7 @@ function reimage_using_SM() {
         then
             server-manager delete image ${DISTRO}
         else
-            server-manager delete image --image_id ${DISTRO}
+            server-manager delete image --image_id ubuntu-14-04-2
         fi
 
         echo "add base ISO image to server manager database"
@@ -381,6 +381,9 @@ function run_smgr_task() {
     then
         multi_node=0
     elif [ ${TEST_SETUP} == "MULTINODE" ]
+    then
+        multi_node=1
+    elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
     then
         multi_node=1
     else
