@@ -77,3 +77,6 @@ env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
+
+enable_ceilometer = True
+ceilometer_polling_interval = 60
