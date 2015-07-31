@@ -219,12 +219,12 @@ function reimage_using_SM() {
     fi
     # set the parameters required for reimage.
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
-        image="/root/images/ubuntu-12.04.3-server-amd64.iso" 
+        image="/cs-shared/images/ubuntu-12.04.3-server-amd64.iso" 
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu12$SKU${BUILDID}
     elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
-        image="/root/images/ubuntu-14.04.1-server-amd64.iso"
+        image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu14$SKU${BUILDID}
@@ -258,7 +258,7 @@ function reimage_using_SM() {
         then
             server-manager delete image ${DISTRO}
         else
-            server-manager delete image --image_id ubuntu-14-04-2
+            server-manager delete image --image_id ${DISTRO}
         fi
 
         echo "add base ISO image to server manager database"
@@ -278,7 +278,7 @@ function reimage_using_SM() {
         fi
 
         echo "check if the image was added successfully"
-        server-manager show image | grep ubuntu-14-04-2
+        server-manager show image | grep ${DISTRO}
         if [ $? != 0 ] 
         then
             echo "Adding Base ISO image failed"
@@ -338,7 +338,7 @@ function reimage_using_SM() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME ubuntu-14-04-2
+        server-manager reimage -F --cluster_id $CLUSTER_NAME ${DISTRO}
         if [ $? == 0 ]
         then
             echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
