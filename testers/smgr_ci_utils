@@ -366,7 +366,7 @@ function setup_cisanity_base {
         if [ ${FEATURE} == ci_sanity ]; then
             sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity "}
         else
-            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -F $FEATURE "}
+            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity"}
         fi
         if [ $PARALLEL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
