@@ -41,6 +41,13 @@ function install_ant() {
             else
                 echo "installed ant successfully"
             fi
+            apt-get -y install gdb
+            if [ $? != 0 ]
+            then
+                echo "failed to install gdb on cfgm!!!"
+            else
+                echo "installed gdb successfully"
+            fi
             cat /etc/apt/sources.list > /etc/apt/sources.list.save
             cat /etc/apt/sources.list.orig > /etc/apt/sources.list
         ) "
