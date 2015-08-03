@@ -447,6 +447,8 @@ function run_ceph_fab_sanity() {
     copy_pkgs_to_sm_fab_node
 
     bringup_SM_setup_ceph || die "Failed to bringup SM setup"
+
+    add_server_and_images_to_SM || die "Failed to bringup SM setup"
  
     reimage_and_bringup_ceph
     sleep 300
