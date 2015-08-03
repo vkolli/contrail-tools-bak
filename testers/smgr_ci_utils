@@ -17,6 +17,7 @@ function install_ant() {
         else
             echo "installed ant successfully"
         fi
+        apt-get -y install gdb
         cat /etc/apt/sources.list > /etc/apt/sources.list.save
         cat /etc/apt/sources.list.orig > /etc/apt/sources.list
     ) "
@@ -39,16 +40,17 @@ function bringup_SM_setup() {
 
     #SM pkg name is different for centos & ubuntu, so set it accordingly.
     #multi-node uses ubuntu SM and single node uses centos SM.
-    if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
-    then
-        SM_SERVER_PKG_FILE=`contrail-server-manager-installer_*\.*\_all.deb*`
-        echo $SM_SERVER_PKG_FILE
-    else
-        SM_SERVER_PKG_FILE=`contrail-server-manager-installer-*\.*.el6.noarch.rpm*`
-        echo $SM_SERVER_PKG_FILE
-    fi
+    #if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
+    #then
+    #    SM_SERVER_PKG_FILE=`contrail-server-manager-installer_*\.*\_all.deb*`
+    #    echo $SM_SERVER_PKG_FILE
+    #else
+    #    SM_SERVER_PKG_FILE=`contrail-server-manager-installer-*\.*.el6.noarch.rpm*`
+    #    echo $SM_SERVER_PKG_FILE
+    #fi
     pkg_name="$pkg_dir/${CONTRAIL_PACKAGE}"
-    
+    SM_PKG="/tmp/smgr/${SERVER_MANAGER_INSTALLER}"
+
     echo "Connect to SM_SERVER to install/upgrade SM packages"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
@@ -213,7 +215,7 @@ function reimage_using_SM() {
         echo "add base ISO image to server manager database"
         if [ ${DISTRO} == "ubuntu-14-04" ]
         then
-            server-manager add image -f /root/images/image14.json
+            server-manager add image -f /root/images/image142.json
         else
             #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
             server-manager add image -f /root/images/image12.json
