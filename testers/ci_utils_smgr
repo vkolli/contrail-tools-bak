@@ -1,0 +1,844 @@
+#!/usr/bin/env bash
+TOOLS_WS=${TOOLS_WS:-$(pwd)}
+IS_UBUNTU_14041=0
+IS_UBUNTU_14042=0
+source $TOOLS_WS/testers/environment.sh
+declare -A BUILD_MAP
+export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
+##
+# try
+function try {
+    if ! "$@"
+    then
+        echo "$* did not work" 1>&2
+        exit 1
+    fi
+}
+
+function get_pkg_suffix_to_use {
+    pkg_suffix=""
+    if [[ ${DISTRO} =~ ubuntu ]]; then
+        pkg_suffix=".deb"
+    else
+        pkg_suffix=".rpm"
+    fi
+    export pkg_suffix
+}
+
+#install ant on cfgm0
+function install_ant() {
+    if [[ ${DISTRO} =~ ubuntu ]]; then
+
+        sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+            set -x
+            cat /etc/apt/sources.list > /etc/apt/sources.list.orig
+            cat /etc/apt/sources.list.save > /etc/apt/sources.list
+            apt-get update
+            apt-get -y --force-yes --allow-unauthenticated install ant
+            if [ $? != 0 ]
+            then
+                echo "failed to install ant on cfgm!!!"
+            else
+                echo "installed ant successfully"
+            fi
+            apt-get -y install gdb
+            if [ $? != 0 ]
+            then
+                echo "failed to install gdb on cfgm!!!"
+            else
+                echo "installed gdb successfully"
+            fi
+            cat /etc/apt/sources.list > /etc/apt/sources.list.save
+            cat /etc/apt/sources.list.orig > /etc/apt/sources.list
+        ) "
+    fi
+}
+
+##
+# search_package
+function search_package {
+    if [ -z $PKG_FILE ]
+    then 
+        get_pkg_suffix_to_use
+        #if [[ ${BUILD_MAP[${DISTRO}]} = "ubuntu-14.04.1" ]]; then
+        #    PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        #    IS_UBUNTU_14041=1
+        #else
+        #    PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
+        #fi
+        #VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
+        #export PKG_FILE
+        #export VCENTER_PLUGIN
+    else
+        pkg_file_name=`basename $PKG_FILE`
+        re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
+        re_centos="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
+        if [[ $pkg_file_name =~ $re_ubuntu ]] ; then
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
+            export pkg_type=${BASH_REMATCH[3]}
+            export DISTRO=${DISTRO:-ubuntu-12-04}
+        elif [[ $pkg_file_name =~ $re_centos ]]; then
+            # Centos
+            export BRANCH=${BRANCH:-$BASH_REMATCH[1]}
+            export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
+            export pkg_type=${BASH_REMATCH[3]}
+            export DISTRO=${DISTRO:-centos65}
+        fi 
+    fi
+    #if build is greater than R2.20 and DISTRO is ubuntu, set ubuntu-14.04.2 as default base OS.
+    #but keep 14.04.1 as is.
+    if [[ ${BUILD_MAP[${DISTRO}]} =~ ubuntu-14 ]]; then
+        if [ $IS_UBUNTU_14041 -eq 0 ]; then
+            if [[ ("$BRANCH" > "R2.1" ) || ( ${BRANCH} == "mainline" ) ]]; then
+                export REIMAGE_PARAM="ubuntu-14.04.2"
+                IS_UBUNTU_14042=1
+            else
+                export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            fi
+        else
+            export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            IS_UBUNTU_14041=1
+        fi
+    else
+        export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+    fi
+    export PKG_FILE_DIR=`dirname $PKG_FILE`
+}
+
+function search_third_party_package {
+    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
+}
+
+##
+#
+function help_exec_cmds {
+    echo "Usage: $0 [-s <root@10.204.217.45>] [-p <c0ntrail123>] [-c <cmd>] ?[-d]? ?[-h]?" 1>&2; exit 1; 
+}
+
+##
+# exec_cmds
+function exec_cmds {
+    dont_verify=0
+    OPTIND=0
+    while getopts "s:p:c:dh" opt
+    do
+        case "$opt" in
+            s)  host_string=${OPTARG};;
+            p)  host_password=${OPTARG};;
+            c)  command=${OPTARG};;
+            d)  dont_verify=1;;
+            h)  help_exec_cmds;;
+        esac
+    done
+    shift $(expr $OPTIND - 1)
+
+    sshpass -p ${host_password} ssh -t -t ${SSHOPT} ${host_string} "(
+     $command
+    )"
+#    '$command'
+#    cmd_status=`echo $?`
+#    if [ "'${dont_verify}'" -eq 0 ]; then
+#        # write command status to a file
+#        echo ${cmd_status} > /tmp/last_cmd_status
+#    fi ) ' 
+#    if [ "${dont_verify}" -eq 0 ]; then
+#        verify_cmds_on_cfgm ${host_string} ${host_password}
+#    fi
+}
+
+##
+# verify_cmds_on_cfgm 
+function verify_cmds_on_cfgm {
+    result=`exec_cmds -s ${1} -p ${2} -c "cat /tmp/last_cmd_status" -d`
+    result=`echo $result | sed 's/\\r//g'`
+    if [ $result != 0 ]; then
+        echo "command failed"
+        exit 1
+    fi
+}
+
+##
+# check_venv_exists
+function check_venv_exists {
+    sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
+    if [ -e /opt/contrail/api-venv/bin/activate ]; then
+        echo 1 > /tmp/RUN_WITHIN_VENV 
+    else
+        echo 0 > /tmp/RUN_WITHIN_VENV
+    fi
+    echo "DONE" ) '
+    result=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "cat /tmp/RUN_WITHIN_VENV"`
+    result=`echo $result | sed 's/\\r//g'`
+    if [ $result != 1 ]; then
+        RUN_WITHIN_VENV=0
+    else
+        RUN_WITHIN_VENV=1
+    fi
+}
+
+##
+# copy_testbedfile_cfgm
+function copy_testbedfile_cfgm {
+    if [ $JUNIPER_INTRANET -eq 0 ]
+    then
+        echo "Not in Juniper Intranet..skipping copying testbed files"
+        return 0
+    fi
+    tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
+    test_repo_dir=${TOOLS_WS}/contrail-test
+
+    sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
+}
+
+function be_ready_to_reimage_remotely {
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        (cd $TOOLS_WS; tar cf contrail-fabric-utils.tar contrail-fabric-utils;)
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD ssh ${SSHOPT} $TASK_RUNNER_HOST_STRING "rm -rf /tmp/$TBFILE_NAME; mkdir -p /tmp/$TBFILE_NAME"
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD scp ${SSHOPT} contrail-fabric-utils.tar $TASK_RUNNER_HOST_STRING:/tmp/$TBFILE_NAME/ || die "Copying contrail-fabric-utils.tar to $TASK_RUNNER_HOST_STRING failed"
+         sshpass -p $TASK_RUNNER_HOST_PASSWORD ssh ${SSHOPT} $TASK_RUNNER_HOST_STRING "
+            cd /tmp/$TBFILE_NAME/;
+            tar xf /tmp/$TBFILE_NAME/contrail-fabric-utils.tar" || die "Extracting contrail-fabric-utils.tar failed on $TASK_RUNNER_HOST_STRING"
+    fi
+} 
+
+##
+# copy_fabric_test_artifacts 
+# Copy fabric-utils and contrail-test from artifacts to cfgm host
+# Needs variables to be exported 
+# Not needed if JUNIPER_INTRANET is 0
+function copy_fabric_test_artifacts {
+    if [ $JUNIPER_INTRANET -eq 0 ]
+    then
+        echo "Not in Juniper Intranet..skipping copying fab files"
+        return 0
+    fi
+    search_package
+
+    if [ $USE_LATEST_TEST_CODE -eq 1 ]; then
+        (cd $TOOLS_WS/
+        tar cf contrail-test.tar contrail-test)
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-test.tar  ${API_SERVER_HOST_STRING}:
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            tar xf contrail-test.tar"
+    else
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test*.tgz" 
+    fi
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
+    
+    copy_testbedfile_cfgm
+                                                    
+}
+
+##
+# checkout_repo 
+function checkout_repo {
+    cd $TOOLS_WS
+    git clone git@github.com:Juniper/contrail-fabric-utils.git
+    git clone git@github.com:Juniper/contrail-test.git
+    ( cd $TOOLS_WS/contrail-fabric-utils
+      git stash
+      git checkout -b ${FAB_GIT_BRANCH} origin/${FAB_GIT_BRANCH}
+      git pull 
+    )
+    ( cd $TOOLS_WS/contrail-test
+      git stash
+      git checkout -b ${FAB_GIT_BRANCH} origin/${FAB_GIT_BRANCH}
+      git pull
+    )
+}
+
+function die
+{
+    local message=$1
+    [ -z "$message" ] && message="Died"
+    echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
+    exit 1
+}
+
+##
+# copy_testbedfile <testbed_file_name>
+function use_testbed_file {
+    set -x
+    folder_path=''
+    tbfile=''
+    export ABS_PATH_TBFILE=`readlink -f $TBFILE`
+    if [ ! -f $ABS_PATH_TBFILE ] ; then
+        folder_path=${TOOLS_WS}/testbeds
+        tbfile=$folder_path/$TBFILE_NAME
+        [ -f $tbfile ] || die "Testbed file $tbfile not found"
+        export ABS_PATH_TBFILE=$folder_path/$TBFILE_NAME
+    else
+        folder_path=`dirname $ABS_PATH_TBFILE`
+        tbfile=$folder_path/$TBFILE_NAME
+        [ -f $tbfile ] || die "Testbed file $tbfile not found"
+    fi
+    
+    image_name=${REIMAGE_PARAM}
+    base_distro=`echo $image_name | cut -d - -f1`
+    tbfile_hyper=${tbfile}
+    if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.esx
+    fi
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.vcenter
+    fi
+    if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
+            tbfile_hyper=${tbfile}.docker
+    fi 
+    if [[ ($IS_UBUNTU_14042 -eq 1)  || ($IS_UBUNTU_14041 -eq 1) ]]; then
+        distro_name="ubuntu-14.04"
+        cp -f ${tbfile_hyper}.$distro_name ${tbfile}
+    elif [ -f ${tbfile_hyper}.$image_name ]; then
+            cp -f ${tbfile_hyper}.$image_name ${tbfile}
+    elif [ -f ${tbfile_hyper}.${base_distro} ]; then
+            cp -f ${tbfile_hyper}.${base_distro} ${tbfile}
+    fi
+
+    dest_folder_path=${TOOLS_WS}/contrail-fabric-utils/fabfile/testbeds
+    cp -f $folder_path/$TBFILE_NAME $dest_folder_path/testbed.py || die "Failed to copy $TBFILE_NAME to  $dest_folder_path/testbed.py"
+
+    rm -f $TOOLS_WS/contrail-fabric-utils/testbed_env
+    ( cd ${TOOLS_WS}/contrail-fabric-utils;
+      fab export_testbed_details:testbed_env || echo "fab export_testbed_details failed")
+
+    if [ -f ${TOOLS_WS}/contrail-fabric-utils/testbed_env ]; then
+        source ${TOOLS_WS}/contrail-fabric-utils/testbed_env
+        sed 's/export //' ${TOOLS_WS}/contrail-fabric-utils/testbed_env > ${TOOLS_WS}/contrail-fabric-utils/plain_testbed_env
+    fi
+    sed -i '/env.test_repo_dir/d' $dest_folder_path/testbed.py
+    echo "env.test_repo_dir='${TOOLS_WS}/contrail-test'" >> $dest_folder_path/testbed.py
+    if [ $TESTBED_LOCATION != "LOCAL" ]; then
+        export USE_TASK_RUNNER_HOST=1
+    fi
+}
+
+function run_setup_shell_script {
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
+}
+
+# bringup_setup
+function bringup_setup {
+    if [ $SKIP_BRINGUP -ne 0 ] 
+    then 
+        return 0
+    fi
+    need_reboot=0
+    search_package
+    copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
+    cd ${TOOLS_WS}/contrail-fabric-utils
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter: setup the datastore on each esx
+        fab prov_vcenter_datastores
+    fi
+    fab prov_esxi
+    sleep 60
+
+    # copy contrail-package on all node
+    fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
+    run_setup_shell_script
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # register the setup with vcenter server
+        run_fab cleanup_vcenter
+        run_fab setup_vcenter
+        sleep 120
+    fi
+
+    # Upgrade biosdevname if ubuntu-14-04
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
+        fab upgrade_biosdevname_all:reboot=no
+    fi
+    # upgrade kernel to latest if its ubuntu
+    cd ${TOOLS_WS}/contrail-fabric-utils
+    if [[ "${DISTRO}" =~ "ubuntu" ]]; then
+        fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
+        sleep 60
+        fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
+    fi
+
+    # install contrail packages on all node
+    if [[ ${DISTRO} =~ centos ]]
+    then
+        intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename fabric-utils/fabfile/testbeds/testbed.py"`
+        shopt -s nocasematch
+        if [[ ${intf_rename} =~ False ]]
+        then
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
+        else
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+            need_reboot=1
+        fi
+    else
+        if [ $IS_UBUNTU_14042 -eq 1 ]; then
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+        else
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                export HA_TEST=$HA_TEST;
+                cd fabric-utils;
+                fab install_contrail" || debug_and_die "fab install_contrail failed"
+        fi
+        
+    fi
+
+    # reboot compute nodes after intf rename package install
+    if [[ ${need_reboot} == 1 ]]
+    then
+        cd ${TOOLS_WS}/contrail-fabric-utils
+        fab compute_reboot
+    fi
+
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
+    fi
+
+    # setup multi interface, if any
+    # provision contrail
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils; 
+            export HA_TEST=$HA_TEST;
+            fab setup_interface || exit 1;
+            fab add_static_route 
+            fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
+
+    if [ $SKIP_ZONES -eq 0 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab setup_zones)
+    fi
+    if [ $ADD_IMAGES -eq 1 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab add_basic_images)
+    fi
+    # reboot compute nodes after setup
+    (cd ${TOOLS_WS}/contrail-fabric-utils
+    fab compute_reboot)
+
+}
+
+##
+#
+function help_reimage_setup {
+    echo "Usage: $0 [-w <workspace ex:/home/stack/jenkins/workspace/test_job>] [-t <centos6.5_iso>] ?[-h]?" 1>&2; exit 1;
+}
+
+##
+# reimage_setup 
+function reimage_setup {
+    if [ $SKIP_REIMAGE -ne 0 ] 
+    then 
+        return 0
+    fi
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            export HA_TEST=$HA_TEST;
+            # Workaround till Server manager is fixed.
+            if [ `echo $TBFILE_NAME | grep -c "a6s32" ` -gt 0 ]; then
+                /cs-shared/server-manager/client/server-manager reimage --no_confirm --cluster_id Sanity_a6s32_tb $REIMAGE_PARAM
+            else
+                fab all_sm_reimage:$REIMAGE_PARAM ;
+            fi
+            # Wait a minute before checking the status of the servers after issuing reimage command.
+            sleep 1m
+            if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
+                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT,attempts=270 || debug_and_die \"all_sm_reimage_status failed\" ;
+            fi
+            if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
+                fab wait_till_all_up:attempts=180;
+            else
+                fab wait_till_all_up:attempts=180,waitdown=False,reimaged=True;
+            fi
+            fab check_reimage_state" || debug_and_die "reimage_setup failed"
+    else
+        cd ${TOOLS_WS}/contrail-fabric-utils
+        # server-manager reimage
+        fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
+        # Wait a minute before checking the status of the servers after issuing reimage command.
+        sleep 1m
+        if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
+            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT",attempts=270 || debug_and_die "all_sm_reimage_status failed"
+        fi
+        if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
+            fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
+        else
+            fab wait_till_all_up:attempts=180,waitdown=False,reimaged=True || debug_and_die "Not all nodes are up after reimage"
+        fi
+        # verify reimage is successful or failure
+        fab check_reimage_state  || debug_and_die "Check to validate reimaging failed"
+    fi
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab set_allow_unsupported_sfp ) || echo "Unable to enable unsupported sfp"
+}
+
+##
+
+function run_fab() {
+    # setup test environment  
+    fab_cmd=$1
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
+        export HA_TEST=$HA_TEST;
+        cd ~/fabric-utils;
+        fab ${fab_cmd}"
+    # check venv exist before running test   
+}
+
+function run_build_fab {
+    fab_cmd=$1
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab ${fab_cmd} || die "Failed while running fab cmd ${fab_cmd}"
+    )
+} 
+
+function add_to_sources_list {
+   set -x
+   echo $API_SERVER_HOST_STRING
+   if [[ $API_SERVER_HOST_STRING == "root@10.84.13.32" ]] && [[ $REIMAGE_PARAM == ubuntu* ]]; then
+       sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
+       cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
+       echo "sources.list modified" )'
+       fi
+}
+# run_sanity serial/parallel
+function run_sanity {
+    if [ $SKIP_SANITY -ne 0 ]
+    then
+        return 0
+    fi
+    search_package
+    copy_fabric_test_artifacts
+    add_to_sources_list
+    run_fab "setup_test_env"
+    # check venv exist before running test
+    check_venv_exists
+    setup_sanity_base
+    stop_on_failure
+}
+
+#Lock testbed if the test failures are more than the 
+#expected limit ,set through the shell varibale limit
+#export TEST_FAILURE_THRESHOLD needs to be set through jenkins
+
+function stop_on_failure {
+    files='result*'
+    limit=80
+    if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
+        limit=$TEST_FAILURE_THRESHOLD
+    else
+        limit=$(set_threshold) 
+    fi
+    cd_str="cd $CFGM_TEST_CODE_PATH/"
+    cmd_str="python tools/stop_on_fail.py --files $files --threshold $limit"
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cd_str;
+                              $cmd_str;" || debug_and_die "Test failures exceed the threshold of $limit percent"
+    
+}
+
+function set_threshold {
+
+    case "$DISTRO" in
+        'ubuntu-12-04')
+            echo 85
+            ;;
+        'centos64_os')
+            echo 85
+            ;;
+        'centos65')
+            echo 85
+            ;;
+        'ubuntu-14-04')
+            echo 85
+            ;;
+        'redhat70')
+            echo 85
+            ;;
+         *)
+            echo 85
+            ;;
+    esac
+
+}
+
+# base setup for sanity 
+function setup_sanity_base {
+    jenkins_triggered=${JENKINS_TRIGGERED:-0}
+    OTHER_OPTS=""
+    if [ ! -z $OS_TEST_PATH ] ; then
+        OTHER_OPTS="$OTHER_OPTS export OS_TEST_PATH=$OS_TEST_PATH ; "
+    fi 
+
+    # run sanity in parallel/serial branch, default serial
+    if [ "${sanitytype}" = "" ]; then
+        sanitytype="serial" 
+    fi
+
+    if [ -f ${TOOLS_WS}/contrail-test/scripts/sanity_tests_with_setup.py ]; then 
+        export NEW_TEST_INFRA=0
+    else
+        export NEW_TEST_INFRA=1
+    fi
+
+    PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
+    TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
+
+    if [ $NEW_TEST_INFRA -eq 1 ]; then
+        sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
+        if [ $PARALLEL_RUN -eq 1 ]; then
+            sanity_cmd="$sanity_cmd -t "
+        fi
+        cd_str="cd $CFGM_TEST_CODE_PATH ;"
+        pythonpath=""
+    else
+        TEST_RUN_CMD=${TEST_RUN_CMD:-"python sanity_tests_with_setup.py"}
+        if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
+            sanity_cmd="source /opt/contrail/api-venv/bin/activate && $TEST_RUN_CMD"
+        else
+            sanity_cmd=$TEST_RUN_CMD
+        fi
+        cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
+        pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
+    fi
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
+                                                         export JENKINS_TRIGGERED=${jenkins_triggered};
+                                                         export BUILD_ID=${BUILDID};
+                                                         export PARAMS_FILE=${PARAMS_FILE};
+                                                         export TEST_TYPE=${TEST_TYPE};
+                                                         export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
+                                                         export EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
+                                                         export MX_GW_TEST=${MX_GW_TEST};
+                                                         export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export BRANCH=$BRANCH; 
+                                                         $OTHER_OPTS
+                                                         $cd_str 
+                                                         $pythonpath
+                                                         ${sanity_cmd};" || die "Task to run sanity failed"
+}
+
+##
+# collect_tech_support
+function collect_tech_support {
+    if [ $SKIP_LOGS_COLLECTION -ne 0 ]
+    then
+        return 0
+    fi
+
+    NODENAME=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c  "hostname -s"`
+    NODENAME=`echo $NODENAME | sed 's/\\r//g'`
+    dest_dir_folder=$DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP}
+    cp_log_cmd="sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $dest_dir_folder"
+    debug_cmds="export HA_TEST=$HA_TEST && fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} ; $cp_log_cmd ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
+          
+    if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
+        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
+            cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
+            $debug_cmds"
+    else
+        cd $TOOLS_WS/contrail-fabric-utils;
+        eval "$debug_cmds"
+    fi
+}
+
+function debug_and_die
+{
+    local message=$1
+    if [ $LOCK_TESTBED_ON_FAILURE = 1 ]; then
+        echo "Testbed is set to be locked on failure"
+        if [[ $message =~ 'Test failures exceed' ]]; then
+            collect_tech_support 
+        fi
+        export RELEASE_TESTBED=0
+        (  
+            set -x
+            flock 5
+            echo "Locking testbed $tb_lock_file for debugging"
+            echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
+            cat $tb_lock_file
+        ) 5>${LOCK_FILE_DIR}/lockfile
+    else
+        collect_tech_support
+        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            # deregister the setup from vcenter server
+            run_fab cleanup_vcenter
+        fi
+    fi
+    [ -z "$message" ] && message="Died"
+    echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
+    cat $tb_lock_file
+    python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $BUILD_TAG
+    exit 1
+}
+
+function get_node_distro {
+    lsb_dist_output=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        cat /etc/lsb-release"`
+    if [[ $lsb_dist_output =~ Ubuntu ]]; then
+        lsb_dist=Ubuntu
+    else
+        lsb_dist=SomeOtherOS 
+    fi
+    export lsb_dist
+}
+
+function command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
+
+function run_tempest {
+    if [ $SKIP_TEMPEST -ne 0 ] 
+    then 
+        return 0
+    fi
+    get_node_distro
+    if [ $lsb_dist != 'Ubuntu' ]
+    then
+        echo "****** Running tempest supported on only Ubuntu as of today!!******* "
+    else
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            apt-get -y install git
+            git clone https://github.com/Juniper/tempest.git"
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd tempest; 
+            source testbed_env
+            bash -x tempest_run.sh"
+        # Fetch results.xml 
+        mkdir -p $TOOLS_WS/results
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build.txt $TOOLS_WS/results
+            
+    fi
+}
+            
+function reimage_and_bringup {
+    reimage_setup || debug_and_die "Reimage failed!"
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab cleanup_repo)
+    bringup_setup || debug_and_die "Bringup failed!"
+    sleep 120
+    (cd ${TOOLS_WS}/contrail-fabric-utils;
+     fab restore_repo)
+}
+
+function create_testbed {
+    search_package || die "Unable to locate package"
+
+    if [ "$BRANCH" = "R1.10" ]; then
+        export NEW_TEST_INFRA=0
+    fi
+
+    checkout_repo || die "Unable to checkout fab/test repos"
+    use_testbed_file || die "Unable to set the testbed properly for use"
+    be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
+}
+
+function get_testbed(){
+locked=0
+if [[ ${#testbeds[@]} -eq 0 ]]; then
+    die "No Testbed details supplied!!"
+fi
+while :
+do
+    for i in "${testbeds[@]}"
+    do
+        tb_filename=`basename $i`
+        if lock_testbed $tb_filename ; then
+            trap cleanup EXIT
+            export TBFILE=$i
+            export TBFILE_NAME=`basename $TBFILE`
+            echo "Locked testbed $tb_filename"
+            echo $TBFILE 
+            echo $TBFILE_NAME
+            locked=1
+            sleep 10
+            echo $tb_filename
+            break
+        else
+            echo "Testbed $tb_filename is not yet available"
+            continue
+        fi
+    done
+    if [[ $locked -eq 1 ]]
+    then
+        break
+    fi
+    echo "Waiting for testbeds..retrying in 60 sec"
+    sleep 60
+done
+      
+}
+
+function lock_testbed() {
+    tb_lock_file=$LOCK_FILE_DIR/$1
+    export tb_lock_file
+    (
+        set -x
+        touch $tb_lock_file || die "touch $tb_lock_file failed"
+        flock 5
+        # if file is non-zero ; then it is occupied
+        if [[ -s $tb_lock_file ]]; then
+            cat $tb_lock_file
+            return 1
+        fi 
+        echo "Locking testbed $tb_lock_file"
+        cat $tb_lock_file
+        echo "Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
+        cat $tb_lock_file
+        return 0
+    ) 5>${LOCK_FILE_DIR}/lockfile
+}
+
+function unlock_testbed() {
+    tb_lock_file=$LOCK_FILE_DIR/$1
+    export tb_lock_file
+    if [ $RELEASE_TESTBED -ne 1 ]
+    then
+        echo "Skipping unlocking the testbed $tb_lock_file" 
+        return 0
+    fi
+    (
+        set -x
+        touch $tb_lock_file || die "touch $tb_lock_file failed"
+        flock 5
+        echo "Unlocking testbed $tb_lock_file"
+        cat $tb_lock_file
+        sed -i "/Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
+        cat $tb_lock_file
+    ) 5>${LOCK_FILE_DIR}/lockfile
+}
+
+function run_task() {
+    create_testbed || die "Failed to create required testbed details"
+    echo "Running tests on $TBFILE_NAME .." 
+    reimage_and_bringup
+    install_ant || die "ant installation failed on cfgm" 
+    #bringup_setup || die "Bringup failed"
+    run_sanity || die "Run_sanity step failed"
+    run_tempest || die "Run_Tempest step failed"
+    echo "Test Done" 
+    collect_tech_support || die "Task to collect logs/cores failed"
+    echo "Ending test on $TBFILE_NAME"
+}
+
+function cleanup() {
+    unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
+}
+
