@@ -19,8 +19,8 @@ function install_ant() {
             echo "installed ant successfully"
         fi
         apt-get -y install gdb
-        cat /etc/apt/sources.list > /etc/apt/sources.list.save
-        cat /etc/apt/sources.list.orig > /etc/apt/sources.list
+        #cat /etc/apt/sources.list > /etc/apt/sources.list.save
+        #cat /etc/apt/sources.list.orig > /etc/apt/sources.list
     ) "
 }
 
