@@ -455,7 +455,7 @@ function reimage_setup {
                 fab all_sm_reimage:$REIMAGE_PARAM ;
             fi
             # Wait a minute before checking the status of the servers after issuing reimage command.
-            sleep 1m
+            sleep 90
             if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
                 fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT,attempts=270 || debug_and_die \"all_sm_reimage_status failed\" ;
             fi
@@ -470,7 +470,7 @@ function reimage_setup {
         # server-manager reimage
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
         # Wait a minute before checking the status of the servers after issuing reimage command.
-        sleep 1m
+        sleep 90
         if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
             fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT",attempts=270 || debug_and_die "all_sm_reimage_status failed"
         fi
