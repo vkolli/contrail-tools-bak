@@ -61,6 +61,7 @@ env.passwords = {
     host_build: 'c0ntrail123',
 }
 
+env.cluster_id='clusterc18c19c20c21c60c61'
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'
 env.mail_from='contrail-build@juniper.net'

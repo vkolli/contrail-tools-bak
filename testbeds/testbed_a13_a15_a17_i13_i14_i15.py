@@ -59,6 +59,7 @@ env.passwords = {
 #    host5:'centos65',
 #    host6:'centos65',
 #}
+env.cluster_id='clustera13a15a17i13i14i15'
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
