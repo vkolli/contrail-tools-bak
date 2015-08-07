@@ -79,4 +79,5 @@ storage_node_config = {
 
 storage_replica_size = 2
 
+env.minimum_diskGB = 32
 
