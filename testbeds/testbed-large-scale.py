@@ -40,11 +40,11 @@ env.hostnames = {
 # OPTIONAL vrouter limit parameter
 # ==================================
 env.vrouter_module_params = {
-     host4:{'mpls_labels':'131072', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
-     host5:{'mpls_labels':'131072', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
-     host6:{'mpls_labels':'131072', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
-     host7:{'mpls_labels':'131072', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
-     host8:{'mpls_labels':'131072', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host4:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host5:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host6:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host7:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host8:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
 }
 
 #OPTIONAL BONDING CONFIGURATION
