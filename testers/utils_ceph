@@ -442,9 +442,9 @@ function debug_and_die_local
 
 function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
+    copy_pkgs_to_sm_fab_node
     create_testbed_ceph
 
-    copy_pkgs_to_sm_fab_node
 
     bringup_SM_setup_ceph || die "Failed to bringup SM setup"
 
