@@ -163,8 +163,6 @@ function provision_using_SM() {
             echo "Provisioning of the target/cluster is sucessfull!!!"
         else
             echo "Provisioning of the target/cluster failed!!! aborting the process"
-        fi
-
             exit 1
         fi
 
