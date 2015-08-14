@@ -60,7 +60,7 @@ control_data = {
     host6 : { 'ip': '192.168.196.6/24', 'gw' : '192.168.196.254', 'device':'p1p0p1' },
 }
 
-env.cluster_id='clusterg28g30k7k11k12'
+env.cluster_id='clusterg28g29g30k7k11k12'
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi-node/ubuntu/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
