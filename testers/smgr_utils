@@ -12,6 +12,8 @@ function install_ant() {
         /opt/contrail/contrail_packages/setup.sh
     ) "
 
+}
+
 
 function add_sourcelist() {
 
