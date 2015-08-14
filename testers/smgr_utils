@@ -31,7 +31,7 @@ function add_sourcelist() {
     #    cat /etc/apt/sources.list.orig > /etc/apt/sources.list
     #) "
 
-    HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename} | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
+    HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
     echo $HOSTS
     declare -a ARRAY_HOSTS
     i=0
