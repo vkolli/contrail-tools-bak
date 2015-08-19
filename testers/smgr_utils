@@ -105,19 +105,14 @@ function bringup_SM_setup() {
     #multi-node uses ubuntu SM and single node uses centos SM.
     if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
     then
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
-        #SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}*_all.deb*`
-        #if  [ $SKU == "juno" ] 
-        #then
-        #    SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~icehouse\_all.deb*`
-        #    echo $SM_SERVER_PKG_FILE
-        #else
-        #    SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
-        #    echo $SM_SERVER_PKG_FILE
-        #fi
+        if [ ${TEST_SETUP} == "MULTIINTERFACE" ]
+        then
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
+        else
+            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts"
+        fi
     else
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm*`
-        echo $SM_SERVER_PKG_FILE
+        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
     fi
     pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
  
