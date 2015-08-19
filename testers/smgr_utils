@@ -110,6 +110,7 @@ function bringup_SM_setup() {
             SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~icehouse\_all.deb*`
         else
             SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
+        fi
     else
         SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm*`
         echo $SM_SERVER_PKG_FILE
