@@ -304,7 +304,7 @@ function reimage_using_SM() {
             exit 1
         fi
    
-        /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py root@{$SMLITE_IP}:/root/
+        /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py root@$SMLITE_IP:/root/
         if [ $? == 0 ]
         then
             echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
