@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
-SMLITE_IP='10.204.217.216'
+#SMLITE_IP='10.204.217.216'
 
 #install ant on cfgm0
 function install_ant() {
@@ -303,6 +303,15 @@ function reimage_using_SM() {
             echo "reimage of target $CLUSTER_NAME failed!!!"
             exit 1
         fi
+   
+        /usr/bin/sshpass -p "c0ntrail123" scp -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} root@{$SMLITE_IP}:/root/
+        if [ $? == 0 ]
+        then
+            echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
+        else
+            echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is failed!!!"
+            exit 1
+        fi
 
     ) "
     if [ $? == 0 ]
@@ -314,7 +323,6 @@ function reimage_using_SM() {
         exit 1
     fi
     
-   
 }
 
 # run_sanity serial/parallel
