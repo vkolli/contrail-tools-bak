@@ -70,6 +70,7 @@ env.hypervisor = {
 }
 #  Specify the hypervisor to be provisioned in the compute node.(Default=libvirt)
 
+env.cluster_id='clusterg28g29g30k7k11k12'
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi-node/ubuntu/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'

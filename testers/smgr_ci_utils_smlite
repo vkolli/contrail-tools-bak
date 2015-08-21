@@ -1,27 +1,30 @@
 #!/usr/bin/env bash
-#!/usr/bin/awk -f
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
+#SMLITE_IP='10.204.217.216'
 
 #install ant on cfgm0
 function install_ant() {
-
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+        set -x
+        apt-get -y --force-yes --allow-unauthenticated install ant
+        if [ $? != 0 ]
+        then
+            echo "failed to install ant on cfgm!!!"
+        else
+            echo "installed ant successfully"
+        fi 
         set -x
         echo "Temporary workaround to installfabric on CFGM"
         /opt/contrail/contrail_packages/setup.sh
+
     ) "
-
 }
-
 
 function add_sourcelist() {
 
     HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
     echo $HOSTS
-    declare -a ARRAY_HOSTS
-    i=0
-    echo $i
     for word in $HOSTS
     do
         echo $word
@@ -50,41 +53,6 @@ function add_sourcelist() {
 
 }
 
-
-
-#check if the server-manager pkgs are available in artifacts folder.
-function check_SM_pkg_availability() {
-    count=0
-    if [ $SM_TYPE -eq 1 ] 
-    then
-        if [ ${TEST_SETUP} == "MULTIINTERFACE" ]
-        then
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
-        else
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts"
-        fi
-    else
-        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
-    fi
-    
-    while [ "$count" -ne 36 ]; do
-        if ls $pkg_dir/contrail-server-manager-installer*
-        then
-            echo "SM pkgs are present in artifacts"
-            break
-        else
-            if [ "$count" -eq 35 ]
-            then
-                echo "waited for an hour, still pkgs are not found, aborting"
-                exit 1
-            fi
-            echo "SM pkgs are still not there, let's wait..."
-            sleep 100
-            count=$((count+1))
-        fi
-    done
-}
-
 #upgrade/install SM on either cenots/ubuntu server.
 #Multi-node setup will refer to SM running on ubuntu
 #Single-node setup will refer to SM running on centos
@@ -95,42 +63,34 @@ function bringup_SM_setup() {
     fi
 
     echo "Bringup/upgrade SM setup"
+    pkg_dir="/tmp/smgr/"
 
-    #check if SM pkgs are available in artifacts before proceeding further.
-    check_SM_pkg_availability || die "SM pkg not available in artifacts"
-
-    cd $pkg_dir
+    #cd $pkg_dir
 
     #SM pkg name is different for centos & ubuntu, so set it accordingly.
     #multi-node uses ubuntu SM and single node uses centos SM.
-    if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
-    then
-        if [ ${TEST_SETUP} == "MULTIINTERFACE" ]
-        then
-            SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~icehouse\_all.deb*`
-        else
-            SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb*`
-        fi
-    else
-        SM_SERVER_PKG_FILE=`ls contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm*`
-        echo $SM_SERVER_PKG_FILE
-    fi
-    pkg_name="$pkg_dir/$SM_SERVER_PKG_FILE"
- 
-    #copy the SM PKGs to SM server.
-    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $pkg_name root@$SM_SERVER_IP:/root/sm_files
+    #if [ $SM_TYPE -eq 1 ] #if multi node refer to ubuntu folder
+    #then
+    #    SM_SERVER_PKG_FILE=`contrail-server-manager-installer_*\.*\_all.deb*`
+    #    echo $SM_SERVER_PKG_FILE
+    #else
+    #    SM_SERVER_PKG_FILE=`contrail-server-manager-installer-*\.*.el6.noarch.rpm*`
+    #    echo $SM_SERVER_PKG_FILE
+    #fi
+    pkg_name="$pkg_dir/${CONTRAIL_PACKAGE}"
+    SM_PKG="/tmp/smgr/${SERVER_MANAGER_INSTALLER}"
 
     echo "Connect to SM_SERVER to install/upgrade SM packages"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
 
-        if [ -e /root/sm_files/$SM_SERVER_PKG_FILE ] 
+        if [ -e /tmp/smgr/${SERVER_MANAGER_INSTALLER} ] 
         then
             echo "file exists, upgrading Server manager"
-            cd /root/sm_files; 
+            cd /tmp/smgr/; 
             if [ $SM_TYPE -eq 1 ]
             then
-                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+                ./ubuntu_smgr_upgrade.sh ${SERVER_MANAGER_INSTALLER}
             else
                 ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             fi
@@ -168,7 +128,7 @@ function bringup_SM_setup() {
         fi
 
         echo "Installation is fine, delete the images from the server"
-        #rm $SM_SERVER_PKG_FILE
+        rm -rf $SM_SERVER_PKG_FILE
     ) "
 }
 
@@ -178,13 +138,14 @@ function provision_using_SM() {
     then
         return 0
     fi
-   
- 
+    
     echo "Connect to SM_SERVER to provision the targets/cluster"
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SMLITE_IP " (
         set -e
-        echo "provision the target setup"
-        server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
+        echo "Install SM-Lite and provision the target setup"
+        dpkg -i /root/${SERVER_MANAGER_INSTALLER}
+        /opt/contrail/contrail_server_manager/provision.sh -c /root/${CONTRAIL_PACKAGE} -t /root/testbed.py -cp
+
         if [ $? == 0 ]
         then
             echo "Server-manager provision command is successful"
@@ -202,23 +163,11 @@ function provision_using_SM() {
             echo "Provisioning of the target/cluster is sucessfull!!!"
         else
             echo "Provisioning of the target/cluster failed!!! aborting the process"
-            if [ ${BRANCH} == "R1.10" ]
-            then
-                server-manager delete image $SMID
-            else
-                server-manager delete image --image_id $SMID
-        fi
-
             exit 1
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
-    fi
+   
 
     ) "
     if [ $? == 0 ]
@@ -244,12 +193,12 @@ function reimage_using_SM() {
     fi
     # set the parameters required for reimage.
     if [[ $DISTRO =~ ubuntu-12.04 ]]; then
-        image="/cs-shared/images/ubuntu-12.04.3-server-amd64.iso" 
+        image="/root/images/ubuntu-12.04.3-server-amd64.iso" 
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu12$SKU${BUILDID}
     elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
-        image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
+        image="/root/images/ubuntu-14.04.1-server-amd64.iso"
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu14$SKU${BUILDID}
@@ -265,10 +214,6 @@ function reimage_using_SM() {
         SMID=centos65$SKU${BUILDID}
     fi
 
-    pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
-    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
-    echo ${contrail_pkg}
-    echo ${pkg_path}  
     #set the parameters for multi/single node setup
     cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
@@ -303,36 +248,10 @@ function reimage_using_SM() {
         fi
 
         echo "check if the image was added successfully"
-        server-manager show image | grep ${DISTRO}
+        server-manager show image | grep $DISTRO
         if [ $? != 0 ] 
         then
             echo "Adding Base ISO image failed"
-            exit 1
-        fi
-
-        echo "delete contrail package if it exists"
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
-        fi
-        echo "add contrail package to the SM database"
-      
-        server-manager upload_image $SMID ${BUILDID} $pkg_type ${contrail_pkg}
-        if [ $? == 0 ]
-        then
-            echo "Server-manager adding contrail-package command is successful"
-        else
-            echo "Server-manager adding contrail-package command failed, aborting the process"
-            exit 1
-        fi
-
-        echo "check if the package was added successfully"
-        server-manager show image | grep $SMID
-        if [ $? != 0 ] 
-        then
-            echo "Adding Contrail-packages $SMID failed"
             exit 1
         fi
 
@@ -363,7 +282,7 @@ function reimage_using_SM() {
         server-manager show server --detail
 
         echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME ${DISTRO}
+        server-manager reimage -F --cluster_id $CLUSTER_NAME $DISTRO
         if [ $? == 0 ]
         then
             echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
@@ -384,6 +303,15 @@ function reimage_using_SM() {
             echo "reimage of target $CLUSTER_NAME failed!!!"
             exit 1
         fi
+   
+        /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py root@$SMLITE_IP:/root/
+        if [ $? == 0 ]
+        then
+            echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
+        else
+            echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is failed!!!"
+            exit 1
+        fi
 
     ) "
     if [ $? == 0 ]
@@ -395,7 +323,81 @@ function reimage_using_SM() {
         exit 1
     fi
     
-   
+}
+
+# run_sanity serial/parallel
+function run_ci_sanity {
+    if [ $SKIP_SANITY -ne 0 ]
+    then
+        return 0
+    fi
+    search_package
+    copy_fabric_test_artifacts
+    run_fab "setup_test_env"
+    # check venv exist before running test
+    check_venv_exists
+    setup_cisanity_base
+    #stop_on_failure
+}
+
+# setup for ci sanity 
+function setup_cisanity_base {
+    jenkins_triggered=${JENKINS_TRIGGERED:-0}
+    OTHER_OPTS=""
+    if [ ! -z $OS_TEST_PATH ] ; then
+        OTHER_OPTS="$OTHER_OPTS export OS_TEST_PATH=$OS_TEST_PATH ; "
+    fi 
+
+    # run sanity in parallel/serial branch, default serial
+    if [ "${sanitytype}" = "" ]; then
+        sanitytype="serial" 
+    fi
+
+    if [ -f ${TOOLS_WS}/contrail-test/scripts/sanity_tests_with_setup.py ]; then 
+        export NEW_TEST_INFRA=0
+    else
+        export NEW_TEST_INFRA=1
+    fi
+
+    PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
+    TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
+
+    if [ $NEW_TEST_INFRA -eq 1 ]; then
+        if [ ${FEATURE} == ci_sanity ]; then
+            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity "}
+        else
+            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity"}
+        fi
+        if [ $PARALLEL_RUN -eq 1 ]; then
+            sanity_cmd="$sanity_cmd -t "
+        fi
+        cd_str="cd $CFGM_TEST_CODE_PATH ;"
+        pythonpath=""
+    else
+        TEST_RUN_CMD=${TEST_RUN_CMD:-"python sanity_tests_with_setup.py"}
+        if [ ${RUN_WITHIN_VENV} -eq 1 ]; then
+            sanity_cmd="source /opt/contrail/api-venv/bin/activate && $TEST_RUN_CMD"
+        else
+            sanity_cmd=$TEST_RUN_CMD
+        fi
+        cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
+        pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
+    fi
+
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
+                                                         export JENKINS_TRIGGERED=${jenkins_triggered};
+                                                         export BUILD_ID=${BUILDID};
+                                                         export PARAMS_FILE=${PARAMS_FILE};
+                                                         export TEST_TYPE=${TEST_TYPE};
+                                                         export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
+                                                         export EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
+                                                         export MX_GW_TEST=${MX_GW_TEST};
+                                                         export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export BRANCH=$BRANCH; 
+                                                         $OTHER_OPTS
+                                                         $cd_str 
+                                                         $pythonpath
+                                                         ${sanity_cmd};" || die "Task to run sanity failed"
 }
 
 
@@ -406,9 +408,6 @@ function run_smgr_task() {
     then
         multi_node=0
     elif [ ${TEST_SETUP} == "MULTINODE" ]
-    then
-        multi_node=1
-    elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
     then
         multi_node=1
     else
@@ -427,12 +426,12 @@ function run_smgr_task() {
         exit 1
     fi
     create_testbed || die "Failed to create required testbed details"
-    bringup_SM_setup || die "Failed to bringup SM setup" 
+    #bringup_SM_setup || die "Failed to bringup SM setup" 
     reimage_using_SM || die "reimage failed"
     provision_using_SM || die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
     install_ant || die "ant installation failed on cfgm"
-    run_sanity || die "Run_sanity step failed"
+    run_ci_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $1"
