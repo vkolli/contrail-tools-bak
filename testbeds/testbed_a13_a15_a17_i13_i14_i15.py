@@ -7,11 +7,14 @@ host4 = 'root@10.204.217.125'
 host5 = 'root@10.204.217.126'
 host6 = 'root@10.204.217.127'
 
-ext_routers = [('hooper','192.168.193.253')]
-router_asn = 64512
-public_vn_rtgt = 2224
-public_vn_subnet = '10.204.221.192/28'
-
+#ext_routers = [('hooper','192.168.193.253')]
+#router_asn = 64512
+#public_vn_rtgt = 2224
+#public_vn_subnet = '10.204.221.192/28'
+ext_routers = [('hooper','10.204.217.240')]                                                                                                                                                             
+router_asn = 64512                                                                                                                                                                                        
+public_vn_rtgt = 2225                                                                                                                                              
+public_vn_subnet = '10.204.221.160/28'
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
