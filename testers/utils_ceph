@@ -128,7 +128,6 @@ function copy_pkg_to_fab_server() {
 
 function create_testbed_ceph {
 
-    search_package_ceph
 
     identify_tbfile 
 
@@ -442,6 +441,7 @@ function debug_and_die_local
 
 function run_ceph_fab_sanity() {
     echo "Running tests on $TBFILE_NAME .." 
+    search_package_ceph
     copy_pkgs_to_sm_fab_node
     create_testbed_ceph
 
