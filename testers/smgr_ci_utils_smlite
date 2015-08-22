@@ -303,6 +303,7 @@ function reimage_using_SM() {
             echo "reimage of target $CLUSTER_NAME failed!!!"
             exit 1
         fi
+        sleep 200
    
         /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py root@$SMLITE_IP:/root/
         if [ $? == 0 ]
