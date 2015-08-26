@@ -178,6 +178,17 @@ function check_venv_exists {
 }
 
 ##
+# Update env.ca_cert_file path if present
+function update_ca_cert_file_path {
+    tbpath="$CFGM_FAB_PATH/fabfile/testbeds/"
+    grep -q "env.ca_cert_file" $tbpath/testbed.py
+    if [ $? -eq 0 ] ; then
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.ca_cert_file/d' $tbpath/testbed.py"
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.ca_cert_file='$CFGM_TEST_CODE_PATH/tools/tor/cacert.pem'\" >> $tbpath/testbed.py"
+    fi
+}
+
+##
 # copy_testbedfile_cfgm
 function copy_testbedfile_cfgm {
     if [ $JUNIPER_INTRANET -eq 0 ]
@@ -191,6 +202,7 @@ function copy_testbedfile_cfgm {
     sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $ABS_PATH_TBFILE  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "sed -i '/env.test_repo_dir/d' $tbpath/testbed.py"
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "echo \"env.test_repo_dir='$CFGM_TEST_CODE_PATH'\" >> $tbpath/testbed.py"
+    update_ca_cert_file_path
 }
 
 function be_ready_to_reimage_remotely {
