@@ -6,7 +6,7 @@ host3 = 'root@10.204.217.135'
 host4 = 'root@10.204.217.136'
 host5 = 'root@10.204.217.137'
 
-ext_routers = [('hooper','192.168.193.253')]
+ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
 public_vn_rtgt = 2224
 public_vn_subnet = '10.204.221.192/28'
@@ -30,13 +30,13 @@ env.hostnames = {
 }
 env.interface_rename = True
 
-control_data = {
-    host1 : { 'ip': '192.168.193.1/24', 'gw' : '192.168.193.254', 'device':'eth1' },
-    host2 : { 'ip': '192.168.193.2/24', 'gw' : '192.168.193.254', 'device':'eth1' },
-    host3 : { 'ip': '192.168.193.3/24', 'gw' : '192.168.193.254', 'device':'eth1' },
-    host4 : { 'ip': '192.168.193.4/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
-    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
-}
+#control_data = {
+#    host1 : { 'ip': '192.168.193.1/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+#    host2 : { 'ip': '192.168.193.2/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+#    host3 : { 'ip': '192.168.193.3/24', 'gw' : '192.168.193.254', 'device':'eth1' },
+#    host4 : { 'ip': '192.168.193.4/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
+#    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
+#}
 
 env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'
