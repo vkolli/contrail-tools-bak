@@ -58,6 +58,7 @@ env.ostypes = {
     host4:'centos65',
     host5:'centos65',
 }
+env.cluster_id='i21_i25_cluster'
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
