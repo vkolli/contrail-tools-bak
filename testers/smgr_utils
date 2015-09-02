@@ -43,7 +43,6 @@ function add_sourcelist() {
             else
                 echo "installed gdb successfully"
             fi
-            pip install ncclient
     } "
     sleep 10
     done
