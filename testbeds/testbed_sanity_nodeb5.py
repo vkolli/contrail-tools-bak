@@ -7,6 +7,7 @@ host1 = 'root@10.204.216.36'
 #for eg. 
 #ext_routers = [('mx1', '10.204.216.253')]
 ext_routers = [('mx1', '10.204.216.253')]
+use_devicemanager_for_md5 = True
 router_asn = 64002
 public_vn_rtgt = 10003
 public_vn_subnet = "10.204.219.184/29"
