@@ -144,8 +144,8 @@ function provision_using_SM() {
         set -e
         set -x
         echo "Install SM-Lite and provision the target setup"
-        dpkg -i /root/${SERVER_MANAGER_INSTALLER}
-        /opt/contrail/contrail_server_manager/provision.sh -c /root/${CONTRAIL_PACKAGE} -t /root/testbed.py -cp
+        ./smlite_upgrade.sh /root/${SERVER_MANAGER_INSTALLER}
+        /opt/contrail/contrail_server_manager/provision.sh -c /root/${CONTRAIL_PACKAGE} -t /root/testbed.py 
 
         if [ $? == 0 ]
         then
