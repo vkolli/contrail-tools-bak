@@ -42,7 +42,8 @@ function add_sourcelist() {
                 echo "failed to install gdb on cfgm!!!"
             else
                 echo "installed gdb successfully"
-            fi           
+            fi
+            pip install ncclient
     } "
     sleep 10
     done
