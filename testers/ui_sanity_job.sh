@@ -26,7 +26,8 @@ function run_ui_task() {
     echo "running on testbed $TBFILE_NAME"
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
-    install_ant || die "ant installation failed on cfgm"
+    #install_ant || die "ant installation failed on cfgm"
+    add_sourcelist || die "copy of upstream source list failed"
     run_ui_sanity || die "Run_sanity step failed"
     echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
