@@ -27,7 +27,6 @@ function run_ui_task() {
     reimage_and_bringup
     #bringup_setup || die "Bringup failed"
     install_third_party_pkgs || die "installing GDB/ant failed" 
-    add_sourcelist || die "copy of upstream source list failed"
     run_ui_sanity || die "Run_sanity step failed"
     echo "Test Done" 
     collect_tech_support || die "Task to collect logs/cores failed"
