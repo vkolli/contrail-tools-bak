@@ -184,7 +184,6 @@ function provision_using_SM() {
         return 0
     fi
    
- 
     echo "Connect to SM_SERVER to provision the targets/cluster"
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
@@ -207,22 +206,10 @@ function provision_using_SM() {
             echo "Provisioning of the target/cluster is sucessfull!!!"
         else
             echo "Provisioning of the target/cluster failed!!! aborting the process"
-            if [ ${BRANCH} == "R1.10" ]
-            then
-                server-manager delete image $SMID
-            else
-                server-manager delete image --image_id $SMID
-        fi
-
             exit 1
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
     fi
 
     ) "
@@ -235,6 +222,33 @@ function provision_using_SM() {
         exit 1
     fi
 
+}
+
+# This function will provision the provided setup.
+function delete_pkg_from_SM() {
+    if [ $SKIP_PKG_DELETE_SM -ne 0 ]
+    then
+        return 0
+    fi
+    echo "Connect to SM_SERVER to delete the package and cleanup."
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "delete the package"
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image $SMID
+        else
+            server-manager delete image --image_id $SMID
+        fi
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "Deletion of the package from the SM node is sucessfull!!!"
+        sleep 10
+    else
+        echo "Deletion of the package from the SM node failed!!! aborting the process"
+        exit 1
+    fi
 }
 
 # This function will reimage the provided setup.
@@ -440,5 +454,6 @@ function run_smgr_task() {
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
+    delete_pkg_from_SM || die "Task to delete package from SM failed"
     echo "Ending test on $1"
 }
