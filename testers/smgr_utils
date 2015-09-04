@@ -210,7 +210,6 @@ function provision_using_SM() {
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-    fi
 
     ) "
     if [ $? == 0 ]
