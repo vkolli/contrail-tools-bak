@@ -5,7 +5,7 @@ host2 = 'root@10.204.217.134'
 host3 = 'root@10.204.217.135'
 host4 = 'root@10.204.217.136'
 host5 = 'root@10.204.217.137'
-host5 = 'root@10.204.217.138'
+host6 = 'root@10.204.217.138'
 
 ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
