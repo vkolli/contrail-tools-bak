@@ -1,6 +1,6 @@
 from fabric.api import env
  
-host1 = 'root@10.204.221.65'
+host1 = 'root@10.204.221.4'
  
 
 host_build = 'pbharat@10.204.216.4'
