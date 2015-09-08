@@ -36,6 +36,9 @@ function install_third_party_pkgs() {
     if [[ ${DISTRO} =~ ubuntu ]]; then
 
         HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
+        if [ -z $HOSTS ]; then
+            HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]=" | awk '{print $1}' | awk -F'@' '{print $2}' | tr -d "'"`
+        fi
         echo $HOSTS
         for word in $HOSTS
         do
