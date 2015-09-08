@@ -35,6 +35,9 @@ fi
 
 run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_node"
 run_build_fab "update_keystone_admin_token"
+run_build_fab "update_service_tenant"
+run_build_fab "update_neutron_password"
+run_build_fab "update_nova_password"
 
 run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
 sleep 300
