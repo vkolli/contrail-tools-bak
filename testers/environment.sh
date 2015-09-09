@@ -92,7 +92,7 @@ export CFGM_FAB_PATH=${CFGM_FAB_PATH:-${NODEHOME}/fabric-utils}
 export CFGM_TEST_CODE_PATH=${CFGM_TEST_CODE_PATH:-${NODEHOME}/contrail-test}
 export JUNIPER_INTRANET=${JUNIPER_INTRANET:-1}
 
-export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER:-"10.204.216.51"}
+export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER:-"10.204.217.158"}
 
 # Choose whether to release the testbed on completion or not
 # Default is to release
