@@ -62,12 +62,7 @@ function check_SM_pkg_availability() {
     count=0
     if [ $SM_TYPE -eq 1 ] 
     then
-        if [ ${TEST_SETUP} == "MULTIINTERFACE" ]
-        then
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-12-04/icehouse/artifacts"
-        else
-            pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts"
-        fi
+        pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts"
     else
         pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/centos64_os/${SKU}/artifacts"
     fi
