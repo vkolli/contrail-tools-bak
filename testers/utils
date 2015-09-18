@@ -428,10 +428,10 @@ function bringup_setup {
         fab compute_reboot
     fi
 
-    #if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
-    #    # for vcenter deployments
-    #    fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
-    #fi
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
+    fi
 
     # setup multi interface, if any
     # provision contrail
