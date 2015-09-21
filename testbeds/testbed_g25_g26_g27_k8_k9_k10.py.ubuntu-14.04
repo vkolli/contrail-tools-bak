@@ -59,6 +59,7 @@ env.ostypes = {
     host5:'ubuntu',
     host6:'ubuntu',
 }
+env.cluster_id='clusterg25g26g27k8k9k10'
 minimum_diskGB=32
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
 env.mail_from='ganeshahv@juniper.net'
