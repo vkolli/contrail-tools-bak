@@ -74,3 +74,6 @@ env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
 do_parallel = True
+
+enable_ceilometer = True
+ceilometer_polling_interval = 60
