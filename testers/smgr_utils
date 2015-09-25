@@ -406,6 +406,44 @@ function reimage_using_SM() {
    
 }
 
+function run_smgr_regression_task() {
+    echo "Running tests on $1.."
+
+    if [ ${TEST_SETUP} == "SINGLENODE" ]
+    then
+        multi_node=0
+    elif [ ${TEST_SETUP} == "MULTINODE" ]
+    then
+        multi_node=1
+    elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
+    then
+        multi_node=1
+    else
+        echo "TEST_SETUP is not defined, abort the process"
+        exit 1
+    fi
+
+    if [ -z "$SM_SERVER_IP" ]
+    then
+        echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
+        exit 1
+    fi
+
+    if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
+        echo "CLUSTER_NAME/SERVER_NAME env is not set, aborting the process"
+        exit 1
+    fi
+    create_testbed || die "Failed to create required testbed details"
+    bringup_SM_setup || die "Failed to bringup SM setup"
+    reimage_using_SM || die "reimage failed"
+    provision_using_SM || die "provision failed"
+    add_sourcelist || die "source.list copy failed on all target nodes"
+    run_sanity || die "Run_sanity step failed"
+    run_tempest || die "Run_Tempest step failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
+    delete_pkg_from_SM || die "Task to delete package from SM failed"
+    echo "Ending test on $1"
+}
 
 function run_smgr_task() {
     echo "Running tests on $1.."
