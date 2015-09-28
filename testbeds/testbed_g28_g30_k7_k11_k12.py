@@ -69,3 +69,7 @@ env.interface_rename = True
 multi_tenancy=True
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='MultiNode Multi-Interface Sanity'
+
+#enable ceilometer
+enable_ceilometer = True
+ceilometer_polling_interval = 60
