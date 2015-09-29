@@ -38,10 +38,12 @@ run_build_fab "update_keystone_admin_token"
 run_build_fab "update_service_tenant"
 run_build_fab "update_neutron_password"
 run_build_fab "update_nova_password"
+sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/fabfile/testbeds/testbed.py  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py
 
 run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
 sleep 300
 run_fab "update_keystone_admin_token"
+sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/fabfile/testbeds/testbed.py  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py
 run_fab "setup_interface"
 run_fab "setup_without_openstack"  || debug_and_die "Setup failed!"
 sleep 120
