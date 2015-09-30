@@ -145,8 +145,8 @@ function provision_using_SM() {
         set -e
         set -x
         echo "Install SM-Lite and provision the target setup"
-        ./smlite_upgrade.sh /root/${SERVER_MANAGER_INSTALLER}
-        /opt/contrail/contrail_server_manager/provision.sh -c /root/${CONTRAIL_PACKAGE} -t /root/testbed.py 
+        dpkg -i /root/${SERVER_MANAGER_INSTALLER}
+        /opt/contrail/contrail_server_manager/provision.sh -c /root/${CONTRAIL_PACKAGE} -t /root/testbed.py -cid $CLUSTER_NAME
 
         if [ $? == 0 ]
         then
@@ -159,7 +159,27 @@ function provision_using_SM() {
         sleep 100
 
         #check provisioing status.
-        /root/sm_files/check_provision.sh $CLUSTER_NAME
+        #/root/sm_files/check_provision.sh $CLUSTER_NAME
+        #if [ $? == 0 ]
+        #then
+        #    echo "Provisioning of the target/cluster is sucessfull!!!"
+        #else
+        #    echo "Provisioning of the target/cluster failed!!! aborting the process"
+        #    exit 1
+        #fi
+
+        #server-manager status server --cluster_id $CLUSTER_NAME --detail
+   
+
+    ) "
+    #waiting for Kernel upgrade reboot
+    sleep 700
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SMLITE_IP " (
+        
+        set -e
+        set -x
+        #check provisioing status.
+        /root/check_provision.sh $CLUSTER_NAME
         if [ $? == 0 ]
         then
             echo "Provisioning of the target/cluster is sucessfull!!!"
@@ -167,9 +187,6 @@ function provision_using_SM() {
             echo "Provisioning of the target/cluster failed!!! aborting the process"
             exit 1
         fi
-
-        server-manager status server --cluster_id $CLUSTER_NAME --detail
-   
 
     ) "
     if [ $? == 0 ]
@@ -307,7 +324,7 @@ function reimage_using_SM() {
         fi
         sleep 200
    
-        /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py /root/sm_files/smlite_upgrade.sh root@$SMLITE_IP:/root/
+        /usr/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /tmp/smgr/${SERVER_MANAGER_INSTALLER} /tmp/smgr/${CONTRAIL_PACKAGE} /tmp/smgr/testbed.py /root/sm_files/check_provision.sh root@$SMLITE_IP:/root/
         if [ $? == 0 ]
         then
             echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
