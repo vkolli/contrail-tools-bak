@@ -106,6 +106,7 @@ function get_node_distro() {
 #copy SM-lite and contrail-packages to CFGM&SM-Lite server
 function copy_smlite_pkg() {
 
+    set -x
     #check if SM pkgs are available in artifacts before proceeding further.
     check_SM_pkg_availability || die "SM pkg not available in artifacts"
     get_node_distro 
@@ -128,6 +129,7 @@ function copy_smlite_pkg() {
 
 # This function will provision the provided setup.
 function provision_using_SM() {
+    set -x
     if [ $SKIP_SM_PROVISION -ne 0 ]
     then
         return 0
@@ -144,7 +146,7 @@ function provision_using_SM() {
 
 
     ) "
-    sleep 700
+    sleep 300
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         
         set -e
@@ -160,17 +162,17 @@ function provision_using_SM() {
         fi
 
     ) "
+    sleep 200
     if [ $? == 0 ]
     then
         echo "Provisioning of the target/cluster is sucessfull!!!"
-        sleep 120
     else
         echo "Provisioning of the target/cluster failed!!! aborting the process"
         exit 1
     fi
 
 }
-
+sleep 300
 
 function run_smgr_regression_task() {
     echo "Running tests on $1.."
