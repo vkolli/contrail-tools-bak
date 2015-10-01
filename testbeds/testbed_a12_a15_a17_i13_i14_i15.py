@@ -73,5 +73,5 @@ env.interface_rename = True
 env.enable_lbaas = True
 enable_ceilometer = True
 ceilometer_polling_interval = 60
-#env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
+env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Node Sanity[mgmt, ctrl=data]'
