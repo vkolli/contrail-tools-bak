@@ -91,11 +91,11 @@ function get_node_distro() {
     if [[ $lsb_dist_output =~ Ubuntu ]]; then
         lsb_dist=Ubuntu
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb"
-        CONTRAIL_PACKAGE="contrail-install-packages_(.*)-(.*)~.*(.deb)"
+        CONTRAIL_PACKAGE="contrail-install-packages*.deb"
     else
         lsb_dist=SomeOtherOS
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm"
-        CONTRAIL_PACKAGE="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
+        CONTRAIL_PACKAGE="contrail-install-packages*(.rpm)"
     fi
     export lsb_dist
     export SERVER_MANAGER_INSTALLER
