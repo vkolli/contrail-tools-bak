@@ -10,7 +10,7 @@ function install_ant() {
         set -x
         echo "Temporary workaround to installfabric on CFGM"
         /opt/contrail/contrail_packages/setup.sh
-        cp /root/source.list /etc/apt/
+        cp /root/sources.list /etc/apt/
         apt-get update
         apt-get -y --force-yes --allow-unauthenticated install ant
         if [ $? == 0 ]
@@ -112,7 +112,7 @@ function copy_smlite_pkg() {
     pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
     echo $CONTRAIL_PACKAGE
     echo $SERVER_MANAGER_INSTALLER
-    /usr/local/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} /home/stack/contrail-tools/testbeds/${tb_filename} /home/stack/smlite/check_provision.sh /home/stack/smlite/source.list ${API_SERVER_HOST_STRING}:/root/
+    /usr/local/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} /home/stack/contrail-tools/testbeds/${tb_filename} /home/stack/smlite/check_provision.sh /home/stack/smlite/sources.list ${API_SERVER_HOST_STRING}:/root/
     if [ $? == 0 ]
     then
         echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
