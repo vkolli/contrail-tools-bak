@@ -6,7 +6,7 @@ multi_node=0
 #install ant on cfgm0
 function install_ant() {
 
-    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+    sshpass -p c0ntrail123 ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -x
         echo "Temporary workaround to installfabric on CFGM"
         /opt/contrail/contrail_packages/setup.sh
@@ -33,7 +33,8 @@ function install_ant() {
 
 
 function add_sourcelist() {
-
+ 
+    set -x
     HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
     echo $HOSTS
     for word in $HOSTS
@@ -134,7 +135,7 @@ function provision_using_SM() {
    
     echo "Connect to SM_SERVER to provision the targets/cluster"
 
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $API_SERVER_HOST_STRING " (
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -e
         set -x
         echo "Install SM-Lite and provision the target setup"
@@ -144,7 +145,7 @@ function provision_using_SM() {
 
     ) "
     sleep 700
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $API_SERVER_HOST_STRING " (
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         
         set -e
         set -x
