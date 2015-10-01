@@ -62,6 +62,7 @@ function add_sourcelist() {
 #check if the server-manager pkgs are available in artifacts folder.
 function check_SM_pkg_availability() {
     count=0
+    get_node_distro
     smpkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts"
     echo $SERVER_MANAGER_INSTALLER
 
