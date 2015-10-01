@@ -67,7 +67,7 @@ function check_SM_pkg_availability() {
     echo $SERVER_MANAGER_INSTALLER
 
     while [ "$count" -ne 36 ]; do
-        if `ls $smpkg_dir/${SERVER_MANAGER_INSTALLER}`
+        if ls $smpkg_dir/${SERVER_MANAGER_INSTALLER}
         then
             echo "SM pkgs are present in artifacts"
             break
