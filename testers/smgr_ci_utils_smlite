@@ -112,7 +112,7 @@ function copy_smlite_pkg() {
     pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
     echo $CONTRAIL_PACKAGE
     echo $SERVER_MANAGER_INSTALLER
-    /usr/local/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} /home/stack/contrail-tools/testbeds/${tb_filename} /home/stack/smlite/check_provision.sh /home/stack/smlite/source.list root@${API_SERVER_HOST_STRING}:/root/
+    /usr/local/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} /home/stack/contrail-tools/testbeds/${tb_filename} /home/stack/smlite/check_provision.sh /home/stack/smlite/source.list ${API_SERVER_HOST_STRING}:/root/
     if [ $? == 0 ]
     then
         echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
@@ -134,7 +134,7 @@ function provision_using_SM() {
    
     echo "Connect to SM_SERVER to provision the targets/cluster"
 
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $API_SERVER_HOST_STRING " (
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $API_SERVER_HOST_STRING " (
         set -e
         set -x
         echo "Install SM-Lite and provision the target setup"
@@ -144,7 +144,7 @@ function provision_using_SM() {
 
     ) "
     sleep 700
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $API_SERVER_HOST_STRING " (
+    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l $API_SERVER_HOST_STRING " (
         
         set -e
         set -x
