@@ -172,7 +172,6 @@ function provision_using_SM() {
     fi
 
 }
-sleep 300
 
 function run_smgr_regression_task() {
     echo "Running tests on $1.."
