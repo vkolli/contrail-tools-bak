@@ -3,7 +3,7 @@ from fabric.api import env
 host1 = 'root@10.204.216.8'
 host2 = 'root@10.204.216.11'
 host3 = 'root@10.204.216.13'
-host4 = 'root@10.204.217.125'
+host4 = 'root@10.204.217.192'
 host5 = 'root@10.204.217.126'
 host6 = 'root@10.204.217.127'
 
