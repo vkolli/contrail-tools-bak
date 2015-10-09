@@ -152,7 +152,7 @@ function provision_using_SM() {
         set -e
         set -x
         #check provisioing status.
-        cluster_name = `server-manager show cluster` | grep id | cut -d : -f2
+        cluster_name = `server-manager show cluster | grep id | cut -d : -f2`
         cluster_name=`sed -e 's/^"//' -e 's/"$//' <<< $cluster_name`
         /root/check_provision.sh $cluster_name
         if [ $? == 0 ]
