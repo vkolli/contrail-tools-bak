@@ -8,8 +8,8 @@ host4 = 'root@10.204.217.113'
 host5 = 'root@10.204.217.114'
 host6 = 'root@10.204.217.115'
 
-ext_routers = [('walsh','192.168.192.252')]
-router_asn = 64444
+ext_routers = [('umesh','7.7.7.78')]
+router_asn = 64512
 public_vn_rtgt = 2223
 public_vn_subnet = '10.204.221.176/28'
 
@@ -101,7 +101,7 @@ env.tor_agent = {host5:[{
                     'tor_ovs_port':'9999',
                     'tor_ovs_protocol':'pssl',
                     'tor_tsn_ip':'192.168.192.2',
-                    'tor_tsn_name':'nodei3',
+                    'tor_tsn_name':'nodei2',
                     'tor_name':'bng-contrail-qfx51-15',
                     'tor_tunnel_ip':'99.99.99.97',
                     'tor_vendor_name':'Juniper',
@@ -114,7 +114,7 @@ host6:[{
                     'tor_ovs_port':'9998',
                     'tor_ovs_protocol':'pssl',
                     'tor_tsn_ip':'192.168.192.3',
-                    'tor_tsn_name':'nodei2',
+                    'tor_tsn_name':'nodei3',
                     'tor_name':'bng-contrail-qfx51-10',
                     'tor_tunnel_ip':'99.99.99.98',
                     'tor_vendor_name':'Juniper',
@@ -136,36 +136,36 @@ host6:[{
  }
 
 env.tor_hosts={
-'192.168.191.1': [{ 'tor_port': 'ge-0/0/42',
+'10.204.217.213': [{ 'tor_port': 'ge-0/0/42',
                     'host_port' : 'em1',
-                    'mgmt_ip' : '10.204.217.213',
+                    'mgmt_ip' : '10.204.217.153',
                     'username' : 'root',
                     'password' : 'c0ntrail123',
                   }],
-'192.168.191.2': [{ 'tor_port': 'ge-0/0/42',
+'10.204.217.199': [{ 'tor_port': 'ge-0/0/42',
                     'host_port' : 'em1',
-                    'mgmt_ip' : '10.204.217.199',
+                    'mgmt_ip' : '10.204.217.161',
                     'username' : 'root',
                     'password' : 'c0ntrail123',
                   }]
 }
 
 env.physical_routers={
-'walsh'     : {       'vendor': 'juniper',
+'umesh'     : {       'vendor': 'juniper',
                      'model' : 'mx',
-                     'asn'   : '64444',
-                     'name'  : 'walsh',
+                     'asn'   : '64512',
+                     'name'  : 'umesh',
                      'ssh_username' : 'root',
                      'ssh_password' : 'Embe1mpls',
-                     'mgmt_ip'  : '10.204.217.244',
-                     'tunnel_ip' : '7.7.7.77',
-                     'ports' : ['ge-1/1/7', 'ge-1/1/9'],
+                     'mgmt_ip'  : '10.204.217.191',
+                     'tunnel_ip' : '7.7.7.78',
+                     'ports' : [],
                      'type'  : 'router',
              },
 'bng-contrail-qfx51-10'       : {
                      'vendor': 'juniper',
                      'model' : 'qfx5100',
-                     'asn'   : '64444',
+                     'asn'   : '64512',
                      'name'  : 'bng-contrail-qfx51-10',
                      'ssh_username' : 'root',
                      'ssh_password' : 'c0ntrail123',
@@ -177,7 +177,7 @@ env.physical_routers={
 'bng-contrail-qfx51-15' : {
                      'vendor': 'juniper',
                      'model' : 'qfx5100',
-                     'asn'   : '64444',
+                     'asn'   : '64512',
                      'name'  : 'bng-contrail-qfx51-15',
                      'ssh_username' : 'root',
                      'ssh_password' : 'c0ntrail123',
@@ -189,12 +189,26 @@ env.physical_routers={
 }
 
 static_route  = {
-    host1 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
-    host2 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
-    host3 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
-    host4 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }],
-    host5 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }],
-    host6 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }],
+    host1 : [
+             { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth1' },
+             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
+    host2 : [
+             { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth1' },
+             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
+    host3 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth1' },
+             { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
+    host4 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth3' },
+            { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }],
+    host5 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth3' },
+             { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }],
+    host6 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' },
+             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth3' },
+            { 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth3' }]
 }
 
 ha_setup = True
