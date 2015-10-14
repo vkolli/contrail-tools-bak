@@ -17,7 +17,7 @@ public_vn_subnet = '10.204.219.64/29'
 host_build = 'stack@10.204.216.56'
 
 env.roledefs = {
-    'all': [host1],
+    'all': [host1, host2],
     'cfgm': [host1],
     'control': [host1],
     'compute': [host1, host2],
