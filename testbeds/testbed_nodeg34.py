@@ -43,6 +43,17 @@ env.ostypes = {
      host5 : 'ubuntu',
 
 }
+
+control_data = {
+    host1 : { 'ip': '192.168.100.5/24', 'gw' : '192.168.100.254', 'device':'p1p2' },
+    host2 : { 'ip': '192.168.100.6/24', 'gw' : '192.168.100.254', 'device':'p1p2' },
+    host3 : { 'ip': '192.168.100.7/24', 'gw' : '192.168.100.254', 'device':'p1p2' },
+    host4 : { 'ip': '192.168.100.8/24', 'gw' : '192.168.100.254', 'device':'p1p2' },
+    host5 : { 'ip': '192.168.100.9/24', 'gw' : '192.168.100.254', 'device':'p1p2' },
+}
+
+env.openstack_admin_password = 'contrail123'
+env.password = 'c0ntrail123'
  
 env.passwords = {
     host1: 'c0ntrail123',
@@ -52,8 +63,11 @@ env.passwords = {
     host5: 'c0ntrail123',
     host_build: 'secret',
 }
+
  
+env.cluster_id='cluster_bk'
+minimum_diskGB=32
 env.test_repo_dir='/homes/pbharat/github/contrail-test'
 #env.mail_from='pbharat@juniper.net'
 env.mail_to='dl-contrail-server-manager@juniper.net'
-env.subject='Multi node sanity'
+env.subject='Multi node Multi-interface sanity'
