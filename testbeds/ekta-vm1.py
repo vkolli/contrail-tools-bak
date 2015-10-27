@@ -76,3 +76,4 @@ vm_node_details = {
             }
 }
 
+env.cluster_id='ekta'
