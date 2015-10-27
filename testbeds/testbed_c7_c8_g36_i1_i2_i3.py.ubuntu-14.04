@@ -18,12 +18,12 @@ host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3, host4, host5, host6],
-    'cfgm': [host1, host3],
-    'openstack': [host3],
+    'cfgm': [host1, host2, host3],
+    'openstack': [host1, host2, host3],
     'webui': [host2],
-    'control': [host1, host3],
+    'control': [host1, host2, host3],
     'compute': [host4, host5, host6],
-    'collector': [host1, host3],
+    'collector': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
 }
@@ -62,6 +62,11 @@ control_data = {
     host5 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'p6p2' },
     host6 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'p6p2' },
 }
+
+env.ha = {
+    'internal_vip' : '192.168.192.251',
+}
+ha_setup = True
 
 env.cluster_id='clusterc7c8g36i1i2i3'
 minimum_diskGB=32

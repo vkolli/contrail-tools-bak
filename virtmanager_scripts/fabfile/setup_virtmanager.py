@@ -1,13 +1,15 @@
 import os
+import sys
 import fabric
-from fabric.api import run,put,env,parallel
+from fabric.api import run,put,env,parallel 
 from fabric.operations import get, put
 from fabric.context_managers import settings, hide
 import re
 
-env.hosts  = ['nodei12', 'nodei13','nodei14','nodei15']
+#env.hosts  = ['nodei12', 'nodei13','nodei14','nodei15']
 env.user = 'root'
 env.password = 'c0ntrail123'
+
 env.no_keys = True
 
 @parallel
@@ -18,11 +20,16 @@ def copy_virt_manager_script():
         put('/cs-shared-test/cf/bin/InstallVirtManager.sh', '/root/tmp')
 
 @parallel
-def copy_image():
-    if not fabric.contrib.files.exists('/root/tmp'):
-        run('mkdir -p /root/tmp')
-    if not fabric.contrib.files.exists("/root/tmp/std_ubuntu.img"):
-        put('/cs-shared-test/images/std_ubuntu.img', '/root/tmp')
+def copy_image(image_source, image_dest='/root/tmp/vm1.img'):
+    dest_folder = os.path.dirname(image_dest)
+    src_file_name = os.path.basename(image_source)
+    run('mkdir -p %s; rm -f %s' % (dest_folder, image_dest))
+    run('wget %s' % (image_source))
+    if image_source.endswith('.gz'):
+        run('gunzip %s' % (src_file_name))
+        src_file_name = src_file_name.split('.gz')[0]
+    run('mv %s %s' % (src_file_name, image_dest))
+
 
 @parallel
 def make_copy_of_image(num_of_copy):
@@ -31,38 +38,64 @@ def make_copy_of_image(num_of_copy):
         image_name = '%s%s.img'%(image_name,str(i))
         run('cp /root/tmp/std_ubuntu.img /root/tmp/%s'%image_name)
 
-def create_vm(name , image , ram = '4096',network = 'br0' , vcpus = '2',mac = ''):
+def create_vm(name , image , ram = '4096',network = {} , vcpus = '2', disk_format=None):
+    '''
+        network arg is a dict of the format below.
+        You can specify any key that virt-manager accepts:
+        network = [ {'bridge': 'br0', 'mac': 'xx:yy:zz:aa:bb:cc'}]
+    '''
+    if not network :
+        network = [ { 'bridge': 'br0'}]
 
-    if not mac:
-        cmd = 'virt-install --name %s \
-            --ram %s \
-            --disk %s \
-            --network bridge=%s \
-            --vcpus %s \
-            --import \
-            --graphics vnc' %(name,ram,image,network,vcpus)
+    if disk_format:
+        disk_string = 'path=%s,format=%s' % (image, disk_format)
     else:
-        cmd = 'virt-install --name %s \
-            --ram %s \
-            --disk %s \
-            --network bridge=%s,mac=%s\
-            --vcpus %s \
-            --import \
-            --graphics vnc' %(name,ram,image,network,mac,vcpus)
+        disk_string = image
+
+    full_network_arg = ''
+    for net in network:
+        network_arg = ' --network '
+        for (key,value) in net.iteritems():
+            network_arg += '%s=%s,' % (key, value)
+        full_network_arg += network_arg
+    
+    cmd = 'virt-install --name %s \
+        --ram %s \
+        --disk %s \
+        %s\
+        --vcpus %s \
+        --import \
+        --graphics vnc' %(name,ram,disk_string,full_network_arg,vcpus)
 
     run (cmd)
 
-def delete_vm( vm_id = ''):
-    vm_dct = None
-    if not vm_id:
-        output = run('virsh list')
-        vms = parse_virsh_list_output(output)
-        for vm in vms:
-            vm_id = vm[1]
-            print vm_id
-            cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
-            run(cmd)
-    else:
+def create_vms_from_testbed(contrail_fab_path='/opt/contrail/utils'):
+    sys.path.insert(0, contrail_fab_path)
+    from fabfile.testbeds import testbed 
+    vm_node_details = testbed.vm_node_details
+    for vm_node_detail in vm_node_details.values():
+        with settings(host_string=vm_node_detail['server']):
+            with settings(warn_only=True):
+                delete_vm(vm_node_detail['name'])
+            copy_image(vm_node_detail['image_source'], 
+                       vm_node_detail['image_dest'])
+            create_vm(vm_node_detail['name'],
+                      vm_node_detail['image_dest'],
+                      vm_node_detail['ram'],
+                      vm_node_detail['network'],
+                      vm_node_detail['vcpus'],
+                      vm_node_detail['disk_format'])
+
+def delete_vm( vm_id ):
+    cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
+    run(cmd)
+
+def delete_all_vms():
+    output = run('virsh list')
+    vms = parse_virsh_list_output(output)
+    for vm in vms:
+        vm_id = vm[1]
+        print vm_id
         cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
         run(cmd)
 
