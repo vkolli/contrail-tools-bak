@@ -223,38 +223,29 @@ env.ca_cert_file='/homes/vjoshi/github/mine/tor/contrail-test-verify-on-setup/to
 env.test_repo_dir='/root/contrail-test'
 
 vm_node_details = {
-    host1 : {   'server': kvm_node1, 
-                'name' : 'testbed-1-vm1',
-                'image_dest' : '/mnt/disk1/images/testbed-1-vm1.img',
+    'default': {
+                'server': kvm_node1,
+                'image_dest' : '/mnt/disk1/images/',
+                'ram' : '16384',
+                'vcpus' : '4',
+                'disk_format' : 'qcow2',
                 'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
-                'ram'   : '16384',
-                'vcpus'   : '4',
+                },
+    host1 : {   
+                'name' : 'testbed-1-vm1',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:01'},
                              { 'bridge': 'br0'}
                             ],
-                'disk_format' : 'qcow2',
             },
     host2 : {   'name' : 'testbed-1-vm2',
-                'server': kvm_node1,
-                'image_dest' : '/mnt/disk1/images/testbed-1-vm2.img',
-                'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
-                'ram'   : '16384',
-                'vcpus'   : '4',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:02'},
                              { 'bridge': 'br0'}
                             ],
-                'disk_format' : 'qcow2',
             },
     host3 : {   'name' : 'testbed-1-vm3',
-                'server': kvm_node1,
-                'image_dest' : '/mnt/disk1/images/testbed-1-vm3.img',
-                'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
-                'ram'   : '16384',
-                'vcpus'   : '4',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:03'},
                              { 'bridge': 'br0'}
                             ],
-                'disk_format' : 'qcow2',
             }
 
 }

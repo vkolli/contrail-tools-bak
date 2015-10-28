@@ -1,7 +1,7 @@
 import os
 import sys
 import fabric
-from fabric.api import run,put,env,parallel 
+from fabric.api import run,put,env,parallel, cd
 from fabric.operations import get, put
 from fabric.context_managers import settings, hide
 import re
@@ -20,15 +20,23 @@ def copy_virt_manager_script():
         put('/cs-shared-test/cf/bin/InstallVirtManager.sh', '/root/tmp')
 
 @parallel
-def copy_image(image_source, image_dest='/root/tmp/vm1.img'):
+def copy_image(image_source, image_dest='/root/tmp/', image_name=None):
+
     dest_folder = os.path.dirname(image_dest)
-    src_file_name = os.path.basename(image_source)
-    run('mkdir -p %s; rm -f %s' % (dest_folder, image_dest))
-    run('wget %s' % (image_source))
-    if image_source.endswith('.gz'):
-        run('gunzip %s' % (src_file_name))
-        src_file_name = src_file_name.split('.gz')[0]
-    run('mv %s %s' % (src_file_name, image_dest))
+    run('mkdir -p %s' % (dest_folder))
+    with cd(dest_folder):
+        src_file = os.path.basename(image_source)
+        if image_source.endswith('.gz'):
+            src_file_name = src_file.split('.gz')[0]
+        else:
+            src_file_name = src_file
+        image_name = image_name or src_file_name
+
+        run('rm -f %s %s' % (image_name, src_file))
+        run('wget %s' % (image_source))
+        if image_source.endswith('.gz'):
+            run('gunzip -f %s' % (src_file))
+        run('mv %s %s' % (src_file_name, image_name))
 
 
 @parallel
@@ -73,18 +81,23 @@ def create_vms_from_testbed(contrail_fab_path='/opt/contrail/utils'):
     sys.path.insert(0, contrail_fab_path)
     from fabfile.testbeds import testbed 
     vm_node_details = testbed.vm_node_details
-    for vm_node_detail in vm_node_details.values():
-        with settings(host_string=vm_node_detail['server']):
+    for (key, vm_node_detail) in vm_node_details.iteritems():
+        if key == 'default':
+            continue
+        vm_detail = vm_node_details['default'].copy()
+        vm_detail.update(vm_node_detail)
+        with settings(host_string=vm_detail['server']):
             with settings(warn_only=True):
-                delete_vm(vm_node_detail['name'])
-            copy_image(vm_node_detail['image_source'], 
-                       vm_node_detail['image_dest'])
-            create_vm(vm_node_detail['name'],
-                      vm_node_detail['image_dest'],
-                      vm_node_detail['ram'],
-                      vm_node_detail['network'],
-                      vm_node_detail['vcpus'],
-                      vm_node_detail['disk_format'])
+                delete_vm(vm_detail['name'])
+            disk_file_name = '%s.img' % (vm_detail['name'])
+            copy_image(vm_detail['image_source'], 
+                       vm_detail['image_dest'], disk_file_name)
+            create_vm(vm_detail['name'],
+                      '%s/%s' % (vm_detail['image_dest'], disk_file_name),
+                      vm_detail['ram'],
+                      vm_detail['network'],
+                      vm_detail['vcpus'],
+                      vm_detail['disk_format'])
 
 def delete_vm( vm_id ):
     cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
