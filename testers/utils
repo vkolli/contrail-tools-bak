@@ -497,9 +497,7 @@ function reimage_setup {
             fi
             # Wait a minute before checking the status of the servers after issuing reimage command.
             sleep 90
-            if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
-                fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT,attempts=270 || debug_and_die \"all_sm_reimage_status failed\" ;
-            fi
+            fab all_sm_reimage_status:smgr_client=$SMGR_CLIENT,attempts=270 || debug_and_die \"all_sm_reimage_status failed\" ;
             initialize_any_vms
             if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
                 fab wait_till_all_up:attempts=180;
@@ -513,9 +511,7 @@ function reimage_setup {
         fab all_sm_reimage:$REIMAGE_PARAM || debug_and_die "Failed to initiate reimage"
         # Wait a minute before checking the status of the servers after issuing reimage command.
         sleep 90
-        if [[ ("$BRANCH" == "R2.20" ) || ( ${BRANCH} == "mainline" ) ]]; then
-            fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT",attempts=270 || debug_and_die "all_sm_reimage_status failed"
-        fi
+        fab all_sm_reimage_status:smgr_client="$SMGR_CLIENT",attempts=270 || debug_and_die "all_sm_reimage_status failed"
         initialize_any_vms
         if [[ ( "$BRANCH" < "R2.0" ) && ( ${BRANCH} != "mainline" ) ]]; then
             fab wait_till_all_up:attempts=180 || debug_and_die "Not all nodes are up after reimage"
