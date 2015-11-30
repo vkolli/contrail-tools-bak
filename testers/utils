@@ -873,7 +873,7 @@ function run_task() {
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
-    #collect_tech_support || die "Task to collect logs/cores failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
 }
 
