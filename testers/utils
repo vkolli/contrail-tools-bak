@@ -868,10 +868,10 @@ function run_task() {
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup
-    #install_third_party_pkgs || die "installing GDB/ant failed" 
+    install_third_party_pkgs || die "installing GDB/ant failed" 
     #bringup_setup || die "Bringup failed"
-    #run_sanity || die "Run_sanity step failed"
-    #run_tempest || die "Run_Tempest step failed"
+    run_sanity || die "Run_sanity step failed"
+    run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
     #collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
