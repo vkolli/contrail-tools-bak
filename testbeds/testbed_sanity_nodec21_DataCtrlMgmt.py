@@ -11,7 +11,7 @@ host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
 host6 = 'root@10.204.217.3'
 
-ext_routers = [('blr-mx2', '192.168.10.254')]
+ext_routers = [('blr-mx2', '10.204.216.245')]
 use_devicemanager_for_md5 = True
 router_asn = 64512
 public_vn_rtgt = 33333
@@ -69,6 +69,16 @@ env.passwords = {
     host6: 'c0ntrail123',
 
     host_build: 'c0ntrail123',
+}
+env.physical_routers={
+'blr-mx2'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx2',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.216.245',
+             }
 }
 
 env.cluster_id='clusterc18c19c20c21c60c61'

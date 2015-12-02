@@ -6,7 +6,7 @@ host1 = 'root@10.204.216.36'
 #External routers if any
 #for eg. 
 #ext_routers = [('mx1', '10.204.216.253')]
-ext_routers = [('mx1', '10.204.216.253')]
+ext_routers = [('blr-mx1', '10.204.216.253')]
 use_devicemanager_for_md5 = True
 router_asn = 64002
 public_vn_rtgt = 10003
@@ -42,6 +42,17 @@ env.passwords = {
     host1: 'c0ntrail123',
 
     host_build: 'contrail123',
+}
+
+env.physical_routers={
+'blr-mx1'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx1',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.204.216.253',
+             }
 }
 
 #OPTIONAL BONDING CONFIGURATION
