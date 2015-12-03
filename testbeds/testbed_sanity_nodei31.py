@@ -7,7 +7,7 @@ host1 = 'root@10.204.217.143'
 #for eg. 
 #ext_routers = [('mx1', '10.204.216.253')]
 ext_routers = [('blr-mx2', '10.204.216.245')]
-router_asn = 64512
+router_asn = 64520
 public_vn_rtgt = 30002
 public_vn_subnet = "10.204.219.0/29"
 
