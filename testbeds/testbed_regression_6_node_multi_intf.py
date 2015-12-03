@@ -12,6 +12,7 @@ host5 = 'root@10.204.217.95'
 host6 = 'root@10.204.217.96'
 
 ext_routers = [('blr-mx1', '22.22.22.2')]
+use_devicemanager_for_md5 = True
 router_asn = 64510
 public_vn_rtgt = 19005
 public_vn_subnet = "10.204.219.88/29"
@@ -55,6 +56,18 @@ env.passwords = {
 
     host_build: 'stack@123',
 }
+
+env.physical_routers={
+'blr-mx1'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx1',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.204.216.253',
+             }
+}
+
 minimum_diskGB=32
 env.test_repo_dir = '/home/stack/regression/contrail-test'
 env.mail_from = 'contrail-build@juniper.net'

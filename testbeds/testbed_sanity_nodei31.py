@@ -7,6 +7,7 @@ host1 = 'root@10.204.217.143'
 #for eg. 
 #ext_routers = [('mx1', '10.204.216.253')]
 ext_routers = [('blr-mx2', '10.204.216.245')]
+use_devicemanager_for_md5 = True
 router_asn = 64512
 public_vn_rtgt = 30002
 public_vn_subnet = "10.204.219.0/29"
@@ -73,6 +74,17 @@ env.passwords = {
 
 #To disable installing contrail interface rename package
 env.interface_rename = True
+
+env.physical_routers={
+'blr-mx2'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx2',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.216.245',
+             }
+}
 
 #To enable multi-tenancy feature
 multi_tenancy = True
