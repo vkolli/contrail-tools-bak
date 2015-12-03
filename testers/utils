@@ -372,7 +372,7 @@ function bringup_setup {
 
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
         # for vcenter: setup the datastore on each esx
-        fab prov_vcenter_datastores
+      #  fab prov_vcenter_datastores
     fi
     fab prov_esxi
     sleep 60
@@ -383,7 +383,7 @@ function bringup_setup {
 
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
         # register the setup with vcenter server
-        run_fab cleanup_vcenter
+      #  run_fab cleanup_vcenter
         run_fab setup_vcenter
         sleep 120
     fi
@@ -714,7 +714,7 @@ function debug_and_die
         collect_tech_support
         if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
             # deregister the setup from vcenter server
-            run_fab cleanup_vcenter
+           # run_fab cleanup_vcenter
         fi
     fi
     [ -z "$message" ] && message="Died"
