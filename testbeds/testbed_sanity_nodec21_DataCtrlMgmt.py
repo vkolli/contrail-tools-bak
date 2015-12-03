@@ -12,7 +12,6 @@ host5 = 'root@10.204.217.100'
 host6 = 'root@10.204.217.3'
 
 ext_routers = [('blr-mx2', '10.204.216.245')]
-use_devicemanager_for_md5 = True
 router_asn = 64512
 public_vn_rtgt = 33333
 public_vn_subnet = '10.204.219.48/29'
