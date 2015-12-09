@@ -58,9 +58,9 @@ control_data = {
     host1 : { 'ip': '192.168.192.6/24', 'gw' : '192.168.192.254', 'device':'enp1s0f1' },
     host2 : { 'ip': '192.168.192.5/24', 'gw' : '192.168.192.254', 'device':'enp1s0f1' },
     host3 : { 'ip': '192.168.192.4/24', 'gw' : '192.168.192.254', 'device':'enp1s0f1' },
-    host4 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'p4p0p1' },
-    host5 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'p4p0p1' },
-    host6 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'p4p0p1' },
+    host4 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'enp4s0f1' },
+    host5 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'enp4s0f1' },
+    host6 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'enp4s0f1' },
 }
 
 env.cluster_id='clusterc7c8g36i1i2i3'
@@ -69,7 +69,7 @@ env.test_repo_dir='/home/stack/multi_interface_parallel/centos/icehouse/contrail
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
-env.interface_rename = True
+env.interface_rename = False
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
