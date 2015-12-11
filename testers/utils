@@ -372,7 +372,7 @@ function bringup_setup {
 
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
         # for vcenter: setup the datastore on each esx
-        # fab prov_vcenter_datastores
+         fab prov_vcenter_datastores
         echo "TODO: Temproarlily commenting"
     fi
     fab prov_esxi
