@@ -1,5 +1,5 @@
 from fabric.api import env
-
+import os
 c4 = '10.204.216.61'
 c5 = '10.204.216.62'
 c6 = '10.204.216.63'
@@ -35,18 +35,28 @@ public_vn_rtgt = 2227
 public_vn_subnet = '10.204.221.224/28'
 
 host_build = 'stack@10.204.216.49'
-
-env.roledefs = {
-    'all': [host1, host2, host3, host4, host5, host6],
-    'cfgm': [host1, host2],
-    'webui': [host1],
-    'control': [host2, host3],
-    'collector': [host1],
-    'database': [host1],
-    'compute': [host4, host5, host6],
-    'build': [host_build]
-}
-
+if os.getenv('HA_TEST',None) == 'True':
+    env.roledefs = {
+        'all': [host1, host2, host3, host4, host5, host6],
+        'cfgm': [host1, host2, host3],
+        'webui': [host1, host2, host3],
+        'control': [host2, host3],
+        'collector': [host1],
+        'database': [host1, host2, host3],
+        'compute': [host4, host5, host6],
+        'build': [host_build]
+    }
+else:
+    env.roledefs = {
+        'all': [host1, host2, host3, host4, host5, host6],
+        'cfgm': [host1, host2],
+        'webui': [host1],
+        'control': [host2, host3],
+        'collector': [host1],
+        'database': [host1],
+        'compute': [host4, host5, host6],
+        'build': [host_build]
+    }
 env.hostnames = {
     'all': ['nodec4', 'nodec5', 'nodec6', 'nodek4-compute-vm', 'nodek5-compute-vm', 'nodek6-compute-vm']
 }
@@ -129,7 +139,27 @@ esxi_hosts = {
             'vmdk' : '/cs-shared-test/images/Ubuntu-precise-14.04-LTS.vmdk',
         }
     },
+
 }
+# HA configuration:
+
+if os.getenv('HA_TEST',None) == 'True':
+    env.ha = {
+        'contrail_internal_vip' : '10.204.216.252',
+    }
+    ha_setup = 'True'
+    ipmi_username = 'ADMIN'
+    ipmi_password = 'ADMIN'
+    env.hosts_ipmi = {
+
+    '10.204.216.61':'10.207.25.58',
+    '10.204.216.62':'10.207.25.59',
+    '10.204.216.61':'10.207.25.60',
+    '10.204.216.224':'10.204.216.248',
+    '10.204.216.225':'10.204.216.249',
+    '10.204.216.226':'10.204.216.250',
+    }
+
 
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'

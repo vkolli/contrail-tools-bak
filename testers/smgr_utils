@@ -35,6 +35,10 @@ function add_sourcelist() {
             else
                 echo "replaced sources.list with sources.list.save on node"
             fi
+            
+            #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+            sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+
             apt-get update
             apt-get -y install gdb
             if [ $? != 0 ]
