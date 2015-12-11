@@ -108,7 +108,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'a11a29_blr',
-        'datastore' : '/vmfs/volumes/l5-ds',
+        'datastore' : '/vmfs/volumes/l5-dstore',
         'contrail_vm' : {
             'name' : 'nodel5-compute-vm',
             'mac' : '52:54:00:29:26:b9',
@@ -122,7 +122,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'a11a29_blr',
-        'datastore' : '/vmfs/volumes/l6-ds',
+        'datastore' : '/vmfs/volumes/l6-dstore',
         'contrail_vm' : {
             'name' : 'nodel6-compute-vm',
             'mac' : '52:54:00:cd:ff:b9',
