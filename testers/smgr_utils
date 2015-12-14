@@ -52,20 +52,19 @@ function add_sourcelist() {
             fi
             cp /etc/apt/sources.list.orig /etc/apt/sources.list
             apt-get update
-            #This is a temporary patch, that needs to be removed once the multi interface setup is free from the mac-address issue seen on nodea4
-            nodea4_ip="10.204.221.60"
-            #echo $word
-            #echo $nodea4_ip
-            if [ $word == $nodea4_ip ]; then
-                echo "Restarting supervisor-vrouter service on nodea4."
-                service supervisor-vrouter restart
-                a=0; while [ $a -lt 15 ]; do result=`contrail-status | grep vrouter-agent | grep " active " | wc -l`; if [ $result -eq 1 ]; then a=15; else a=`expr $a + 1`; sleep 2; fi; done
-            fi
     } "
+        #This is a temporary patch, that needs to be removed once the multi interface setup is free from the mac-address issue seen on nodea4
+        nodea4_ip="10.204.221.60"
+        if [ $nodea4_ip == $word ]
+            then
+            echo "Restarting supervisor-vrouter service on nodea4."
+            sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $word " {
+                service supervisor-vrouter restart
+                #a=0; while [ \$a -lt 15 ]; do result=`contrail-status | grep vrouter-agent | grep " active " | wc -l`; if [ \$result -eq 1 ]; then a=15; else a=`expr \$a + 1`; sleep 2; fi; done
+            } "
+        fi
     sleep 10
     done
-
-
 }
 
 
