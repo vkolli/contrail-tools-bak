@@ -35,6 +35,10 @@ function add_sourcelist() {
             else
                 echo "replaced sources.list with sources.list.save on node"
             fi
+            
+            #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+            sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+
             apt-get update
             apt-get -y install gdb
             if [ $? != 0 ]
@@ -49,10 +53,18 @@ function add_sourcelist() {
             cp /etc/apt/sources.list.orig /etc/apt/sources.list
             apt-get update
     } "
+        #This is a temporary patch, that needs to be removed once the multi interface setup is free from the mac-address issue seen on nodea4
+        nodea4_ip="10.204.221.60"
+        if [ $nodea4_ip == $word ]
+            then
+            echo "Restarting supervisor-vrouter service on nodea4."
+            sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $word " {
+                service supervisor-vrouter restart
+                #a=0; while [ \$a -lt 15 ]; do result=`contrail-status | grep vrouter-agent | grep " active " | wc -l`; if [ \$result -eq 1 ]; then a=15; else a=`expr \$a + 1`; sleep 2; fi; done
+            } "
+        fi
     sleep 10
     done
-
-
 }
 
 
@@ -434,11 +446,11 @@ function run_smgr_regression_task() {
         exit 1
     fi
     create_testbed || die "Failed to create required testbed details"
-    bringup_SM_setup || die "Failed to bringup SM setup"
-    reimage_using_SM || die "reimage failed"
-    provision_using_SM || die "provision failed"
+    bringup_SM_setup || debug_and_die "Failed to bringup SM setup"
+    reimage_using_SM || debug_and_die "reimage failed"
+    provision_using_SM || debug_and_die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
-    run_sanity || die "Run_sanity step failed"
+    run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
     delete_pkg_from_SM || die "Task to delete package from SM failed"
@@ -473,12 +485,12 @@ function run_smgr_task() {
         exit 1
     fi
     create_testbed || die "Failed to create required testbed details"
-    bringup_SM_setup || die "Failed to bringup SM setup" 
-    reimage_using_SM || die "reimage failed"
-    provision_using_SM || die "provision failed"
+    bringup_SM_setup || debug_and_die "Failed to bringup SM setup" 
+    reimage_using_SM || debug_and_die "reimage failed"
+    provision_using_SM || debug_and_die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
     install_ant || die "ant installation failed on cfgm"
-    run_sanity || die "Run_sanity step failed"
+    run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
     delete_pkg_from_SM || die "Task to delete package from SM failed"

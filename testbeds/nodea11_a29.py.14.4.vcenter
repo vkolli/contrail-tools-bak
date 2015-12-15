@@ -21,15 +21,15 @@ nodel5_vm = '10.204.217.26'
 nodel6_vm = '10.204.217.27'
 #nodel7_vm = '10.204.217.28'
 
-host1 = 'root@' + a11
-host2 = 'root@' + a18
-host3 = 'root@' + a19
-host4 = 'root@' + nodel5_vm
-host5 = 'root@' + nodel6_vm
+host1 = 'root@10.204.216.7'
+host2 = 'root@10.204.216.14'
+host3 = 'root@10.204.216.15'
+host4 = 'root@10.204.217.26'
+host5 = 'root@10.204.217.27'
 #host6 = 'root@' + nodel7_vm
 #host10 = 'root@' + nodek10_vm
-esx2 = 'root@' + l5
-esx3 = 'root@' + l6
+esx2 = 'root@10.204.217.212'
+esx3 = 'root@10.204.217.215'
 #esx4 = 'root@' + l7
 #esx7 = 'root@' + k10
 
@@ -108,7 +108,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'a11a29_blr',
-        'datastore' : '/vmfs/volumes/l5-ds',
+        'datastore' : '/vmfs/volumes/l5-dstore',
         'contrail_vm' : {
             'name' : 'nodel5-compute-vm',
             'mac' : '52:54:00:29:26:b9',
@@ -122,7 +122,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'a11a29_blr',
-        'datastore' : '/vmfs/volumes/l6-ds',
+        'datastore' : '/vmfs/volumes/l6-dstore',
         'contrail_vm' : {
             'name' : 'nodel6-compute-vm',
             'mac' : '52:54:00:cd:ff:b9',
@@ -171,4 +171,4 @@ env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Vcenter as Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
-env.ntp_server = 'ntp.juniper.net'
+env.ntp_server = '10.84.5.100'

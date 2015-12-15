@@ -54,7 +54,6 @@ env.passwords = {
 env.test_repo_dir='/home/stack/multi_interface_parallel/vcenter/contrail-test'
 env.mail_from='shajuvk@juniper.net'
 env.mail_to='shajuvk@juniper.net'
-do_parallel = True
 
 env.ostypes = {
     host1:'ubuntu',
@@ -87,8 +86,8 @@ esxi_hosts = {
             'name' : 'ContrailVM-a5s7',
             'mac' : '00:50:56:09:ac:ab',
             'host' : 'root@10.84.14.207',
-            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-         #   'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
+         #   'vmdk': "/root/ContrailVM-disk1.vmdk",
         }
     },
     'a5s8' : {
@@ -101,8 +100,8 @@ esxi_hosts = {
             'name' : 'ContrailVM-a5s8',
             'mac' : '00:50:56:09:ac:ac',
             'host' : 'root@10.84.14.208',
-            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/R2.20/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
-        #    'vmdk': "/root/14.04-3.13.0-40-generic-ContrailVM-disk1.vmdk",
+            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
+        #    'vmdk': "/root/ContrailVM-disk1.vmdk",
         }
     },
 
@@ -125,7 +124,6 @@ env.log_scenario='single_int_Vcenter Sanity[mgmt, ctrl=data]'
 #multi_tenancy = True
 
 #To Enable prallel execution of task in multiple nodes
-#do_parallel = True
 
 # To configure the encapsulation priority. Default: MPLSoGRE 
 #env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"

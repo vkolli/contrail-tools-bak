@@ -11,6 +11,10 @@ function install_ant() {
         echo "Temporary workaround to installfabric on CFGM"
         /opt/contrail/contrail_packages/setup.sh
         cp /root/sources.list /etc/apt/
+
+        #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+        sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+
         apt-get update
         apt-get -y --force-yes --allow-unauthenticated install ant
         if [ $? == 0 ]
@@ -50,7 +54,11 @@ function add_sourcelist() {
             else
                 echo "replaced sources.list with sources.list.save on node"
             fi
+            #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+            sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+
             apt-get update
+            apt-get -y install gdb
     } "
     sleep 10
     done
@@ -147,13 +155,14 @@ function provision_using_SM() {
 
     ) "
     sleep 300
+    cluster_name=$(/usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+        server-manager show cluster | grep id | cut -d : -f2 | sed -e 's/^ \"//' -e 's/\"$//'
+    ) ")
+    cluster_name=`echo $cluster_name | tr -d '\r'`
     /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
-        
         set -e
         set -x
         #check provisioing status.
-        cluster_name = `server-manager show cluster | grep id | cut -d : -f2`
-        cluster_name=`sed -e 's/^"//' -e 's/"$//' <<< $cluster_name`
         /root/check_provision.sh $cluster_name
         if [ $? == 0 ]
         then
@@ -162,9 +171,7 @@ function provision_using_SM() {
             echo "Provisioning of the target/cluster failed!!! aborting the process"
             exit 1
         fi
-
     ) "
-    sleep 200
     if [ $? == 0 ]
     then
         echo "Provisioning of the target/cluster is sucessfull!!!"
