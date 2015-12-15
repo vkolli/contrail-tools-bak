@@ -267,6 +267,19 @@ function copy_fabric_test_artifacts {
 }
 
 ##
+# copy_bgp_stress_test_binary
+# Copy the bgp_stress_test binary to cfgm host
+function copy_fbgp_stress_test_binary {
+    if [ $JUNIPER_INTRANET -eq 0 ]
+    then
+        echo "Not in Juniper Intranet..skipping copying fab files"
+        return 0
+    fi
+#    search_package
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/store/sandbox/build/debug/bgp/test/bgp_stress_test ${API_SERVER_HOST_STRING}:" || die "Failed to copy the bgp_stress_test binary  to $API_SERVER_HOST_STRING:"
+}
+
+##
 # checkout_repo 
 function checkout_repo {
     cd $TOOLS_WS
@@ -641,6 +654,9 @@ function setup_sanity_base {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
+        if [[ "$TEST_RUN_CMD" == *"bgp_stress_test"* ]]; then 
+            copy_bgp_stress_test_binary
+        fi
         sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
         if [ $PARALLEL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
