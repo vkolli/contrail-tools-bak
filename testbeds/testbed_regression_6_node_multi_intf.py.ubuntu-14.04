@@ -27,8 +27,6 @@ env.roledefs = {
     'compute': [host4, host5, host6],
     'collector': [host1, host3],
     'database': [host1, host2, host3],
-    'tsn': [host4, host5],                                                                                                                                                                                                                                                    
-    'toragent': [host4, host5],   
     'build': [host_build],
 }
 
