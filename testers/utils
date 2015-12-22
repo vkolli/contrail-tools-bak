@@ -650,7 +650,7 @@ function setup_sanity_base {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        if [[ "$TEST_RUN_CMD" == *"bgp_stress_test"* ]]; then 
+        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then 
             copy_bgp_stress_test_binary
         fi
         sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
