@@ -274,7 +274,7 @@ function copy_fabric_test_artifacts {
 ##
 # copy_bgp_stress_test_binary
 # Copy the bgp_stress_test binary to cfgm host
-function copy_fbgp_stress_test_binary {
+function copy_bgp_stress_test_binary {
     if [ $JUNIPER_INTRANET -eq 0 ]
     then
         echo "Not in Juniper Intranet..skipping copying fab files"
