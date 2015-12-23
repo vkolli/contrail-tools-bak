@@ -58,7 +58,7 @@ export NODEHOME=${NODEHOME:-/root}
 export FAB_GIT_BRANCH=${BRANCH:-master}
 export PARAMS_FILE=${PARAMS_FILE:-${NODEHOME}/contrail-test/scripts/sanity_params.ini}
 export TEST_CONFIG_FILE=${TEST_CONFIG_FILE:-${NODEHOME}/contrail-test/sanity_params.ini}
-
+export TEST_RUN_CMD=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s -t"}
 export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
 export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0

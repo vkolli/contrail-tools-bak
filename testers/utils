@@ -39,6 +39,12 @@ function install_third_party_pkgs() {
         if [ -z $HOSTS ]; then
             HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]=" | awk '{print $1}' | awk -F'@' '{print $2}' | tr -d "'"`
         fi
+        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then                                                                                                                                          
+            export BGP_STRESS_TEST=1                                                                                                                                                                        
+        else                                                                                                                                                                                                
+            export BGP_STRESS_TEST=0
+        fi
+        echo "BGP_STRESS_TEST is set to $BGP_STRESS_TEST"
         echo $HOSTS
         for word in $HOSTS
         do
@@ -62,7 +68,8 @@ function install_third_party_pkgs() {
                 apt-get -y install gdb
                 if [ $API_SERVER_IP == $word ]; then
                     apt-get -y --force-yes --allow-unauthenticated install ant
-                    if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
+                    echo $TEST_RUN_CMD
+                    if [ $BGP_STRESS_TEST -eq 1 ]; then
                         apt-get -y --force-yes --allow-unauthenticated install libboost-chrono-dev
                         apt-get -y --force-yes --allow-unauthenticated install libgoogle-perftools4
                     fi                                                         
