@@ -292,7 +292,7 @@ function copy_bgp_stress_test_binary {
         return 0
     fi
 #    search_package
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/store/sandbox/build/debug/bgp/test/bgp_stress_test ${API_SERVER_HOST_STRING}:" || die "Failed to copy the bgp_stress_test binary  to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/store/sandbox/build/debug/bgp/test/bgp_stress_test ${API_SERVER_HOST_STRING}:$CFGM_TEST_CODE_PATH" || die "Failed to copy the bgp_stress_test binary  to $API_SERVER_HOST_STRING:"
 }
 
 ##
