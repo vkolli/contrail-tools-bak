@@ -424,7 +424,7 @@ function debug_and_die_local
         export RELEASE_TESTBED=0
         (  
             set -x
-            flock 5
+            flock -n 5
             echo "Locking testbed $tb_lock_file for debugging"
             echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
             cat $tb_lock_file

@@ -4,7 +4,7 @@ LOCK_FILE_DIR=/cs-shared/testbed_locks
 echo "Current active jobs: "
 
 (
-  flock 5
+  flock -n 5
   tb_lock_file=`grep -l "Occupied! .*$BUILD_TAG" $LOCK_FILE_DIR/*.py` || \
                 echo "No testbed found for unlocking"
   if [[ ! -s $tb_lock_file ]]; then
