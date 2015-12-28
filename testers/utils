@@ -734,7 +734,7 @@ function debug_and_die
         export RELEASE_TESTBED=0
         (  
             set -x
-            flock 5
+            flock -n 5
             echo "Locking testbed $tb_lock_file for debugging"
             echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
             cat $tb_lock_file
@@ -860,7 +860,7 @@ function lock_testbed() {
     (
         set -x
         touch $tb_lock_file || die "touch $tb_lock_file failed"
-        flock 5
+        flock -n 5
         # if file is non-zero ; then it is occupied
         if [[ -s $tb_lock_file ]]; then
             cat $tb_lock_file
@@ -885,7 +885,7 @@ function unlock_testbed() {
     (
         set -x
         touch $tb_lock_file || die "touch $tb_lock_file failed"
-        flock 5
+        flock -n 5
         echo "Unlocking testbed $tb_lock_file"
         cat $tb_lock_file
         sed -i "/Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
