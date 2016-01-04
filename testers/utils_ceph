@@ -447,7 +447,7 @@ function run_ceph_fab_sanity() {
 
     if [ $UPGRADE_SM = 1 ]; then 
         bringup_SM_setup_ceph || die "Failed to bringup SM setup"
-
+    fi
     add_server_and_images_to_SM || die "Failed to bringup SM setup"
  
     reimage_and_bringup_ceph
