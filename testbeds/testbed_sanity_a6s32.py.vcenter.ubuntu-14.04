@@ -22,7 +22,7 @@ host_build = 'stack@10.84.24.64'
 if os.getenv('HA_TEST',None) == 'True':
     env.roledefs = {
         'all': [host1, host2, host3, contrail_vm1, contrail_vm2, contrail_vm3],
-        'cfgm': [host1, host2, host3, host4],
+        'cfgm': [host1, host2, host3],
         'control': [host1, host2, host3],
         'compute': [contrail_vm1, contrail_vm2, contrail_vm3],
         'collector': [host1, host2, host3],
@@ -92,7 +92,7 @@ esxi_hosts = {
         'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s2',
-            'mac' : '0c:c4:7a:4c:16:78',
+            'mac' : '00:50:56:4c:16:78',
             'host' : 'root@10.84.13.221',
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
         }
@@ -106,7 +106,7 @@ esxi_hosts = {
         'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s22',
-            'mac' : '00:25:90:a9:1b:66',
+            'mac' : '00:50:56:a9:1b:66',
             'host' : 'root@10.84.13.222',
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
         }
@@ -120,7 +120,7 @@ esxi_hosts = {
         'cluster': 'cluster-2',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s44',
-            'mac' : '00:25:90:aa:31:7c',
+            'mac' : '00:50:56:aa:31:7c',
             'host' : 'root@10.84.13.223',
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
         }
