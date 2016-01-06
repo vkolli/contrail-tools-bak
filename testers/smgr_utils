@@ -4,8 +4,9 @@ TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
 
 #install ant on cfgm0
-function install_ant() {
-
+function install_fabric_cfgm() {
+    
+    sshpass -p "c0ntrail123" ssh root@$SM_SERVER_IP "sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/sm_files/contrail_packages/setup.sh ${API_SERVER_HOST_STRING}:/opt/contrail/contrail_packages/"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -x
         echo "Temporary workaround to installfabric on CFGM"
@@ -489,7 +490,7 @@ function run_smgr_task() {
     reimage_using_SM || debug_and_die "reimage failed"
     provision_using_SM || debug_and_die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
-    install_ant || die "ant installation failed on cfgm"
+    install_fabric_cfgm || die "fabric nstallation failed on cfgm"
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
