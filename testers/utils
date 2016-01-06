@@ -348,6 +348,10 @@ function use_testbed_file {
     if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.vcenter
     fi
+    if [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.vcenter_compute
+    fi
+
     if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
             tbfile_hyper=${tbfile}.docker
     fi 
@@ -394,7 +398,7 @@ function bringup_setup {
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
 
-    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+    if [[ $VCENTER_ONLY_TESTBED -eq 1 || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # for vcenter: setup the datastore on each esx
         fab prov_vcenter_datastores
     fi
@@ -405,7 +409,7 @@ function bringup_setup {
     fab install_pkg_all:${PKG_FILE} || die "fab install_pkg_all:${PKG_FILE} failed"
     run_setup_shell_script
 
-    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+    if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # register the setup with vcenter server
         run_fab cleanup_vcenter
         run_fab setup_vcenter
@@ -464,7 +468,7 @@ function bringup_setup {
         fab compute_reboot
     fi
 
-    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+    if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # for vcenter deployments
         fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
     fi
@@ -741,7 +745,7 @@ function debug_and_die
         ) 5>${LOCK_FILE_DIR}/lockfile
     else
         collect_tech_support
-        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
             # deregister the setup from vcenter server
             run_fab cleanup_vcenter
         fi
