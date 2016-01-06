@@ -79,7 +79,7 @@ env.vcenter = {
         'password': 'Contrail123!',
         'auth': 'https',
         'datacenter': 'A6s32-VC-Compute-Sanity',
-        'vcenter_compute': '10.84.13.38'
+        'vcenter_compute': '10.84.13.38',
         'cluster': ['cluster-1','cluster-2'],
         'dv_switch': { 'dv_switch_name': 'dvswitch-1',
                      },
