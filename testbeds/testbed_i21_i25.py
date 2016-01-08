@@ -10,7 +10,7 @@ ext_routers = [('hooper','192.168.193.253')]
 router_asn = 64512
 public_vn_rtgt = 2224
 public_vn_subnet = '10.204.221.192/28'
-
+use_devicemanager_for_md5 = True
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
@@ -56,6 +56,17 @@ env.ostypes = {
     host4:'centos65',
     host5:'centos65',
 }
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
+}
+
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
