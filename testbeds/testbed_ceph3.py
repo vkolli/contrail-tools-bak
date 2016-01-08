@@ -113,8 +113,8 @@ env.interface_rename = False
 #Ceph related
 
 storage_node_config = {
-    host3 : { 'disks' : ['/dev/sdc', '/dev/sdd'] , 'journal' : ['/dev/sdb'] },
-    host4 : { 'disks' : ['/dev/sdb'] , 'journal' : ['/dev/sdb'] },
+    host2 : { 'disks' : ['/dev/sdc', '/dev/sdd'] , 'journal' : ['/dev/sdb'] },
+    host3 : { 'disks' : ['/dev/sdb'] , 'journal' : ['/dev/sdb'] },
 }
 
 live_migration = True
