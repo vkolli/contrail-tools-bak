@@ -428,6 +428,11 @@ function bringup_setup {
         fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
     fi
 
+    if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
+        # for vcenter deployments
+        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
+    fi
+
     # install contrail packages on all node
     if [[ ${DISTRO} =~ centos ]]
     then
