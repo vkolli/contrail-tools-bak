@@ -4,7 +4,7 @@ import os
 host1 = 'root@10.84.13.32'
 host2 = 'root@10.84.13.33'
 host3 = 'root@10.84.13.38'
-contrail_vm1 = 'root@10.84.13.221'
+host4 = 'root@10.84.13.2'
 contrail_vm2 = 'root@10.84.13.222'
 contrail_vm3 = 'root@10.84.13.223'
 
@@ -16,15 +16,19 @@ ext_routers = [('a5-mx80-2', '10.84.13.200')]
 router_asn = 64512
 public_vn_rtgt = 10000
 public_vn_subnet = "10.84.51.96/27"
-env.orchestrator = 'vcenter'
+
+# env.orchestrator = 'vcenter'
+
 host_build = 'stack@10.84.24.64'
 
 if os.getenv('HA_TEST',None) == 'True':
     env.roledefs = {
-        'all': [host1, host2, host3, contrail_vm1, contrail_vm2, contrail_vm3],
+        'all': [host1, host2, host3, host4, contrail_vm2, contrail_vm3],
         'cfgm': [host1, host2, host3],
+        'openstack': [host1, host2, host3],
         'control': [host1, host2, host3],
-        'compute': [contrail_vm1, contrail_vm2, contrail_vm3],
+        'compute': [host4, contrail_vm2, contrail_vm3],
+        'vcenter_compute':[host3],
         'collector': [host1, host2, host3],
         'webui': [host1, host2, host3],
         'database': [host1, host2, host3],
@@ -32,17 +36,18 @@ if os.getenv('HA_TEST',None) == 'True':
     }
 else:
     env.roledefs = {
-        'all': [host1, host2, host3, contrail_vm1, contrail_vm2, contrail_vm3],
+        'all': [host1, host2, host3, host4, contrail_vm2, contrail_vm3],
         'cfgm': [host1, host2],
         'control': [host1, host3],
-        'compute': [contrail_vm1, contrail_vm2, contrail_vm3],
+        'compute': [host4, contrail_vm2, contrail_vm3],
+        'vcenter_compute':[host3],
         'collector': [host1],
         'webui': [host1],
         'database': [host1, host2, host3],
         'build': [host_build],
     }
 env.hostnames = {
-    'all': ['a6s32', 'a6s33', 'a6s38', 'ContrailVM-a6s2', 'ContrailVM-a6s22', 'ContrailVM-a6s44']
+    'all': ['a6s32', 'a6s33', 'a6s38', 'a6s2', 'ContrailVM-a6s22', 'ContrailVM-a6s44']
 }
 
 env.password = 'c0ntrail123'
@@ -50,7 +55,7 @@ env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
     host3: 'c0ntrail123',
-    contrail_vm1: 'c0ntrail123',
+    host4: 'c0ntrail123',
     contrail_vm2: 'c0ntrail123',
     contrail_vm3: 'c0ntrail123',
 
@@ -61,7 +66,7 @@ env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
     host3:'ubuntu',
-    contrail_vm1:'esxi-5.5',
+    host4:'ubuntu',
     contrail_vm2:'esxi-5.5',
     contrail_vm3:'esxi-5.5',
 }
@@ -73,7 +78,8 @@ env.vcenter = {
         'username': 'Administrator@vsphere.local',
         'password': 'Contrail123!',
         'auth': 'https',
-        'datacenter': 'A6s32-Sanity',
+        'datacenter': 'A6s32-VC-Compute-Sanity',
+        'vcenter_compute': '10.84.13.38',
         'cluster': ['cluster-1','cluster-2'],
         'dv_switch': { 'dv_switch_name': 'dvswitch-1',
                      },
@@ -84,19 +90,6 @@ env.vcenter = {
 
 
 esxi_hosts = {
-    'a6s2' : {
-        'ip' : '10.84.13.2',
-        'username' : 'root',
-        'password' : 'c0ntrail123',
-        'datastore': "/vmfs/volumes/datastore1",
-        'cluster': 'cluster-1',
-        'contrail_vm' : {
-            'name' : 'ContrailVM-a6s2',
-            'mac' : '00:50:56:4c:16:78',
-            'host' : 'root@10.84.13.221',
-            'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
-        }
-    },
 
     'a6s22' : {
         'ip' : '10.84.13.22',
@@ -108,6 +101,7 @@ esxi_hosts = {
             'name' : 'ContrailVM-a6s22',
             'mac' : '00:50:56:a9:1b:66',
             'host' : 'root@10.84.13.222',
+            'mode': "vcenter",
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
         }
     },
@@ -122,6 +116,7 @@ esxi_hosts = {
             'name' : 'ContrailVM-a6s44',
             'mac' : '00:50:56:aa:31:7c',
             'host' : 'root@10.84.13.223',
+            'mode': "vcenter",
             'vmdk_download_path': "http://10.84.5.120/cs-shared/contrail-vcenter/vmdk/LATEST/ContrailVM-disk1.vmdk",
         }
     },
@@ -160,7 +155,7 @@ minimum_diskGB=32
 env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
 env.mail_from='shajuvk@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-#multi_tenancy=True
+multi_tenancy=True
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.mail_server='10.84.24.64'
 env.mail_port='4000'
@@ -168,7 +163,7 @@ env.mx_gw_test=True
 env.testbed_location='US'
 env.interface_rename = False 
 env.image_web_server = '10.84.5.120'
-env.log_scenario='Vcenter MultiNode Single Intf Sanity'
+env.log_scenario='Vcenter As Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 
 env.ntp_server = '10.84.5.100'
