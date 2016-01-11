@@ -411,8 +411,7 @@ function bringup_setup {
 
     if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # register the setup with vcenter server
-       # TODO temp removing cleanup_vcenter
-       # run_fab cleanup_vcenter
+        run_fab cleanup_vcenter
         run_fab setup_vcenter
         sleep 120
     fi
@@ -427,11 +426,6 @@ function bringup_setup {
         fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
         sleep 60
         fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
-    fi
-
-    if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
-        # for vcenter deployments
-        fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
     fi
 
     # install contrail packages on all node
