@@ -125,3 +125,4 @@ ceph_nfs_livem_host = host2
 
 
 storage_replica_size = 2
+minimum_diskGB=32
