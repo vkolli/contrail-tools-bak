@@ -22,10 +22,10 @@ host_build = 'stack@10.204.216.49'
 env.roledefs = {
     'all': [host1, host2, host3, host4, host5, host6, host7],
     'cfgm': [host1, host2, host3],
-    'openstack': [host7],
+    'openstack': [host1, host2, host3],
     'webui': [host2],
     'control': [host1, host2, host3],
-    'compute': [host4, host5, host6],
+    'compute': [host4, host5, host6, host7],
     'collector': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
@@ -72,6 +72,7 @@ control_data = {
 }
 
 env.ha = {
+    'internal_vip' : '192.168.192.251',
     'contrail_internal_vip' : '192.168.192.251',
 }
 env.cluster_id='clusterc7c8g36i1i2i3'
