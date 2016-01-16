@@ -90,7 +90,7 @@ do_parallel = True
 
 env.tor_agent = {host5:[{
                     'tor_ip':'192.168.191.1',
-                    'tor_id':'1',
+                    'tor_agent_id':'1',
                     'tor_type':'ovs',
                     'tor_ovs_port':'9998',
                     'tor_ovs_protocol':'pssl',
@@ -103,7 +103,7 @@ env.tor_agent = {host5:[{
                        },
 {
                     'tor_ip':'192.168.191.2',
-                    'tor_id':'2',
+                    'tor_agent_id':'2',
                     'tor_type':'ovs',
                     'tor_ovs_port':'9999',
                     'tor_ovs_protocol':'pssl',
@@ -116,7 +116,7 @@ env.tor_agent = {host5:[{
                        }],
 host6:[{
                     'tor_ip':'192.168.191.1',
-                    'tor_id':'1',
+                    'tor_agent_id':'1',
                     'tor_type':'ovs',
                     'tor_ovs_port':'9998',
                     'tor_ovs_protocol':'pssl',
@@ -129,7 +129,7 @@ host6:[{
                        },
 {
                     'tor_ip':'192.168.191.2',
-                    'tor_id':'2',
+                    'tor_agent_id':'2',
                     'tor_type':'ovs',
                     'tor_ovs_port':'9999',
                     'tor_ovs_protocol':'pssl',
