@@ -162,7 +162,7 @@ esxi_hosts = {
 }
 
 minimum_diskGB=32
-env.test_repo_dir='/homes/sandipd/mainline/latest_changes/contrail-test'
+env.test_repo_dir='/root/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='sandipd@juniper.net'
 multi_tenancy=True
@@ -171,4 +171,4 @@ env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Vcenter as Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
-env.ntp_server = '10.84.5.100'
+env.ntp_server = '10.204.217.158'

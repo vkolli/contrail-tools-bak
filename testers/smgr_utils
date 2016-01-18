@@ -15,6 +15,53 @@ function install_fabric_cfgm() {
 
 }
 
+function server_manager_regression_hacks() {
+
+    sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_SERVER_IP " (
+        rm -rf /root/contrail-test*.tgz
+        rm -rf /root/contrail-fabric-utils*.tgz
+    ) "
+    sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 10.204.221.33 " {
+        cp /etc/apt/sources.list /etc/apt/sources.list.orig
+        cp /etc/apt/sources.list.save /etc/apt/sources.list
+        if [ $? != 0 ]
+        then
+            echo "failed to replace sources.list with sources.list.save on node!!!"
+        else
+            echo "replaced sources.list with sources.list.save on node"
+        fi
+
+        #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+        sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+        apt-get update
+        apt-get -y install sshpass
+        if [ $? != 0 ]
+            then
+            echo "failed to install sshpass!!!"
+        else
+            echo "installed sshpass successfully"
+        fi
+        cp /etc/apt/sources.list.orig /etc/apt/sources.list
+        apt-get update
+    } "
+    sshpass -p ${API_SERVER_HOST_PASSWORD} ssh root@10.204.221.33 "sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /opt/contrail/contrail_packages root@$SM_SERVER_IP:/opt/contrail/"
+    sshpass -p ${API_SERVER_HOST_PASSWORD} ssh root@10.204.221.33 "sshpass -p ${API_SERVER_HOST_PASSWORD} scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /opt/contrail/python_packages root@$SM_SERVER_IP:/opt/contrail/"
+    sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SM_SERVER_IP " (
+        cp -f /root/sm_files/contrail_packages/setup.sh /opt/contrail/contrail_packages/
+        cp -f /root/sm_files/testbed.py /root/contrail-test/
+        cp -f /root/sm_files/smgr_input.ini /root/contrail-test/
+        /opt/contrail/contrail_packages/setup.sh
+        echo "deb http://us.archive.ubuntu.com/ubuntu vivid main universe" >> /etc/apt/sources.list
+        apt-get update
+        apt-get -y install python-ncclient
+        if [ $? != 0 ]
+            then
+            echo "failed to install python-ncclient!!!"
+        else
+            echo "installed python-ncclient successfully"
+        fi
+    ) "
+}
 
 function add_sourcelist() {
 
@@ -451,6 +498,7 @@ function run_smgr_regression_task() {
     reimage_using_SM || debug_and_die "reimage failed"
     provision_using_SM || debug_and_die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
+    server_manager_regression_hacks || die "SM regression related hacks failed"
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
@@ -490,7 +538,7 @@ function run_smgr_task() {
     reimage_using_SM || debug_and_die "reimage failed"
     provision_using_SM || debug_and_die "provision failed"
     add_sourcelist || die "source.list copy failed on all target nodes"
-    install_fabric_cfgm || die "fabric nstallation failed on cfgm"
+    install_fabric_cfgm || die "fabric installation failed on cfgm"
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
