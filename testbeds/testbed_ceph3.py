@@ -1,10 +1,10 @@
 from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
-host1 = 'root@10.87.140.213'
-host2 = 'root@10.87.129.224'
-host3 = 'root@10.87.129.226'
-host4 = 'root@10.87.141.26'
+#host1 = 'root@10.87.140.213'
+host1 = 'root@10.87.129.224'
+host2 = 'root@10.87.129.226'
+host3 = 'root@10.87.141.26'
 
 #External routers if any
 ext_routers = [('montreal', '10.87.140.140')]
@@ -17,16 +17,16 @@ host_build = 'stack@10.87.132.105'
 
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3,host4],
+    'all': [host1, host2, host3],
     'cfgm': [host1],
     'openstack': [host1],
     'control': [host1],
-    'compute': [host2, host3,host4],
+    'compute': [host2, host3],
     'collector': [host1],
     'webui': [host1],
     'database': [host1],
     'storage-master': [host1],
-    'storage-compute': [ host2,host3,host4],
+    'storage-compute': [ host2,host3],
     'build': [host_build],
 }
 
@@ -43,7 +43,6 @@ env.passwords = {
     host1: 'n1keenA',
     host2: 'n1keenA',
     host3: 'n1keenA',
-    host4: 'n1keenA',
     host_build: 'stack@123',
 }
 
@@ -52,7 +51,6 @@ env.ostypes = {
     host1: 'ubuntu',
     host2: 'ubuntu',
     host3: 'ubuntu',
-    host4: 'ubuntu',
 }
 
 #OPTIONAL BONDING CONFIGURATION
@@ -80,7 +78,6 @@ control_data = {
    host1 : { 'ip': '13.0.0.1/24', 'gw' : '13.0.0.1', 'device':'HOST1_IFACE' },
    host2 : { 'ip': '13.0.0.2/24', 'gw' : '13.0.0.1', 'device':'HOST2_IFACE' },
    host3 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'HOST3_IFACE' },
-   host4 : { 'ip': '13.0.0.4/24', 'gw' : '13.0.0.1', 'device':'HOST4_IFACE' },
 }
 
 #To disable installing contrail interface rename package
@@ -117,8 +114,7 @@ env.interface_rename = False
 
 storage_node_config = {
     host2 : { 'disks' : ['/dev/sdc', '/dev/sdd'] , 'journal' : ['/dev/sdb'] },
-    host3 : { 'disks' : ['/dev/sdc', '/dev/sdd'] , 'journal' : ['/dev/sdb'] },
-    host4 : { 'disks' : ['/dev/sdb'] , 'journal' : ['/dev/sdb'] },
+    host3 : { 'disks' : ['/dev/sdb'] , 'journal' : ['/dev/sdb'] },
 }
 
 live_migration = True
@@ -129,3 +125,4 @@ ceph_nfs_livem_host = host2
 
 
 storage_replica_size = 2
+minimum_diskGB=32

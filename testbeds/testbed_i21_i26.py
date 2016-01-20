@@ -11,7 +11,7 @@ ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
 public_vn_rtgt = 2224
 public_vn_subnet = '10.204.221.192/28'
-
+use_devicemanager_for_md5 = True
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
@@ -58,6 +58,16 @@ env.ostypes = {
     host4:'centos65',
     host5:'centos65',
     host6:'centos65',
+}
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
 }
 
 env.cluster_id='i21_i26_cluster'
