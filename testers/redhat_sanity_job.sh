@@ -18,9 +18,12 @@ run_build_fab "cleanup_repo"
 
 if [ "$SKU" == icehouse ]; then
 run_build_fab install_rhosp5_repo || debug_and_die "Failed during installing rhosp5 repo"
-else
+elif [ "$SKU" == juno ]; then
 run_build_fab install_rhosp6_repo || debug_and_die "Failed during installing rhosp6 repo"
+else
+run_build_fab install_rhosp7_repo || debug_and_die "Failed during installing rhosp7 repo"
 fi
+
 run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}"  || debug_and_die "Task install_pkg_all_without_openstack failed!!"
 copy_fabric_test_artifacts
 run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}" || debug_and_die "Task install_pkg_all_without_openstack failed!!"
@@ -29,8 +32,9 @@ run_setup_shell_script
 if [ "$SKU" == icehouse ]; then
 run_build_fab upgrade_kernel_without_openstack
 else
-run_build_fab update_rhosp_node:reboot=False
-run_build_fab upgrade_kernel_without_openstack
+run_build_fab update_all_node
+echo "Waiting for 300secs for target nodes to be UP"
+sleep 300
 fi
 
 run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_node"
@@ -38,10 +42,13 @@ run_build_fab "update_keystone_admin_token"
 run_build_fab "update_service_tenant"
 run_build_fab "update_neutron_password"
 run_build_fab "update_nova_password"
+sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/fabfile/testbeds/testbed.py  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py
 
 run_fab "install_without_openstack" || debug_and_die "Contrail install failed!"
 sleep 300
 run_fab "update_keystone_admin_token"
+
+sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/fabfile/testbeds/testbed.py  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py
 run_fab "setup_interface"
 run_fab "setup_without_openstack"  || debug_and_die "Setup failed!"
 sleep 120
