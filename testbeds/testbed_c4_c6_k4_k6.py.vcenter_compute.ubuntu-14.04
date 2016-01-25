@@ -12,7 +12,7 @@ nodek6_vm = '10.204.216.183'
 #host1 = 'root@' + c4
 #host2 = 'root@' + c5
 #host3 = 'root@' + c6
-#host4 = 'root@' + nodek4_vm
+#host4 = 'root@' + k4
 #host5 = 'root@' + nodek5_vm
 #host6 = 'root@' + nodek6_vm
 #esx1 = 'root@' + k4
@@ -22,10 +22,9 @@ nodek6_vm = '10.204.216.183'
 host1 = 'root@10.204.216.61'
 host2 = 'root@10.204.216.62'
 host3 = 'root@10.204.216.63'
-host4 = 'root@10.204.216.181'
+host4 = 'root@10.204.216.224'
 host5 = 'root@10.204.216.182'
 host6 = 'root@10.204.216.183'
-esx1 = 'root@10.204.216.224'
 esx2 = 'root@10.204.216.225'
 esx3 = 'root@10.204.216.226'
 
@@ -45,7 +44,7 @@ if os.getenv('HA_TEST',None) == 'True':
         'vcenter_compute': [host3],
         'collector': [host1],
         'database': [host1, host2, host3],
-        'compute': [host4, host5, host6],
+        'compute': [ host4, host5, host6],
         'build': [host_build]
     }
 else:
@@ -62,7 +61,7 @@ else:
         'build': [host_build]
     }
 env.hostnames = {
-    'all': ['nodec4', 'nodec5', 'nodec6', 'nodek4-compute-vm', 'nodek5-compute-vm', 'nodek6-compute-vm']
+    'all': ['nodec4', 'nodec5', 'nodec6', 'nodek4', 'nodek5-compute-vm', 'nodek6-compute-vm']
 }
 
 env.password = 'c0ntrail123'
@@ -73,7 +72,6 @@ env.passwords = {
     host4: 'c0ntrail123',
     host5: 'c0ntrail123',
     host6: 'c0ntrail123',
-    esx1: 'c0ntrail123',
     esx2: 'c0ntrail123',
     esx3: 'c0ntrail123',
     host_build: 'stack@123',
@@ -104,21 +102,6 @@ env.vcenter = {
 }
 
 esxi_hosts = {
-    'nodek4' : {
-        'ip' : k4,
-        'username' : 'root',
-        'password' : 'c0ntrail123',
-        'cluster' : 'c4k4rack14',
-        'datastore' : '/vmfs/volumes/k4-ds',
-        'contrail_vm' : {
-            'name' : 'nodek4-compute-vm',
-            'mac' : '00:50:56:aa:aa:03',
-            'host' : host4,
-            'mode': "vcenter",
-            'cluster' : 'c4k4rack14',
-            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
-        }
-    },
     'nodek5' : {
         'ip' : k5,
         'username' : 'root',
