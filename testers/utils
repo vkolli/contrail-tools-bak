@@ -4,7 +4,7 @@ IS_UBUNTU_14041=0
 IS_UBUNTU_14042=0
 source $TOOLS_WS/testers/environment.sh
 declare -A BUILD_MAP
-export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.0 [centos71]=centos-7.1 )
+export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.0 [centos71]=centos-7.1 [redhat71]=redhat-7.1 )
 ##
 # try
 function try {
@@ -635,6 +635,9 @@ function set_threshold {
             echo 85
             ;;
         'redhat70')
+            echo 85
+            ;;
+        'redhat71')
             echo 85
             ;;
          *)
