@@ -47,13 +47,12 @@ env.roledefs = {
     #'all': [host1, host2, host3, host4,host5,host6],
     'all': [host1, host2, host3, host4,host5,host6,host7],
     'cfgm': [host1,host2,host3],
-    'openstack': [host1],
+    'openstack': [host7],
     'vcenter_compute': [host7],
     'webui': [host1],
-    'control': [host1, host3],
-    'collector': [host1,host3],
-    'database': [host1,host3],
-    #'compute': [host4,host5,host6],
+    'control': [host2, host3],
+    'collector': [host2,host3],
+    'database': [host1,host2,host3],
     'compute': [host4,host5,host6],
     'build': [host_build]
 }
