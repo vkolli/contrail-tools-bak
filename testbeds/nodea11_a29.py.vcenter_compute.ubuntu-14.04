@@ -177,3 +177,7 @@ env.log_scenario='Vcenter as Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
 env.ntp_server = 'ntp.juniper.net'
+
+#enable ceilometer
+enable_ceilometer = True
+ceilometer_polling_interval = 60
