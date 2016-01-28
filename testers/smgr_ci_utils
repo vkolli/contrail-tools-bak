@@ -387,6 +387,7 @@ function setup_cisanity_base {
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
+                                                         export SKU=${SKU};
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export TEST_TYPE=${TEST_TYPE};
                                                          export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
