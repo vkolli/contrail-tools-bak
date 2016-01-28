@@ -10,7 +10,7 @@ a19 = '10.204.216.15'
 #k10 =  '10.204.216.230'
 l5 = '10.204.217.212'
 l6 = '10.204.217.215'
-#l7 =  '10.204.217.217'
+l7 =  '10.204.217.217'
 
 #nodeg25_vm = '10.204.217.26'
 #nodeg26_vm = '10.204.217.27'
@@ -26,7 +26,8 @@ host2 = 'root@10.204.216.14'
 host3 = 'root@10.204.216.15'
 host4 = 'root@10.204.217.26'
 host5 = 'root@10.204.217.27'
-#host6 = 'root@' + nodel7_vm
+host6 = 'root@10.204.217.217'
+host7 = 'root@10.204.216.10'
 #host10 = 'root@' + nodek10_vm
 esx2 = 'root@10.204.217.212'
 esx3 = 'root@10.204.217.215'
@@ -44,23 +45,23 @@ host_build = 'stack@10.204.216.49'
 env.roledefs = {
     #'all': [host1, host2, host3, host4,host5, host6, host7, host10],
     #'all': [host1, host2, host3, host4,host5,host6],
-    'all': [host1, host2, host3, host4,host5],
-    'cfgm': [host1],
+    'all': [host1, host2, host3, host4,host5,host6,host7],
+    'cfgm': [host1,host2,host3],
     'openstack': [host1],
-    'vcenter_compute': [host2],
+    'vcenter_compute': [host7],
     'webui': [host1],
     'control': [host1, host3],
     'collector': [host1,host3],
     'database': [host1,host3],
     #'compute': [host4,host5,host6],
-    'compute': [host4,host5],
+    'compute': [host4,host5,host6],
     'build': [host_build]
 }
 
 env.hostnames = {
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodeg25-compute-vm', 'nodeg26-compute-vm','nodeg27-compute-vm','nodek10-compute-vm']
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel7-compute-vm','nodel7-compute-vm']
-    'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel6-compute-vm']
+    'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel6-compute-vm', 'nodel7','nodea14']
 }
 
 env.password = 'c0ntrail123'
@@ -70,8 +71,8 @@ env.passwords = {
     host3: 'c0ntrail123',
     host4: 'c0ntrail123',
     host5: 'c0ntrail123',
-    #host6: 'c0ntrail123',
-    #host7: 'c0ntrail123',
+    host6: 'c0ntrail123',
+    host7: 'c0ntrail123',
     #host10: 'c0ntrail123',
     esx2: 'c0ntrail123',
     esx3: 'c0ntrail123',
@@ -85,8 +86,8 @@ env.ostypes = {
     host3:'ubuntu',
     host4:'ubuntu',
     host5:'ubuntu',
-    #host6:'ubuntu',
-    #host7:'ubuntu',
+    host6:'ubuntu',
+    host7:'ubuntu',
     #host10:'ubuntu',
 }
 
@@ -100,7 +101,7 @@ env.vcenter = {
         'auth': 'https',
         'datacenter': 'a11a29',
         'cluster': ['a11a29_blr'],
-        'vcenter_compute':'10.204.216.14',
+        'vcenter_compute':'10.204.216.10',
         'dv_switch': { 'dv_switch_name': 'a11a29_dvs',},
         'dv_port_group': { 'dv_portgroup_name': 'a11a29_dvpg', 'number_of_ports': '3', },
 }
