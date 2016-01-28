@@ -8,7 +8,7 @@ a19 = '10.204.216.15'
 #g27 = '10.204.217.67'
 #k9 =  '10.204.216.229'
 #k10 =  '10.204.216.230'
-l5 = '10.204.217.212'
+l3 = '10.204.217.209'
 l6 = '10.204.217.215'
 l7 =  '10.204.217.217'
 
@@ -26,7 +26,7 @@ host2 = 'root@10.204.216.14'
 host3 = 'root@10.204.216.15'
 host4 = 'root@10.204.217.26'
 host5 = 'root@10.204.217.27'
-host6 = 'root@10.204.217.217'
+host6 = 'root@10.204.217.209'
 host7 = 'root@10.204.216.10'
 #host10 = 'root@' + nodek10_vm
 esx2 = 'root@10.204.217.212'
@@ -61,7 +61,7 @@ env.roledefs = {
 env.hostnames = {
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodeg25-compute-vm', 'nodeg26-compute-vm','nodeg27-compute-vm','nodek10-compute-vm']
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel7-compute-vm','nodel7-compute-vm']
-    'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel6-compute-vm', 'nodel7','nodea14']
+    'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel6-compute-vm', 'nodel3','nodea14']
 }
 
 env.password = 'c0ntrail123'
@@ -119,7 +119,7 @@ esxi_hosts = {
             'host' : host4,
             'mode': "vcenter",
            # 'cluster' : 'a11a29_blr',
-            'vmdk' : '/cs-shared-test/images/Ubuntu-precise-14.04-LTS.vmdk',
+            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
         }
     },
     'nodel6' : {
@@ -134,7 +134,7 @@ esxi_hosts = {
             'host' : host5,
             'mode': "vcenter",
            # 'cluster' : 'a11a29_blr',
-            'vmdk' : '/cs-shared-test/images/Ubuntu-precise-14.04-LTS.vmdk',
+            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
         }
     },
 #    'nodel7' : {
