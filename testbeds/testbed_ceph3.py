@@ -31,7 +31,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['cmbu-gravity-05','cmbu-toystory-01','cmbu-toystory-02','cmbu-gravity-08']
+    'all': ['cmbu-toystory-01','cmbu-toystory-02','cmbu-gravity-08']
 }
 
 #Openstack admin password
