@@ -296,7 +296,7 @@ function delete_pkg_from_SM() {
         sleep 10
     else
         echo "Deletion of the package from the SM node failed!!! aborting the process"
-        exit 1
+        echo "Must delete stray packages manually."
     fi
 }
 
