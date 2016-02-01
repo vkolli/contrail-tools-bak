@@ -400,7 +400,6 @@ function bringup_setup {
 
     if [[ $VCENTER_ONLY_TESTBED -eq 1 || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # for vcenter: setup the datastore on each esx
-        fab cleanup_vcenter
         fab prov_vcenter_datastores
     fi
     fab prov_esxi
@@ -412,6 +411,7 @@ function bringup_setup {
 
     if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
         # register the setup with vcenter server
+        run_fab cleanup_vcenter
         run_fab setup_vcenter
         sleep 120
     fi
