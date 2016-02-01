@@ -48,7 +48,8 @@ env.passwords = {
 }
 
 #To disable installing contrail interface rename package
-#env.interface_rename = False
+env.interface_rename = True
+minimum_diskGB=32
 
 #To enable multi-tenancy feature
 multi_tenancy = True
@@ -59,4 +60,8 @@ multi_tenancy = True
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_single_node/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Server Manager Single-Node Sanity'
+env.enable_lbaas = True
 
+#enable ceilometer
+enable_ceilometer = True
+ceilometer_polling_interval = 60

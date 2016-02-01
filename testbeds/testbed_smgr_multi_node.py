@@ -56,8 +56,7 @@ env.passwords = {
     host3: 'c0ntrail123',
     host4: 'c0ntrail123',
     host5: 'c0ntrail123',
-
-    host_build: 'contrail123',
+    host_build: 'stack@123',
 }
 
 env.ostypes = {
@@ -70,7 +69,7 @@ env.ostypes = {
 
 
 #To disable installing contrail interface rename package
-#env.interface_rename = False
+env.interface_rename = False
 
 #To enable multi-tenancy feature
 multi_tenancy = True
@@ -78,10 +77,13 @@ multi_tenancy = True
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True
+env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
+env.enable_lbaas = True
+do_parallel = True
+enable_ceilometer = True
+ceilometer_polling_interval = 60
+minimum_diskGB=32
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
+env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Server Manager Multi-Node Sanity'
-
-
-                                                                   
-
