@@ -590,6 +590,7 @@ function run_sanity {
     search_package
     copy_fabric_test_artifacts
     add_to_sources_list
+    run_fab "install_test_repo"
     run_fab "setup_test_env"
     # check venv exist before running test
     check_venv_exists
