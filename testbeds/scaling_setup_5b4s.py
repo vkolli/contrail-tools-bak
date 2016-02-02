@@ -8,7 +8,7 @@ os_tenant_name = 'demo'
 host1 = 'root@10.87.64.132'  # b4s342
 host2 = 'root@10.87.64.133'  # b4s343
 host3 = 'root@10.87.64.134'  # b4s344
-host4 = 'root@10.87.64.136'  # b4s376
+host4 = 'root@10.87.64.135'  # b4s376
 
 # Host from which the fab commands are triggered to install and provision
 host_build = 'root@10.87.64.132'  # b4s342
@@ -42,7 +42,7 @@ control_data = {
     host1 : { 'ip': '5.5.5.132/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
     host2 : { 'ip': '5.5.5.133/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
     host3 : { 'ip': '5.5.5.134/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
-    host4 : { 'ip': '5.5.5.136/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
+    host4 : { 'ip': '5.5.5.135/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
 }
 # Passwords of each host
 env.passwords = {
