@@ -27,7 +27,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec18']
+    'all': ['nodec21.englab.juniper.net', 'nodec19.englab.juniper.ne', 'nodec20.englab.juniper.ne', 'nodec61.englab.juniper.ne', 'nodec60.englab.juniper.ne','nodec18.englab.juniper.ne']
 }
 ## Disabling bond temporary in redhat. Will enable normal provision works fine.
 #bond= {
