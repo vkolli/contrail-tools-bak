@@ -8,7 +8,7 @@ os_tenant_name = 'demo'
 host1 = 'root@10.87.64.132'  # b4s342
 host2 = 'root@10.87.64.133'  # b4s343
 host3 = 'root@10.87.64.134'  # b4s344
-host4 = 'root@10.87.64.136'  # b4s376
+host4 = 'root@10.87.64.135'  # b4s376
 
 # Host from which the fab commands are triggered to install and provision
 host_build = 'root@10.87.64.132'  # b4s342
