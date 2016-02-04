@@ -2,6 +2,7 @@
 #!/usr/bin/awk -f
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
+source $TOOLS_WS/testers/smgr_utils
 
 #install ant on cfgm0
 function install_ant() {
@@ -36,7 +37,7 @@ function install_ant() {
 }
 
 
-function add_sourcelist() {
+function add_sourcelist_SMLite() {
  
     set -x
     HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
@@ -69,9 +70,9 @@ function add_sourcelist() {
 
 
 #check if the server-manager pkgs are available in artifacts folder.
-function check_SM_pkg_availability() {
+function SMLite_check_SM_pkg_availability() {
     count=0
-    get_node_distro
+    SMLite_get_node_distro
     smpkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts"
     echo $SERVER_MANAGER_INSTALLER
 
@@ -94,7 +95,7 @@ function check_SM_pkg_availability() {
 }
 
 
-function get_node_distro() {
+function SMLite_get_node_distro() {
     lsb_dist_output=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
         cat /etc/lsb-release"`
     if [[ $lsb_dist_output =~ Ubuntu ]]; then
@@ -116,13 +117,13 @@ function copy_smlite_pkg() {
 
     set -x
     #check if SM pkgs are available in artifacts before proceeding further.
-    check_SM_pkg_availability || die "SM pkg not available in artifacts"
-    get_node_distro 
+    SMLite_check_SM_pkg_availability || die "SM pkg not available in artifacts"
+    SMLite_get_node_distro 
 
     pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
     echo $CONTRAIL_PACKAGE
     echo $SERVER_MANAGER_INSTALLER
-    /usr/local/bin/sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} $ABS_PATH_TBFILE /home/stack/smlite/check_provision.sh /home/stack/smlite/sources.list ${API_SERVER_HOST_STRING}:/root/
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} $ABS_PATH_TBFILE /home/stack/smlite/check_provision.sh /home/stack/smlite/sources.list ${API_SERVER_HOST_STRING}:/root/
     if [ $? == 0 ]
     then
         echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
@@ -136,7 +137,7 @@ function copy_smlite_pkg() {
 
 
 # This function will provision the provided setup.
-function provision_using_SM() {
+function provision_using_SMLite() {
     set -x
     if [ $SKIP_SM_PROVISION -ne 0 ]
     then
@@ -145,7 +146,7 @@ function provision_using_SM() {
    
     echo "Connect to SM_SERVER to provision the targets/cluster"
 
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+    sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -e
         set -x
         echo "Install SM-Lite and provision the target setup"
@@ -155,11 +156,11 @@ function provision_using_SM() {
 
     ) "
     sleep 300
-    cluster_name=$(/usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+    cluster_name=$(sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         server-manager show cluster | grep id | cut -d : -f2 | sed -e 's/^ \"//' -e 's/\"$//'
     ) ")
     cluster_name=`echo $cluster_name | tr -d '\r'`
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+    sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -e
         set -x
         #check provisioing status.
@@ -185,12 +186,38 @@ function provision_using_SM() {
 function run_smgr_regression_task() {
     echo "Running tests on $1.."
 
+    if [ ${TEST_SETUP} == "SINGLENODE" ]
+    then
+        multi_node=0
+    elif [ ${TEST_SETUP} == "MULTINODE" ]
+    then
+        multi_node=1
+    elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
+    then
+        multi_node=1
+    else
+        echo "TEST_SETUP is not defined, abort the process"
+        exit 1
+    fi
+
+    if [ -z "$SM_SERVER_IP" ]
+    then
+        echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
+        exit 1
+    fi
+
+    if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
+        echo "CLUSTER_NAME/SERVER_NAME env is not set, aborting the process"
+        exit 1
+    fi
+
     create_testbed || die "Failed to create required testbed details"
-    #bringup_SM_setup || die "Failed to bringup SM setup"
-    reimage_setup || die "reimage failed"
+    bringup_SM_setup || die "Failed to bringup SM setup"
+    reimage_using_SM || debug_and_die "reimage failed"
     copy_smlite_pkg || die "copy of sm-lite packages failed"
-    provision_using_SM || die "provision failed"
-    add_sourcelist || die "source.list copy failed on all target nodes"
+    provision_using_SMLite || die "provision failed"
+    add_sourcelist_SMLite || die "source.list copy failed on all target nodes"
+    install_ant || die "ant installation failed on cfgm"
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
@@ -200,13 +227,36 @@ function run_smgr_regression_task() {
 function run_smgr_task() {
     echo "Running tests on $1.."
 
+    if [ ${TEST_SETUP} == "SINGLENODE" ]
+    then
+        multi_node=0
+    elif [ ${TEST_SETUP} == "MULTINODE" ]
+    then
+        multi_node=1
+    elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
+    then
+        multi_node=1
+    else
+        echo "TEST_SETUP is not defined, abort the process"
+        exit 1
+    fi
 
+    if [ -z "$SM_SERVER_IP" ]
+    then
+        echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
+        exit 1
+    fi
+
+    if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
+        echo "CLUSTER_NAME/SERVER_NAME env is not set, aborting the process"
+        exit 1
+    fi
     create_testbed || die "Failed to create required testbed details"
-    #bringup_SM_setup || die "Failed to bringup SM setup" 
-    reimage_setup || die "reimage failed"
+    bringup_SM_setup || debug_and_die "Failed to bringup SM setup"
+    reimage_using_SM || debug_and_die "reimage failed"
     copy_smlite_pkg || die "copy of sm-lite packages failed"
-    provision_using_SM || die "provision failed"
-    add_sourcelist || die "source.list copy failed on all target nodes"
+    provision_using_SMLite || die "provision failed"
+    add_sourcelist_SMLite || die "source.list copy failed on all target nodes"
     install_ant || die "ant installation failed on cfgm"
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"

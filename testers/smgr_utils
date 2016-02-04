@@ -235,7 +235,7 @@ function provision_using_SM() {
     fi
    
     echo "Connect to SM_SERVER to provision the targets/cluster"
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "provision the target setup"
         server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
@@ -280,7 +280,7 @@ function delete_pkg_from_SM() {
         return 0
     fi
     echo "Connect to SM_SERVER to delete the package and cleanup."
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "delete the package"
         if [ ${BRANCH} == "R1.10" ]
@@ -342,7 +342,7 @@ function reimage_using_SM() {
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
