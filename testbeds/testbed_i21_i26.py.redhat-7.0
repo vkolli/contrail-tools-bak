@@ -27,7 +27,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodei21', 'nodei22', 'nodei23', 'nodei24', 'nodei25', 'nodei26']
+    'all': ['nodei21.englab.juniper.net', 'nodei22.englab.juniper.net', 'nodei23.englab.juniper.net', 'nodei24.englab.juniper.net', 'nodei25.englab.juniper.net', 'nodei26.englab.juniper.net']
 }
 env.interface_rename = True
 
