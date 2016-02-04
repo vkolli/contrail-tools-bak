@@ -110,11 +110,30 @@ function provision_using_SM() {
     then
         return 0
     fi
-    
+
+    puppet_pkg="/tmp/smgr/$PUPPET_PKG"
+
     echo "Connect to SM_SERVER to provision the targets/cluster"
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "provision the target setup"
+
+        echo "check if puppet pkg is provided"
+        if [ -n "$PUPPET_PKG" ]; then
+            echo "check if puppet pkg: $puppet_pkg exists in /tmp/smgr folder"
+            if [ -e "$puppet_pkg" ]
+            then
+                echo "replace the modules folder with that of provided puppet pkg"
+                cd /etc/puppet/environments/$SMID/
+                rm -rf modules
+                tar xvfz $puppet_pkg 
+            else
+                die "required puppet_pkg:$PUPPET_PKG is not present in /tmp/smgr folder"
+            fi
+        else
+            echo "No puppet_pkg is mentioned, continue with usual provisioning"
+        fi
+
         server-manager provision -F --cluster_id $CLUSTER_NAME $SMID
         if [ $? == 0 ]
         then
@@ -201,7 +220,7 @@ function reimage_using_SM() {
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
-    /usr/local/bin/sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
         set -e
         echo "add required image/server/cluster for reimage and provision of the target"
 
@@ -265,6 +284,12 @@ function reimage_using_SM() {
 
         server-manager show image
 
+        echo "delete server if it's already exists"
+        server-manager delete server --cluster_id $CLUSTER_NAME
+
+        echo "delete cluster if it's already exists"
+        server-manager delete cluster --cluster_id $CLUSTER_NAME
+   
         echo "add cluster to SM database"
         server-manager add cluster -f $cluster_json
         if [ $? == 0 ]
