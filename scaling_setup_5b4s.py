@@ -61,7 +61,6 @@ env.ostypes = {
     host3: 'ubuntu',
     host4: 'ubuntu',
 }
-minimum_diskGB = 256
 do_parallel = False
 
 # HA Test configuration
@@ -77,4 +76,4 @@ env.hosts_ipmi = {
 
 
 env.test_repo_dir='/root/contrail-test/'
-
+minimum_diskGB=32
