@@ -167,7 +167,7 @@ function provision_using_SMLite() {
             set -x
             #check provisioing status.
             /root/check_provision.sh $cluster_name
-            if [ $? == 0 ]
+            if [ "$?" -eq 0 ]
             then
                 echo "Provisioning of the target/cluster is sucessfull!!!"
             fi
@@ -178,7 +178,7 @@ function provision_using_SMLite() {
             set -x
             #check provisioing status.
             /root/check_provision.sh $cluster_name
-            if [ $? == 0 ]
+            if [ "$?" -eq 0 ]
             then
                 echo "Provisioning of the target/cluster is sucessfull!!!"
             else
@@ -192,7 +192,7 @@ function provision_using_SMLite() {
             set -x
             #check provisioing status.
             /root/check_provision.sh $cluster_name
-            if [ $? == 0 ]
+            if [ "$?" -eq 0 ]
             then
                 echo "Provisioning of the target/cluster is sucessfull!!!"
             else
