@@ -77,4 +77,4 @@ env.hosts_ipmi = {
 
 
 env.test_repo_dir='/root/contrail-test/'
-
+minimum_diskGB=32
