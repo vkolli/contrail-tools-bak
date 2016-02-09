@@ -46,9 +46,9 @@ bond= {
 }
 
 control_data = {
-    host1 : { 'ip': '5.5.5.132/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
-    host2 : { 'ip': '5.5.5.133/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
-    host3 : { 'ip': '5.5.5.134/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
+    host1 : { 'ip': '5.5.5.132/24', 'gw' : '5.5.5.254', 'device':'bond0' },
+    host2 : { 'ip': '5.5.5.133/24', 'gw' : '5.5.5.254', 'device':'bond0' },
+    host3 : { 'ip': '5.5.5.134/24', 'gw' : '5.5.5.254', 'device':'bond0' },
     #host4 : { 'ip': '5.5.5.135/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
 }
 # Passwords of each host
