@@ -119,7 +119,7 @@ function provision_using_SM() {
         echo "provision the target setup"
 
         echo "check if puppet pkg is provided"
-        if [ -n "$PUPPET_PKG" ]; then
+        if [[ $PUPPET_PKG =~ .tgz ]]; then 
             echo "check if puppet pkg: $puppet_pkg exists in /tmp/smgr folder"
             if [ -e "$puppet_pkg" ]
             then
