@@ -74,6 +74,8 @@ do_parallel = False
 ipmi_username = 'ADMIN'
 ipmi_password = 'ADMIN'
 
+env.interface_rename = False
+
 env.hosts_ipmi = {
     '10.87.64.132': '10.87.122.29',
     '10.87.64.133': '10.87.122.30',
