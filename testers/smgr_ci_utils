@@ -388,10 +388,10 @@ function setup_cisanity_base {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        if [ ${FEATURE} == ci_sanity ]; then
+        if [ ${FEATURE} == "ci_sanity" ]; then
             sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity "}
         else
-            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity"}
+            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
         fi
         if [ $PARALLEL_RUN -eq 1 ]; then
             sanity_cmd="$sanity_cmd -t "
