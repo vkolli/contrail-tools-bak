@@ -23,11 +23,11 @@ public_vn_subnet = "10.84.42.0/24"
 
 # Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3, host4],
+    'all': [host1, host2, host3],
     'cfgm': [host1],
     'openstack': [host1],
     'control': [host1],
-    'compute': [host2, host3, host4],
+    'compute': [host2, host3],
     'collector': [host1],
     'webui': [host1],
     'database': [host1],
@@ -42,21 +42,21 @@ bond= {
     host1 : { 'name': 'bond0', 'member': ['enp131s0f0','enp131s0f1'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
     host2 : { 'name': 'bond0', 'member': ['enp131s0f0','enp131s0f1'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
     host3 : { 'name': 'bond0', 'member': ['enp131s0f0','enp131s0f1'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' },
-    host4 : { 'name': 'bond0', 'member': ['enp131s0f0','enp131s0f1'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' }
+    #host4 : { 'name': 'bond0', 'member': ['enp131s0f0','enp131s0f1'], 'mode': '802.3ad', 'xmit_hash_policy': 'layer3+4' }
 }
 
 control_data = {
     host1 : { 'ip': '5.5.5.132/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
     host2 : { 'ip': '5.5.5.133/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
     host3 : { 'ip': '5.5.5.134/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
-    host4 : { 'ip': '5.5.5.135/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
+    #host4 : { 'ip': '5.5.5.135/24', 'gw' : '5.5.5.254', 'device':'bond0', 'vlan': '224'  },
 }
 # Passwords of each host
 env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
     host3: 'c0ntrail123',
-    host4: 'c0ntrail123',
+    #host4: 'c0ntrail123',
 
     host_build: 'c0ntrail123',
 }
@@ -66,7 +66,7 @@ env.ostypes = {
     host1: 'centos',
     host2: 'centos',
     host3: 'centos',
-    host4: 'centos',
+    #host4: 'centos',
 }
 do_parallel = False
 
