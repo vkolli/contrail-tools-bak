@@ -2,40 +2,9 @@
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 multi_node=0
 
-
-#install ant on cfgm0
-function install_ant() {
-    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
-        set -x
-        /opt/contrail/contrail_packages/setup.sh
-        cat /etc/apt/sources.list > /etc/apt/sources.list.orig
-        cat /etc/apt/sources.list.save > /etc/apt/sources.list
-        sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
-        apt-get update
-        apt-get -y --force-yes --allow-unauthenticated install ant
-        if [ $? != 0 ]
-        then
-            echo "failed to install ant on cfgm!!!"
-        else
-            echo "installed ant successfully"
-        fi
-        apt-get -y install gdb
-        if [ $? != 0 ]
-        then
-            echo "failed to install gdb!!!"
-        else
-            echo "installed gdb successfully"
-        fi
-        if [ $API_SERVER_IP == $word ]; then
-            apt-get -y --force-yes --allow-unauthenticated install ant
-        fi
-        cp /etc/apt/sources.list.orig /etc/apt/sources.list
-        apt-get update
-    ) "
-}
-
+#install fbaric on cfgm
 function install_fabric_cfgm() {
-
+    
     sshpass -p "c0ntrail123" ssh root@$SM_SERVER_IP "sshpass -p ${API_SERVER_HOST_PASSWORD} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/sm_files/contrail_packages/setup.sh ${API_SERVER_HOST_STRING}:/opt/contrail/contrail_packages/"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         set -x
@@ -43,6 +12,48 @@ function install_fabric_cfgm() {
         /opt/contrail/contrail_packages/setup.sh
     ) "
 
+}
+
+#change the sourcelist to get gdb and ant from upstream and install them.
+function add_sourcelist() {
+
+    HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]\s\=" | awk '{print $3}' | awk -F'@' '{print $2}' | tr -d "'"`
+    echo $HOSTS
+    declare -a ARRAY_HOSTS
+    i=0
+    echo $i
+    for word in $HOSTS
+    do
+        echo $word
+        sshpass -p "c0ntrail123" ssh -l root -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $word " {
+   
+            cp /etc/apt/sources.list /etc/apt/sources.list.orig
+            cp /etc/apt/sources.list.save /etc/apt/sources.list
+            if [ $? != 0 ]
+                then
+                echo "failed to replace sources.list with sources.list.save on node!!!"
+            else
+                echo "replaced sources.list with sources.list.save on node"
+            fi
+            
+            #remove mediubuntu entry from sources.list temporarily as it's causing apt-get update to fail.
+            sed -i".bak" '/packages.medibuntu.org/d' /etc/apt/sources.list
+
+            apt-get update
+            apt-get -y install gdb
+            if [ $? != 0 ]
+                then
+                echo "failed to install gdb!!!"
+            else
+                echo "installed gdb successfully"
+            fi
+            if [ $API_SERVER_IP == $word ]; then
+                apt-get -y --force-yes --allow-unauthenticated install ant
+            fi
+            cp /etc/apt/sources.list.orig /etc/apt/sources.list
+            apt-get update
+        } "
+    done
 }
 
 
@@ -371,6 +382,34 @@ function reimage_using_SM() {
    
 }
 
+
+# Delete the contrail pkg from SM at the end of job
+function delete_pkg_from_SM() {
+    if [ $SKIP_PKG_DELETE_SM -ne 0 ]
+    then
+        return 0
+    fi
+    echo "Connect to SM_SERVER to delete the package and cleanup."
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "delete the package"
+        if [ ${BRANCH} == "R1.10" ]
+        then
+            server-manager delete image $SMID
+        else
+            server-manager delete image --image_id $SMID
+        fi
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "Deletion of the package from the SM node is sucessfull!!!"
+        sleep 10
+    else
+        echo "Deletion of the package from the SM node failed!!! aborting the process"
+        echo "Must delete stray packages manually."
+    fi
+}
+
 # run_sanity serial/parallel
 function run_ci_sanity {
     if [ $SKIP_SANITY -ne 0 ]
@@ -476,10 +515,11 @@ function run_smgr_task() {
     bringup_SM_setup || die "Failed to bringup SM setup" 
     reimage_using_SM || die "reimage failed"
     provision_using_SM || die "provision failed"
-    install_ant || die "ant installation failed on cfgm"
+    add_sourcelist || die "source.list copy failed on all target nodes"
     install_fabric_cfgm || die "fabric installation failed on cfgm"
     run_ci_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
+    delete_pkg_from_SM || die "Task to delete package from SM failed"
     echo "Ending test on $1"
 }
