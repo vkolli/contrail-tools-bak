@@ -195,12 +195,6 @@ function provision_using_SM() {
         fi
 
         server-manager status server --cluster_id $CLUSTER_NAME --detail
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
-    fi
 
     ) "
     if [ $? == 0 ]
