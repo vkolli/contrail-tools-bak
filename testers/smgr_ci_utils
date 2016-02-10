@@ -422,7 +422,7 @@ function run_ci_sanity {
     # check venv exist before running test
     check_venv_exists
     setup_cisanity_base
-    #stop_on_failure
+    stop_on_failure
 }
 
 # setup for ci sanity 
@@ -448,8 +448,9 @@ function setup_cisanity_base {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        if [ ${FEATURE} == "ci_sanity" ]; then
-            sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -T ci_sanity "}
+        if [ $CI_SANITY -eq 1 ]
+        then
+            sanity_cmd="bash -x run_tests.sh -m -U -T ci_sanity "
         else
             sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
         fi
