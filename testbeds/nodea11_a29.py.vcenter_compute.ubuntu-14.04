@@ -60,7 +60,7 @@ env.roledefs = {
 env.hostnames = {
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodeg25-compute-vm', 'nodeg26-compute-vm','nodeg27-compute-vm','nodek10-compute-vm']
     #'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel7-compute-vm','nodel7-compute-vm']
-    'all': ['nodea11', 'nodea18', 'nodea19', 'nodek9','nodel5-compute-vm','nodel6-compute-vm', 'nodel3','nodea14']
+    'all': ['nodea11', 'nodea18', 'nodea19', 'nodel5-compute-vm','nodel6-compute-vm', 'nodel3','nodea14']
 }
 
 env.password = 'c0ntrail123'
