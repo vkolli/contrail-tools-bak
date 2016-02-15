@@ -69,3 +69,7 @@ env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Ganesha HV Topo'
 env.enable_lbaas = True
+
+#enable ceilometer                                                                                                                                                                                                                          
+enable_ceilometer = True                                                                                                                                                                                                                    
+ceilometer_polling_interval = 60  
