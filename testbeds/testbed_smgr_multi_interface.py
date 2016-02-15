@@ -38,8 +38,7 @@ env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
     host3:'ubuntu',
-    host4:'ubuntu',
-    host_build: 'contrail123'
+    host4:'ubuntu'
 }
 
 bond= {

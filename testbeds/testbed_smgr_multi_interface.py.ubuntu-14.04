@@ -38,19 +38,18 @@ env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
     host3:'ubuntu',
-    host4:'ubuntu',
-    host_build: 'contrail123'
+    host4:'ubuntu'
 }
 
 bond= {
-    host3 : { 'name': 'bond0', 'member': ['eth1','eth2','eth3','eth4'],'mode':'802.3ad' },
+    host3 : { 'name': 'bond0', 'member': ['p2p2','p2p3','em1','p2p4'],'mode':'802.3ad' },
 }
 
 control_data = {
-    host2 : { 'ip': '192.168.100.3/24', 'gw' : '', 'device':'eth1' },
-    host1 : { 'ip': '192.168.100.4/24', 'gw' : '', 'device':'eth1' },
+    host2 : { 'ip': '192.168.100.3/24', 'gw' : '', 'device':'p1p2' },
+    host1 : { 'ip': '192.168.100.4/24', 'gw' : '', 'device':'p1p2' },
     host3 : { 'ip': '192.168.100.1/24', 'gw' : '', 'device':'bond0' },
-    host4 : { 'ip': '192.168.100.2/24', 'gw' : '', 'device':'eth1' },
+    host4 : { 'ip': '192.168.100.2/24', 'gw' : '', 'device':'p1p2' },
 }
 
 
