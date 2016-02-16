@@ -338,6 +338,14 @@ function reimage_using_SM() {
     echo ${contrail_pkg}
     echo ${pkg_path}  
     #set the parameters for multi/single node setup
+    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+    then
+        CLUSTER_FILE_NAME=$CLUSTER_FILE_NAME_new_param
+        SERVER_FILE_NAME=$SERVER_FILE_NAME_new_param
+        echo "Using NEW parameters for cluster and server json files."
+    else
+        echo "Using OLD parameters for cluster and server json files."
+    fi
     cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
 
