@@ -414,6 +414,10 @@ function reimage_using_SM() {
 
         server-manager show image
 
+        echo "Clean up cluster and server from SM database before adding."
+        server-manager delete server --cluster_id $CLUSTER_NAME
+        server-manager delete cluster --cluster_id $CLUSTER_NAME
+
         echo "add cluster to SM database"
         server-manager add cluster -f $cluster_json
         if [ $? == 0 ]
