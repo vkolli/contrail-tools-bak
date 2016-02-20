@@ -97,6 +97,7 @@ env.physical_routers={
              }
 }
 
+env.cluster_id='clusteri31'
 
 #enable ceilometer
 enable_ceilometer = True

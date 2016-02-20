@@ -96,6 +96,7 @@ env.test_repo_dir='/home/stack/github_ubuntu_single_node/havana/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Single Node Sanity'
 env.enable_lbaas = True
+env.cluster_id='clusterb5'
 
 #enable ceilometer
 enable_ceilometer = True
