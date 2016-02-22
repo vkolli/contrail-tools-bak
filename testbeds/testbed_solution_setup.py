@@ -22,7 +22,7 @@ host_build = 'stack@10.87.143.84'
 
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3],
+    'all': [host1, host2, host3, host4, host5, host6, host7, host8],
     'cfgm': [host1, host2, host3],
     'openstack': [host1, host2, host3],
     'control': [host1, host2, host3],
