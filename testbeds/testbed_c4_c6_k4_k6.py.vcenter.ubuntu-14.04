@@ -172,3 +172,6 @@ env.log_scenario='Vcenter MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 do_parallel = True
 env.ntp_server = '10.204.217.158'
+env.optional_services = {
+    'cfgm' : ['device-manager'],
+}
