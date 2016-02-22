@@ -3,6 +3,7 @@ TOOLS_WS=${TOOLS_WS:-$(pwd)}
 IS_UBUNTU_14041=0
 IS_UBUNTU_14042=0
 source $TOOLS_WS/testers/environment.sh
+source $TOOLS_WS/testers/smgr_utils
 declare -A BUILD_MAP
 export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.1 [centos71]=centos-7.1 )
 ##
@@ -904,9 +905,14 @@ function unlock_testbed() {
 function run_task() {
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
-    reimage_and_bringup
+    if [ -z "$SM_SERVER_IP" ]
+    then
+        reimage_and_bringup
+    else
+       reimage_using_SM || debug_and_die "reimage failed"
+       bringup_setup || die "Bringup failed"
+    fi
     install_third_party_pkgs || die "installing GDB/ant failed" 
-    #bringup_setup || die "Bringup failed"
     run_sanity || die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     echo "Test Done" 
