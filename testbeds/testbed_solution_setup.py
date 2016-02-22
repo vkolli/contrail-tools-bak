@@ -3,13 +3,11 @@ import os
 
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.87.143.84'
-host2 = 'root@10.87.143.86'
-host3 = 'root@10.87.143.90'
-host4 = 'root@10.87.143.92'
-host5 = 'root@10.87.143.94'
-host6 = 'root@10.87.143.98'
-host7 = 'root@10.87.143.100'
-host8 = 'root@10.87.143.96'
+host2 = 'root@10.87.143.90'
+host3 = 'root@10.87.143.92'
+host4 = 'root@10.87.143.94'
+host5 = 'root@10.87.143.98'
+host6 = 'root@10.87.143.100'
 
 #External routers if any
 ext_routers = [('montreal', '10.87.140.140')]
@@ -18,15 +16,15 @@ ext_routers = [('montreal', '10.87.140.140')]
 router_asn = 64512
 
 #Host from which the fab commands are triggered to install and provision
-host_build = 'stack@10.87.143.84'
+host_build = 'root@10.87.143.84'
 
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3, host4, host5, host6, host7, host8],
+    'all': [host1, host2, host3, host4, host5, host6 ],
     'cfgm': [host1, host2, host3],
     'openstack': [host1, host2, host3],
     'control': [host1, host2, host3],
-    'compute': [host4, host5, host6, host7, host8],
+    'compute': [host4, host5, host6],
     'collector': [host1, host2, host3],
     'webui': [host1, host2, host3],
     'database': [host1, host2, host3],
@@ -34,24 +32,22 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['a5d11e36','a5d11e35','a5d11e14','a5d11e13','a5d11e12','a5d11e10','a5d11e09','a5d11e11']
+    'all': ['a5d11e36','a5d11e14','a5d11e13','a5d11e12','a5d11e10','a5d11e09']
 }
 
 #Openstack admin password
-env.openstack_admin_password = 'n1keenA'
+env.openstack_admin_password = 'c0ntrail123'
 
 env.password = 'n1keenA'
 #Passwords of each host
 env.passwords = {
-    host1: 'n1keenA',
-    host2: 'n1keenA',
-    host3: 'n1keenA',
-    host4: 'n1keenA',
-    host5: 'n1keenA',
-    host6: 'n1keenA',
-    host7: 'n1keenA',
-    host8: 'n1keenA',
-    host_build: 'stack@123',
+    host1: 'c0ntrail123',
+    host2: 'c0ntrail123',
+    host3: 'c0ntrail123',
+    host4: 'c0ntrail123',
+    host5: 'c0ntrail123',
+    host6: 'c0ntrail123',
+    host_build: 'c0ntrail123',
 }
 
 #For reimage purpose
@@ -62,8 +58,6 @@ env.ostypes = {
     host4: 'ubuntu',
     host5: 'ubuntu',
     host6: 'ubuntu',
-    host7: 'ubuntu',
-    host8: 'ubuntu',
 }
 
 #OPTIONAL BONDING CONFIGURATION
@@ -137,7 +131,6 @@ if os.getenv('HA_TEST',None) == 'True':
 # HA Test configuration
 ha_setup = 'True'
 minimum_diskGB=32
-env.test_repo_dir="/home/stack/ubuntu_sanity/contrail-test"
 env.mail_from='vivekgarg@juniper.net'
 env.mail_to='vivekgarg@juniper.net'
 multi_tenancy=True
@@ -152,3 +145,4 @@ env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, CEPH]'
 
 
 storage_replica_size = 2
+env.test_repo_dir='/home/stack/jenkins/workspace/fab_HA_ubuntu-14-04_Multi_Node_Sanity_Solution_setup/contrail-tools/contrail-test'
