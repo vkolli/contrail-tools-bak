@@ -46,3 +46,6 @@ env.mail_to='ganeshahv@juniper.net'
 #To enable haproxy feature
 #haproxy = True
 
+#enable ceilometer                                                                                                                                                                                                                          
+enable_ceilometer = True                                                                                                                                                                                                                    
+ceilometer_polling_interval = 60
