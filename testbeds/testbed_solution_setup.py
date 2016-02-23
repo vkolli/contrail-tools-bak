@@ -126,7 +126,6 @@ env.interface_rename = False
 #if os.getenv('HA_TEST',None) == 'True':
 env.ha = {
              'internal_vip' : '10.87.143.50',
-             'external_vip' : '10.87.143.81'
          }
 # HA Test configuration
 ha_setup = 'True'
