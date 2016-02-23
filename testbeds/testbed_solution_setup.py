@@ -124,10 +124,10 @@ env.interface_rename = False
 #    host3 : { 'disks' : ['/dev/sdb'] , 'journal' : ['/dev/sdb'] },
 #}
 #if os.getenv('HA_TEST',None) == 'True':
-#    env.ha = {
-'internal_vip' : '10.87.143.50',
-'external_vip' : '10.87.143.81'
-#}
+env.ha = {
+             'internal_vip' : '10.87.143.50',
+             'external_vip' : '10.87.143.81'
+         }
 # HA Test configuration
 ha_setup = 'True'
 minimum_diskGB=32
