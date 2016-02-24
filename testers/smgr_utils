@@ -772,7 +772,7 @@ function run_smgr_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup" 
-    if [ ${BRANCH} > "R2.9" ]
+    if [ ${BRANCH} == "R3.0" ]
     then
         reimage_using_SM_cliff_client || debug_and_die "reimage failed"
         provision_using_SM_cliff_client || debug_and_die "provision failed"
@@ -785,7 +785,7 @@ function run_smgr_task() {
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
-    if [ ${BRANCH} > "R2.9" ]
+    if [ ${BRANCH} == "R3.0" ]
     then
         delete_pkg_from_SM_cliff_client || die "Task to delete package from SM failed"
     else
