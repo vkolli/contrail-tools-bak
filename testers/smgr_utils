@@ -785,7 +785,7 @@ function run_smgr_task() {
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
-    if [ ${BRANCH} == "R2.9" ]
+    if [ ${BRANCH} > "R2.9" ]
     then
         delete_pkg_from_SM_cliff_client || die "Task to delete package from SM failed"
     else
