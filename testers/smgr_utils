@@ -227,6 +227,52 @@ function bringup_SM_setup() {
     ) "
 }
 
+# This function will provision the provided setup using cliff client.
+function provision_using_SM_cliff_client() {
+    if [ $SKIP_SM_PROVISION -ne 0 ]
+    then
+        return 0
+    fi
+
+    echo "Connect to SM_SERVER to provision the targets/cluster"
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "provision the target setup"
+        server-manager-client provision -F --cluster_id $CLUSTER_NAME $SMID
+        if [ $? == 0 ]
+        then
+            echo "Server-manager provision command is successful"
+        else
+            echo "Server-manager provision command failed, aborting the process"
+            exit 1
+        fi
+        echo "provisioning in progress please wait ..."
+        sleep 100
+
+        #check provisioing status.
+        /root/sm_files/check_provision_cliff.sh $CLUSTER_NAME
+        if [ $? == 0 ]
+        then
+            echo "Provisioning of the target/cluster is sucessfull!!!"
+        else
+            echo "Provisioning of the target/cluster failed!!! aborting the process"
+            exit 1
+        fi
+
+        server-manager-client status server --cluster_id $CLUSTER_NAME
+
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "Provisioning of the target/cluster is sucessfull!!!"
+        sleep 120
+    else
+        echo "Provisioning of the target/cluster failed!!! aborting the process"
+        exit 1
+    fi
+
+}
+
 # This function will provision the provided setup.
 function provision_using_SM() {
     if [ $SKIP_SM_PROVISION -ne 0 ]
@@ -273,6 +319,28 @@ function provision_using_SM() {
 
 }
 
+# This function will delete contrail package with same id from SM using cliff client.
+function delete_pkg_from_SM_cliff_client() {
+    if [ $SKIP_PKG_DELETE_SM -ne 0 ]
+    then
+        return 0
+    fi
+    echo "Connect to SM_SERVER to delete the package and cleanup."
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "delete the package"
+        server-manager-client delete image --image_id $SMID
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "Deletion of the package from the SM node is sucessfull!!!"
+        sleep 10
+    else
+        echo "Deletion of the package from the SM node failed!!! aborting the process"
+        echo "Must delete stray packages manually."
+    fi
+}
+
 # This function will provision the provided setup.
 function delete_pkg_from_SM() {
     if [ $SKIP_PKG_DELETE_SM -ne 0 ]
@@ -298,6 +366,163 @@ function delete_pkg_from_SM() {
         echo "Deletion of the package from the SM node failed!!! aborting the process"
         echo "Must delete stray packages manually."
     fi
+}
+
+# This function will reimage the provided setup using SM cliff client.
+# Performs the following steps:
+# Adds the iso and contrail packages to SM database
+# Adds cluster and servers to SM database
+# Does reimage of the setup.
+function reimage_using_SM_cliff_client() {
+    if [ $SKIP_REIMAGE -ne 0 ]
+    then
+        return 0
+    fi
+    # set the parameters required for reimage.
+    if [[ $DISTRO =~ ubuntu-12.04 ]]; then
+        image="/cs-shared/images/ubuntu-12.04.3-server-amd64.iso"
+        pkg_type="contrail-ubuntu-package"
+        iso_type="ubuntu"
+        SMID=ubuntu12$SKU${BUILDID}
+    elif [[ $DISTRO =~ ubuntu-14.04 ]]; then
+        image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
+        pkg_type="contrail-ubuntu-package"
+        iso_type="ubuntu"
+        SMID=ubuntu14$SKU${BUILDID}
+    elif [[ $DISTRO =~ centos64 ]]; then
+        image="/root/images/CentOS-6.4-x86_64-minimal.iso"
+        pkg_type="contrail-centos-package"
+        iso_type="centos"
+        SMID=centos64$SKU${BUILDID}
+    elif [[ $DISTRO =~ centos65 ]]; then
+        image="/root/images/CentOS-6.5-x86_64-minimal.iso"
+        pkg_type="contrail-centos-package"
+        iso_type="centos"
+        SMID=centos65$SKU${BUILDID}
+    fi
+
+    pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
+    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
+    echo ${contrail_pkg}
+    echo ${pkg_path}
+    #set the parameters for multi/single node setup
+    CLUSTER_FILE_NAME=${CLUSTER_FILE_NAME}_new_param
+    SERVER_FILE_NAME=${SERVER_FILE_NAME}_new_param
+    echo "Using NEW parameters for cluster and server json files."
+    cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
+    server_json="/root/sm_files/$SERVER_FILE_NAME.json"
+
+    echo "Connect to SM_SERVER to reimage and provision the targets"
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        echo "add required image/server/cluster for reimage and provision of the target"
+
+        echo "delete iso image if it exists"
+        server-manager-client delete image --image_id ${DISTRO}
+
+        echo "add base ISO image to server manager database"
+        server-manager-client add image -f /root/images/image142.json
+        if [ $? == 0 ]
+        then
+            echo "Server-manager adding image command is successful"
+        else
+            echo "Server-manager adding image command failed, aborting the process"
+            exit 1
+        fi
+
+        echo "check if the image was added successfully"
+        server-manager-client display image --json | grep ${DISTRO}
+        if [ $? != 0 ]
+        then
+            echo "Adding Base ISO image failed"
+            exit 1
+        fi
+
+        echo "delete contrail package if it exists"
+        server-manager-client delete image --image_id $SMID
+        echo "add contrail package to the SM database"
+
+        server-manager upload_image $SMID ${BUILDID} $pkg_type ${contrail_pkg}
+        if [ $? == 0 ]
+        then
+            echo "Server-manager adding contrail-package command is successful"
+        else
+            echo "Server-manager adding contrail-package command failed, aborting the process"
+            exit 1
+        fi
+
+        echo "check if the package was added successfully"
+        server-manager-client display image --json | grep $SMID
+        if [ $? != 0 ]
+        then
+            echo "Adding Contrail-packages $SMID failed"
+            exit 1
+        fi
+
+        server-manager-client display image
+
+        echo "Clean up cluster and server from SM database before adding."
+        server-manager-client delete server --cluster_id $CLUSTER_NAME
+        server-manager-client delete cluster --cluster_id $CLUSTER_NAME
+
+        echo "add cluster to SM database"
+        server-manager-client add cluster -f $cluster_json
+        if [ $? == 0 ]
+        then
+            echo "Adding cluster to server-manager is sucessful!!!"
+        else
+            echo "Adding cluster to server-manager failed, aborting the process"
+            exit 1
+        fi
+
+        server-manager-client display cluster --detail
+
+        echo "add server to SM database"
+        server-manager-client add server -f $server_json
+        if [ $? == 0 ]
+        then
+            echo "Adding server to server-manager is sucessful!!!"
+        else
+            echo "Adding server to server-manager failed, aborting the process"
+            exit 1
+        fi
+
+        server-manager-client display server --detail
+
+        echo "reimage the target setup"
+        server-manager-client reimage -F --cluster_id $CLUSTER_NAME ${DISTRO}
+        if [ $? == 0 ]
+        then
+            echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
+        else
+            echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
+            exit 1
+        fi
+
+        echo "reimage in progress please wait ..."
+        sleep 10
+
+        #check if reimage is completed.
+        /root/sm_files/check_reimage_cliff.sh $CLUSTER_NAME
+        if [ $? == 0 ]
+        then
+            echo "reimaged the target $CLUSTER_NAME successfully"
+        else
+            echo "reimage of target $CLUSTER_NAME failed!!!"
+            exit 1
+        fi
+
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "reimaged the target $CLUSTER_NAME successfully"
+        sleep 150
+    else
+        echo "reimage of target $CLUSTER_NAME failed!!!"
+        exit 1
+    fi
+
+
 }
 
 # This function will reimage the provided setup.
@@ -454,7 +679,7 @@ function reimage_using_SM() {
 
         echo "reimage in progress please wait ..."
         sleep 10
- 
+
         #check if reimage is completed.
         /root/sm_files/check_reimage.sh $CLUSTER_NAME
         if [ $? == 0 ]
@@ -547,13 +772,24 @@ function run_smgr_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup" 
-    reimage_using_SM || debug_and_die "reimage failed"
-    provision_using_SM || debug_and_die "provision failed"
+    if [ ${BRANCH} > "R2.9" ]
+    then
+        reimage_using_SM_cliff_client || debug_and_die "reimage failed"
+        provision_using_SM_cliff_client || debug_and_die "provision failed"
+    else
+        reimage_using_SM || debug_and_die "reimage failed"
+        provision_using_SM || debug_and_die "provision failed"
+    fi
     add_sourcelist || die "source.list copy failed on all target nodes"
     install_fabric_cfgm || die "fabric installation failed on cfgm"
     run_sanity || debug_and_die "Run_sanity step failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
-    delete_pkg_from_SM || die "Task to delete package from SM failed"
+    if [ ${BRANCH} == "R2.9" ]
+    then
+        delete_pkg_from_SM_cliff_client || die "Task to delete package from SM failed"
+    else
+        delete_pkg_from_SM || die "Task to delete package from SM failed"
+    fi
     echo "Ending test on $1"
 }
