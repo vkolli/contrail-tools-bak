@@ -5,7 +5,7 @@
 #       21st November 2014                                                      #
 #       add_tag.py                                                              #
 #       Author: Vinay Mahuli                                                    #
-#       This script is used to get the list of bugs without official tags       #
+#       This script is used to add tags to list of bugs without official tags   #
 #                                                                               #
 #       Usage: ./add_tags.py --bug_list=$PWD/bug_list.txt                       #
 #                                                                               #
