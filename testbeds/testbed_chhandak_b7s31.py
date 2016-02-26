@@ -151,8 +151,8 @@ bond= {
 }
 
 env.sriov = {
-     b7s36 :[ {'interface' : 'p6p1', 'VF' : 7, 'physnets' : ['physnet1', 'physnet2']}],
-     b7s37 :[ {'interface' : 'p6p1', 'VF' : 7, 'physnets' : ['physnet1', 'physnet3']}],
+     b7s36 :[ {'interface' : 'p6p1', 'VF' : 60, 'physnets' : ['physnet1', 'physnet2']}],
+     b7s37 :[ {'interface' : 'p6p1', 'VF' : 60, 'physnets' : ['physnet1', 'physnet3']}],
 }
 
 #OPTIONAL SEPARATION OF MANAGEMENT AND CONTROL + DATA and OPTIONAL VLAN INFORMATION
