@@ -14,12 +14,12 @@ function run_ui_sanity {
     fi
     search_package
     copy_fabric_test_artifacts
+    run_fab "install_test_repo"
     run_fab "setup_test_env"
     run_fab "install_webui_packages:~"
     run_fab "update_config_option:openstack,/etc/keystone/keystone.conf,token,expiration,86400,keystone"
     run_fab "update_js_config:openstack,/etc/contrail/config.global.js,contrail-webui"
     check_venv_exists
-    run_fab "install_test_repo"
     setup_sanity_base
 }
 
