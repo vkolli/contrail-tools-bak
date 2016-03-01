@@ -72,7 +72,7 @@ env.ostypes = {
 }
 
 env.vcenter_servers = {
-       'vcenter1': {
+       'Datacenter1': {
             'server':'10.84.22.104',
             'port': '443',
             'username': 'Administrator@vsphere.local',
