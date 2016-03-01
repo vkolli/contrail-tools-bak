@@ -97,7 +97,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'datastore': "/vmfs/volumes/datastore2",
-        'vcenter_server': 'vcenter1',
+        'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s22',
@@ -113,7 +113,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'datastore': "/vmfs/volumes/datastore3",
-        'vcenter_server': 'vcenter1',
+        'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s44',
