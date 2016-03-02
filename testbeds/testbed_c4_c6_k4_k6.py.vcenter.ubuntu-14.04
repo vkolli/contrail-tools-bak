@@ -86,7 +86,8 @@ env.ostypes = {
 
 env.orchestrator = 'vcenter'
 
-env.vcenter = {
+env.vcenter_servers = {
+     'vcenter1':{
         'server':'10.204.217.189',
         'port': '443',
         'username': 'administrator@vsphere.local',
@@ -96,11 +97,13 @@ env.vcenter = {
         'cluster': ['c4k4rack14'],
         'dv_switch': { 'dv_switch_name': 'c4k4u14_dvs', 'nic': 'vmnic0', },
         'dv_port_group': { 'dv_portgroup_name': 'c4k4u14_dvpg', 'number_of_ports': '3', },
+    }
 }
 
 esxi_hosts = {
     'nodek4' : {
         'ip' : k4,
+        'vcenter_server':'vcenter1'
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'c4k4rack14',
@@ -114,6 +117,7 @@ esxi_hosts = {
         }
     },
     'nodek5' : {
+        'vcenter_server':'vcenter1'
         'ip' : k5,
         'username' : 'root',
         'password' : 'c0ntrail123',
@@ -127,6 +131,7 @@ esxi_hosts = {
         }
     },
     'nodek6' : {
+        'vcenter_server':'vcenter1'
         'ip' : k6,
         'username' : 'root',
         'password' : 'c0ntrail123',
