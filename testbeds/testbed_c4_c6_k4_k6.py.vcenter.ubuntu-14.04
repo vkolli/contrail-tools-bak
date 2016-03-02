@@ -103,7 +103,7 @@ env.vcenter_servers = {
 esxi_hosts = {
     'nodek4' : {
         'ip' : k4,
-        'vcenter_server':'vcenter1'
+        'vcenter_server':'vcenter1',
         'username' : 'root',
         'password' : 'c0ntrail123',
         'cluster' : 'c4k4rack14',
@@ -117,7 +117,7 @@ esxi_hosts = {
         }
     },
     'nodek5' : {
-        'vcenter_server':'vcenter1'
+        'vcenter_server':'vcenter1',
         'ip' : k5,
         'username' : 'root',
         'password' : 'c0ntrail123',
@@ -131,7 +131,7 @@ esxi_hosts = {
         }
     },
     'nodek6' : {
-        'vcenter_server':'vcenter1'
+        'vcenter_server':'vcenter1',
         'ip' : k6,
         'username' : 'root',
         'password' : 'c0ntrail123',
