@@ -71,21 +71,22 @@ env.ostypes = {
     contrail_vm3:'esxi-5.5',
 }
 
-
-env.vcenter = {
-        'server':'10.84.22.104',
-        'port': '443',
-        'username': 'Administrator@vsphere.local',
-        'password': 'Contrail123!',
-        'auth': 'https',
-        'datacenter': 'A6s32-VC-Compute-Sanity',
-        'vcenter_compute': '10.84.13.38',
-        'cluster': ['cluster-1','cluster-2'],
-        'dv_switch': { 'dv_switch_name': 'dvswitch-1',
-                     },
-        'dv_port_group': { 'dv_portgroup_name': 'dvportgroup-1',
-                           'number_of_ports': '1800',
-                     },
+env.vcenter_servers = {
+       'Datacenter1': {
+            'server':'10.84.22.104',
+            'port': '443',
+            'username': 'Administrator@vsphere.local',
+            'password': 'Contrail123!',
+            'auth': 'https',
+            'datacenter': 'A6s32-VC-Compute-Sanity',
+            'vcenter_compute': '10.84.13.38',
+            'cluster': ['cluster-1'],
+            'dv_switch': { 'dv_switch_name': 'Sanity-dvswitch-1',
+                          },
+            'dv_port_group': { 'dv_portgroup_name': 'Sanity-dvportgroup-1',
+                              'number_of_ports': '1800',
+                        },
+     },
 }
 
 
@@ -96,6 +97,7 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'datastore': "/vmfs/volumes/datastore2",
+        'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s22',
@@ -111,7 +113,8 @@ esxi_hosts = {
         'username' : 'root',
         'password' : 'c0ntrail123',
         'datastore': "/vmfs/volumes/datastore3",
-        'cluster': 'cluster-2',
+        'vcenter_server': 'Datacenter1',
+        'cluster': 'cluster-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s44',
             'mac' : '00:50:56:aa:31:7c',
