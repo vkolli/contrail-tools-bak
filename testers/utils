@@ -425,7 +425,7 @@ function bringup_setup {
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
         if [ $SKIP_KERNEL_UPGRADE -ne 0 ]
         then
-              return 0
+            echo "Skipping kernel upgrade task"
         else
             fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
             sleep 60
