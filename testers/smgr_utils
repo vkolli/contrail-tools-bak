@@ -442,7 +442,7 @@ function reimage_using_SM_cliff_client() {
         server-manager-client delete image --image_id $SMID
         echo "add contrail package to the SM database"
 
-        server-manager-client upload_image --id $SMID --version ${BUILDID} --category package --type $pkg_type --file_name ${contrail_pkg}
+        server-manager-client upload-image --id $SMID --version ${BUILDID} --category package --type $pkg_type --file_name ${contrail_pkg}
         if [ $? == 0 ]
         then
             echo "Server-manager adding contrail-package command is successful"
