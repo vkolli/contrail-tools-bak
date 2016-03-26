@@ -487,6 +487,12 @@ function bringup_setup {
             fab add_static_route 
             fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
 
+    ##Workaround for liberty to restart nova-compute to make it guanranted to be connected with libvirt
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+	    cd fabric-utils;
+	    export HA_TEST=$HA_TEST;
+	    fab -R compute -- \"service nova-compute restart\"" || debug_and_die "nova-compute restart failed"
+
     if [ $SKIP_ZONES -eq 0 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
         fab setup_zones)
@@ -597,6 +603,11 @@ function run_sanity {
     add_to_sources_list
     run_fab "install_test_repo"
     run_fab "setup_test_env"
+    ##Workaround for liberty to use python-requests==2.7.0 that is compatible with glance client in liberty
+    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils;
+            export HA_TEST=$HA_TEST;
+            fab -R openstack -- \"pip install --upgrade requests==2.7.0\"" || debug_and_die "pip install requests==2.7.0 failed"
     # check venv exist before running test
     check_venv_exists
     setup_sanity_base
