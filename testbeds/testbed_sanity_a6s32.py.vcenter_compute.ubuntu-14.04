@@ -38,6 +38,7 @@ else:
     env.roledefs = {
         'all': [host1, host2, host3, host4, contrail_vm2, contrail_vm3],
         'cfgm': [host1, host2],
+        'openstack': [host1],
         'control': [host1, host3],
         'compute': [host4, contrail_vm2, contrail_vm3],
         'vcenter_compute':[host3],
