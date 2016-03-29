@@ -70,6 +70,7 @@ env.physical_routers={
 
 env.cluster_id='clustera34a35c53c54c55c56'
 minimum_diskGB=32
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir = '/home/stack/regression/contrail-test'
 env.mail_from = 'contrail-build@juniper.net'
 env.mail_to = 'dl-contrail-sw@juniper.net'
