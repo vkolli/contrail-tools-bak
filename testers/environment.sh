@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 export TBFILE
+export TEST_HOST_STRING=${TEST_HOST_STRING:-"root@127.0.0.1"}
 export API_SERVER_HOST_STRING=${API_SERVER_HOST_STRING:-"root@127.0.0.1"}
 export TOOLS_WS=${TOOLS_WS:-$PWD}
 
@@ -8,6 +9,21 @@ export BRANCH=${BRANCH:-mainline}
 export BUILDID=${BUILDID:-LATEST}
 export DISTRO=${DISTRO:-"ubuntu-12-04"}
 export SKU=${SKU:-icehouse}
+
+##
+# TEST_RUN_INFRA: to specify where the test is run, possible values are
+# docker: using docker container for test run
+# legacy: Run legacy contrail-test - this is applicable for R2.x branches
+##
+if [[ $BRANCH =~ ^R[12]\. ]]; then
+    export TEST_RUN_INFRA='legacy'
+else
+    export TEST_RUN_INFRA='docker'
+fi
+export TEST_RUN=${TEST_RUN:-'contrail-test'}
+export TEST_CONTAINER_IMAGE=${TEST_CONTAINER_IMAGE:-''}
+export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-'/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts/'}
+
 
 # If BRANCH, BUILID, DISTRO, SKU are not defined,
 # PKG_FILE path needs to be set
@@ -19,6 +35,9 @@ export PKG_FILE
 export KEYSTONE_SERVICE_HOST=${KEYSTONE_SERVICE_HOST:-127.0.0.1}
 export KEYSTONE_SERVICE_HOST_USER=${KEYSTONE_SERVICE_HOST_USER:-root}
 export KEYSTONE_SERVICE_HOST_PASSWORD=${KEYSTONE_SERVICE_HOST_PASSWORD:-c0ntrail123}
+export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
+export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
+export TEST_HOST_PASSWORD=${TEST_HOST_PASSWORD:-c0ntrail123}
 export API_SERVER_IP=`echo $API_SERVER_HOST_STRING | cut -d @ -f2`
 export API_SERVER_HOST_USER=`echo $API_SERVER_HOST_STRING | cut -d @ -f1`
 export API_SERVER_HOST_PASSWORD=${API_SERVER_HOST_PASSWORD:-c0ntrail123}
@@ -55,7 +74,7 @@ export VCENTER_ONLY_TESTBED=${VCENTER_ONLY_TESTBED:-0}
 export VCENTER_AS_COMPUTE_TESTBED=${VCENTER_AS_COMPUTE_TESTBED:-0}
 
 #Wait random time before generating SCRIPT_TIMESTAMP
-sleep $[ ( $RANDOM % 30 )  + 1 ]s
+sleep $[ ( $RANDOM % 3 )  + 1 ]s
 #
 export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
@@ -63,7 +82,11 @@ export NODEHOME=${NODEHOME:-/root}
 export FAB_GIT_BRANCH=${BRANCH:-master}
 export PARAMS_FILE=${PARAMS_FILE:-${NODEHOME}/contrail-test/scripts/sanity_params.ini}
 export TEST_CONFIG_FILE=${TEST_CONFIG_FILE:-${NODEHOME}/contrail-test/sanity_params.ini}
-export TEST_RUN_CMD=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s"}
+
+# NOTE: in case of docker, TEST_RUN_CMD is used only when one need to run non-standard set of tests
+if [[ $TEST_RUN_INFRA == 'legacy' ]]; then
+    export TEST_RUN_CMD=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
+fi
 
 export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
 export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
