@@ -868,6 +868,7 @@ function create_testbed {
         export NEW_TEST_INFRA=0
     fi
 
+
     checkout_repo || die "Unable to checkout fab/test repos"
     use_testbed_file || die "Unable to set the testbed properly for use"
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
@@ -949,6 +950,12 @@ function unlock_testbed() {
 }
 
 function run_task() {
+
+    #use contrail cloud packages for branch R3.0 and above.
+    if [ "$BRANCH" \> "R2.20" ]; then
+        export USE_CLOUD_PKG=1
+    fi
+
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup
