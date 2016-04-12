@@ -717,35 +717,52 @@ function set_threshold {
 }
 
 function setup_testnode {
-    if [[ $DISTRO =~ 'ubuntu' ]]; then
-        container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
-        container_image_file=`basename $container_image_path`
-        if [[ ! -f $container_image_path ]]; then
-            echo "ERROR!! Container image $container_image_path doesnt exist"
-            exit 1
-        fi
-        sshpass -p $TEST_HOST_PASSWORD scp $container_image_path $TEST_HOST_STRING:/tmp/
-        exec_cmds -s $TEST_HOST_STRING -p $TEST_HOST_PASSWORD -c "(
-            docker  -v &> /dev/null ; rv=$?
-            if [ \$rv -ne 0 ]; then
-              DEBIAN_FRONTEND=noninteractive
-              apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-              echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main'  > /etc/apt/sources.list.d/docker.list && \
-              echo 'deb http://cz.archive.ubuntu.com/ubuntu trusty main'  > /etc/apt/sources.list.d/ubuntu-archive.list && \
-              apt-get -y update; apt-get install -y --force-yes docker-engine ;\
-	        fi
-	        s=$(docker images -q ${TEST_RUN}-${SKU}:${PACKAGE_VERSION} | grep -c [a-z])
-            wget -O /usr/local/bin/testrunner.sh https://raw.githubusercontent.com/Juniper/contrail-test-ci/master/testrunner.sh
-            chmod +x /usr/local/bin/testrunner.sh
-            if [ \$s -eq 0 ]; then
-	            testrunner load < /tmp/${container_image_file}
-            fi
-            mkdir -p ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}
-	    )"
-            sshpass -p $TEST_HOST_PASSWORD scp ${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
+    if [[ $DISTRO =~ ^(centos|redhat)$ ]]; then
+        PACKAGE_INSTALL_CMD="
+        tee /etc/yum.repos.d/docker.repo <<-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/\$releasever/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+        yum install -y docker-engine ;\
+        service docker start
+        "
+    elif [[ $DISTRO =~ 'ubuntu' ]]; then
+        PACKAGE_INSTALL_CMD="
+        DEBIAN_FRONTEND=noninteractive ; \
+        apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+        echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main'  > /etc/apt/sources.list.d/docker.list && \
+        echo 'deb http://cz.archive.ubuntu.com/ubuntu trusty main'  > /etc/apt/sources.list.d/ubuntu-archive.list && \
+        apt-get -y update; apt-get install -y --force-yes docker-engine
+        "
     else
-      echo "Only ubuntu is supported for test node at this moment"
+        echo "Unknown Distro - $DISTRO"
+        exit 1
     fi
+    container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
+    container_image_file=`basename $container_image_path`
+    if [[ ! -f $container_image_path ]]; then
+        echo "ERROR!! Container image $container_image_path doesnt exist"
+        exit 1
+    fi
+    sshpass -p $TEST_HOST_PASSWORD scp $container_image_path $TEST_HOST_STRING:/tmp/
+    exec_cmds -s $TEST_HOST_STRING -p $TEST_HOST_PASSWORD -c "(
+        docker  -v &> /dev/null ; rv=\$?
+        if [ \$rv -ne 0 ]; then
+            $PACKAGE_INSTALL_CMD
+        fi
+        s=$(docker images -q ${TEST_RUN}-${SKU}:${PACKAGE_VERSION} | grep -c [a-z])
+        wget -O /usr/local/bin/testrunner.sh https://raw.githubusercontent.com/Juniper/contrail-test-ci/master/testrunner.sh
+        chmod +x /usr/local/bin/testrunner.sh
+        if [ \$s -eq 0 ]; then
+            testrunner load < /tmp/${container_image_file}
+        fi
+        mkdir -p ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}
+    )"
+        sshpass -p $TEST_HOST_PASSWORD scp ${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
 }
 
 function setup_sanity_base_simple {
