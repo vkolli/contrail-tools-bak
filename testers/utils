@@ -952,7 +952,7 @@ function unlock_testbed() {
 function run_task() {
 
     #use contrail cloud packages for branch R3.0 and above.
-    if [ "$BRANCH" \> "R2.20" ]; then
+    if [ "$BRANCH" \> "R2.22.x" ]; then
         export USE_CLOUD_PKG=1
     fi
 
