@@ -176,7 +176,8 @@ function exec_cmds {
 
     sshpass -p ${host_password} ssh -t -t ${SSHOPT} ${host_string} "(
      $command
-    )"
+    )"; rv=$?
+    return $rv
 }
 
 ##
@@ -644,9 +645,6 @@ function run_sanity_simple {
     fi
     search_package
     setup_sanity_base_simple
-    if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
-        stop_on_failure
-    fi
 }
 
 # run_sanity serial/parallel
@@ -671,21 +669,30 @@ function run_sanity {
 #Lock testbed if the test failures are more than the 
 #expected limit ,set through the shell varibale limit
 #export TEST_FAILURE_THRESHOLD needs to be set through jenkins
-
 function stop_on_failure {
     files='result*'
     limit=80
     if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
         limit=$TEST_FAILURE_THRESHOLD
     else
-        limit=$(set_threshold) 
+        limit=$(set_threshold)
     fi
     cd_str="cd $CFGM_TEST_CODE_PATH/"
     cmd_str="python tools/stop_on_fail.py --files $files --threshold $limit"
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cd_str;
                               $cmd_str;" || debug_and_die "Test failures exceed the threshold of $limit percent"
-    
+
+}
+
+function failure_threshold_limit {
+    if [[ -n $TEST_FAILURE_THRESHOLD ]];then
+        limit=$TEST_FAILURE_THRESHOLD
+    else
+        limit=$(set_threshold)
+    fi
+    echo $limit
+
 }
 
 function set_threshold {
@@ -784,9 +791,13 @@ function setup_sanity_base_simple {
     fi
     pythonpath=""
 
-    exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=${SCRIPT_TIMESTAMP};
-                                                         export TEST_RUN_CMD=${TEST_RUN_CMD};
-                                                         export EXTRA_RUN_TEST_ARGS='${EXTRA_RUN_TEST_ARGS}';
+    if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
+        EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
+    fi
+
+    exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
+                                                         export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
+                                                         export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
                                                          export CT_JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export CT_BUILD_ID=${BUILDID};
                                                          export CT_PARAMS_FILE=${PARAMS_FILE};
@@ -798,7 +809,14 @@ function setup_sanity_base_simple {
                                                          export CT_BRANCH=$BRANCH;
                                                          $OTHER_OPTS
                                                          $pythonpath
-                                                         ${sanity_cmd};" || die "Task to run sanity failed"
+                                                         ${sanity_cmd};"; rv_test_run=$?
+    if [ $rv_test_run -ne 0 ]; then
+        if [ $rv_test_run -gt 100 ]; then
+            die "Task to run sanity failed"
+        else
+            debug_and_die "Test failures exceed the threshold of $limit percent (Failures: ${rv_test_run}%"
+        fi
+    fi
 }
 
 # base setup for sanity
@@ -963,7 +981,7 @@ function reimage_and_bringup {
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab cleanup_repo)
     bringup_setup || debug_and_die "Bringup failed!"
-    sleep 120
+#    sleep 120
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab restore_repo)
 }
