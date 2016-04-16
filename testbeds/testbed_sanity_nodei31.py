@@ -82,7 +82,6 @@ minimum_diskGB=32
 #do_parallel = True
 #haproxy = True
 env.test_repo_dir='/home/stack/github_ubuntu_single_node/havana/contrail-test'
-env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Single Node Sanity'
 env.enable_lbaas = True
 
@@ -102,3 +101,21 @@ env.cluster_id='clusteri31'
 #enable ceilometer
 enable_ceilometer = True
 ceilometer_polling_interval = 60
+
+env.test = {
+  'mail_to' : 'dl-contrail-sw@juniper.net',
+  'webserver_host': '10.204.216.50',
+  'webserver_user' : 'bhushana',
+  'webserver_password' : 'bhu@123',
+  'webserver_log_path' :  '/home/bhushana/Documents/technical/logs',
+  'webserver_report_path': '/home/bhushana/Documents/technical/sanity',
+  'webroot' : 'Docs/logs',
+  'mail_server' :  '10.204.216.49',
+  'mail_port' : '25',
+  'mail_sender': 'contrailbuild@juniper.net',
+#  'fip_pool_name': 'floating-ip-pool',
+#  'public_virtual_network': 'public',
+#  'public_tenant_name' : 'admin',
+#  'fixture_cleanup' : 'yes',
+#   'keypair_name': 'contrail_key',  
+}
