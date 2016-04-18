@@ -677,22 +677,22 @@ function reimage_using_SM() {
                 echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
             else
                 echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
-            exit 1
+                exit 1
+            fi
 
-        echo "reimage in progress please wait ..."
-        sleep 10
+            echo "reimage in progress please wait ..."
+            sleep 10
 
-        #check if reimage is completed.
-        /root/sm_files/check_reimage.sh $CLUSTER_NAME
-        if [ $? == 0 ]
-        then
-            echo "reimaged the target $CLUSTER_NAME successfully"
-        else
-            echo "reimage of target $CLUSTER_NAME failed!!!"
-            exit 1
-        fi
-
-    ) "
+            #check if reimage is completed.
+            /root/sm_files/check_reimage.sh $CLUSTER_NAME
+            if [ $? == 0 ]
+            then
+                echo "reimaged the target $CLUSTER_NAME successfully"
+            else
+                echo "reimage of target $CLUSTER_NAME failed!!!"
+                exit 1
+            fi
+        ) "
     else
         echo "Connect to SM_SERVER to reimage the targets"
         sshpass -p "root@nodej11" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
