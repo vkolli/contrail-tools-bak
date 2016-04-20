@@ -953,8 +953,8 @@ function run_task() {
 
     #use contrail cloud packages for branch R3.0 and above.
     if [ "$BRANCH" \> "R2.22.x" ]; then
-       if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 -o $VCENTER_ONLY_TESTBED -ne 1 ]; then
-        export USE_CLOUD_PKG=1
+        if ! [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
+            export USE_CLOUD_PKG=1
        fi
     fi
 
