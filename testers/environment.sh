@@ -33,7 +33,12 @@ export SKIP_SANITY=${SKIP_SANITY:-0}
 export SKIP_LOGS_COLLECTION=${SKIP_LOGS_COLLECTION:-0}
 # Skip running tempest by default
 export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
+
 export SKIP_SM_PROVISION=${SKIP_SM_PROVISION:-0}
+export SMLITE_REGRESSION=${SMLITE_REGRESSION:-0}
+
+# set this flag to use contrail-cloud-pkgs.
+export USE_CLOUD_PKG=${USE_CLOUD_PKG:-0}
 
 # Enable tests which depend on public network connectivity
 export MX_GW_TEST=${MX_GW_TEST:-0}
@@ -61,6 +66,7 @@ export FAB_GIT_BRANCH=${BRANCH:-master}
 export PARAMS_FILE=${PARAMS_FILE:-${NODEHOME}/contrail-test/scripts/sanity_params.ini}
 export TEST_CONFIG_FILE=${TEST_CONFIG_FILE:-${NODEHOME}/contrail-test/sanity_params.ini}
 export TEST_RUN_CMD=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s"}
+
 export BUILD_SCRIPT_PATH=$TOOLS_WS/contrail-test
 export FABRIC_SCRIPT_PATH='$TOOLS_WS/contrail-fabric-utils'
 export RUN_WITHIN_VENV=0

@@ -25,6 +25,7 @@ function get_pkg_suffix_to_use {
     export pkg_suffix
 }
 
+
 #install ant on cfgm0 and gdb on all nodes.
 function install_third_party_pkgs() {
 
@@ -39,12 +40,13 @@ function install_third_party_pkgs() {
         if [ -z $HOSTS ]; then
             HOSTS=`cat "${TOOLS_WS}/testbeds/${tb_filename}" | grep "host[0-9]=" | awk '{print $1}' | awk -F'@' '{print $2}' | tr -d "'"`
         fi
-        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then                                                                                                                                          
-            export BGP_STRESS_TEST=1                                                                                                                                                                        
-        else                                                                                                                                                                                                
+        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then                                                                                 
+            export BGP_STRESS_TEST=1                                                                                                               
+        else                                                                                                                                       
             export BGP_STRESS_TEST=0
         fi
         echo "BGP_STRESS_TEST is set to $BGP_STRESS_TEST"
+
         echo $HOSTS
         for word in $HOSTS
         do
@@ -72,7 +74,7 @@ function install_third_party_pkgs() {
                     if [ $BGP_STRESS_TEST -eq 1 ]; then
                         apt-get -y --force-yes --allow-unauthenticated install libboost-chrono-dev
                         apt-get -y --force-yes --allow-unauthenticated install libgoogle-perftools4
-                    fi                                                         
+                    fi
                 fi
                 cp /etc/apt/sources.list.orig /etc/apt/sources.list
                 apt-get update
@@ -82,7 +84,6 @@ function install_third_party_pkgs() {
     fi
 }
 
-
 ##
 # search_package
 function search_package {
@@ -90,15 +91,17 @@ function search_package {
     then 
         get_pkg_suffix_to_use
         if [[ ${BUILD_MAP[${DISTRO}]} = "ubuntu-14.04.1" ]]; then
-            PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
             IS_UBUNTU_14041=1
-        else
-            PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}` || die "Unable to find install package"
         fi
         VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
-        export PKG_FILE
         export VCENTER_PLUGIN
-    else
+        if [ $USE_CLOUD_PKG -eq 1 ]; then
+            PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}"
+        else
+            PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}"
+        fi
+        export PKG_FILE
+    else    
         pkg_file_name=`basename $PKG_FILE`
         re_ubuntu="contrail-install-packages_(.*)-(.*)~.*(.deb)"
         re_centos="contrail-install-packages-(.*)-(.*)~.*(.rpm)"
@@ -113,7 +116,7 @@ function search_package {
             export BUILDID=${BUILDID:-$BASH_REMATCH[2]}
             export pkg_type=${BASH_REMATCH[3]}
             export DISTRO=${DISTRO:-centos65}
-        fi 
+        fi
     fi
     #if build is greater than R2.20 and DISTRO is ubuntu, set ubuntu-14.04.2 as default base OS.
     #but keep 14.04.1 as is.
@@ -134,6 +137,15 @@ function search_package {
     fi
     export PKG_FILE_DIR=`dirname $PKG_FILE`
 }
+
+function search_tgz_packages {
+    tgz_pkg="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-cloud_*.tgz"
+    export TGZ_PKG_FILES=`ls $tgz_pkg`
+    if [ -z "$TGZ_PKG_FILES" ]; then
+        die "Unable to find the cloud pkgs $tgz_pkg"
+    fi
+}
+
 
 function search_third_party_package {
     export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
@@ -165,15 +177,6 @@ function exec_cmds {
     sshpass -p ${host_password} ssh -t -t ${SSHOPT} ${host_string} "(
      $command
     )"
-#    '$command'
-#    cmd_status=`echo $?`
-#    if [ "'${dont_verify}'" -eq 0 ]; then
-#        # write command status to a file
-#        echo ${cmd_status} > /tmp/last_cmd_status
-#    fi ) ' 
-#    if [ "${dont_verify}" -eq 0 ]; then
-#        verify_cmds_on_cfgm ${host_string} ${host_password}
-#    fi
 }
 
 ##
@@ -272,7 +275,7 @@ function copy_fabric_test_artifacts {
             tar xf contrail-fabric-utils.tar; mv -f contrail-fabric-utils fabric-utils"
     else
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test-[[:digit:]].*.tgz" 
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test-[[:digit:]].*.tgz"
 
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
@@ -387,13 +390,28 @@ function run_setup_shell_script {
         find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 }
 
+# copy cloud packages
+function copy_cloud_packages {
+    export CLOUD_PKGS="cloud_pkgs"
+    if [ -e ${TOOLS_WS}/${CLOUD_PKGS} ]; then
+        echo "removing the existing cloud_pkg folder"
+        rm -rf ${TOOLS_WS}/${CLOUD_PKGS}
+    fi
+    mkdir -p ${TOOLS_WS}/${CLOUD_PKGS}
+    #export CLOUD_PKGS="${TOOLS_WS}/${CLOUD_PKGS}"
+    search_tgz_packages
+    cp ${TGZ_PKG_FILES} ${TOOLS_WS}/${CLOUD_PKGS}
+
+    #copy the cloud pkgs to cfgm0 also
+    sshpass -p $API_SERVER_HOST_PASSWORD scp -r ${SSHOPT} ${TOOLS_WS}/${CLOUD_PKGS}  ${API_SERVER_HOST_STRING}:${NODEHOME}
+}
+
 # bringup_setup
 function bringup_setup {
-    if [ $SKIP_BRINGUP -ne 0 ] 
-    then 
+    if [ $SKIP_BRINGUP -ne 0 ]
+    then
         return 0
     fi
-    need_reboot=0
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils
@@ -416,54 +434,77 @@ function bringup_setup {
         sleep 120
     fi
 
+    if [ $USE_CLOUD_PKG -eq 1 ]; then
+        copy_cloud_packages
+    fi
+    setup_and_install_contrail
+}
+
+function setup_and_install_contrail {
+    need_reboot=0
+
     # Upgrade biosdevname if ubuntu-14-04
     if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
         fab upgrade_biosdevname_all:reboot=no
     fi
+
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
     if [[ "${DISTRO}" =~ "ubuntu" ]]; then
         if [ $SKIP_KERNEL_UPGRADE -ne 0 ]
         then
             echo "Skipping kernel upgrade task"
-        else
-            fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
-            sleep 60
-            fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
+        else 
+            if [ $USE_CLOUD_PKG -eq 1 ]; then
+                fab upgrade_kernel_all:${TOOLS_WS}/${CLOUD_PKGS}/*.tgz || debug_and_die "Upgrading Kernel failed"
+            else
+                fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
+            fi
         fi
+        sleep 60
+        fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
     fi
 
+    if [ $USE_CLOUD_PKG -eq 1 ]; then
+        cmd="export HA_TEST=$HA_TEST;
+               cd fabric-utils;
+               fab install_contrail:${NODEHOME}/${CLOUD_PKGS}/*.tgz" 
+    else
+        cmd="export HA_TEST=$HA_TEST;
+               cd fabric-utils;
+               fab install_contrail" 
+    fi
     # install contrail packages on all node
     if [[ ${DISTRO} =~ centos ]]
     then
         intf_rename=`exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "grep ^env.interface_rename fabric-utils/fabfile/testbeds/testbed.py"`
         shopt -s nocasematch
+
         if [[ ${intf_rename} =~ False ]]
         then
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                export HA_TEST=$HA_TEST;
-                cd fabric-utils;
-                fab install_contrail" || debug_and_die "fab install_contrail failed"
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cmd" || debug_and_die "fab install_contrail failed"
         else
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                export HA_TEST=$HA_TEST;
-                cd fabric-utils;
-                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+            if [ $USE_CLOUD_PKG -eq 1 ]; then
+                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                    $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
+            else
+                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                    $cmd:reboot=False"|| debug_and_die "fab install_contrail failed"
+            fi
             need_reboot=1
         fi
     else
         if [ $IS_UBUNTU_14042 -eq 1 ]; then
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                export HA_TEST=$HA_TEST;
-                cd fabric-utils;
-                fab install_contrail:reboot=False" || debug_and_die "fab install_contrail failed"
+            if [ $USE_CLOUD_PKG -eq 1 ]; then
+                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                    $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
+            else
+                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                    $cmd:reboot=False"|| debug_and_die "fab install_contrail failed"
+            fi        
         else
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                export HA_TEST=$HA_TEST;
-                cd fabric-utils;
-                fab install_contrail" || debug_and_die "fab install_contrail failed"
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cmd" || debug_and_die "fab install_contrail failed"
         fi
-        
     fi
 
     # reboot compute nodes after intf rename package install
@@ -498,7 +539,6 @@ function bringup_setup {
     # reboot compute nodes after setup
     (cd ${TOOLS_WS}/contrail-fabric-utils
     fab compute_reboot)
-
 }
 
 function initialize_any_vms {
@@ -676,7 +716,7 @@ function setup_sanity_base {
     TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
 
     if [ $NEW_TEST_INFRA -eq 1 ]; then
-        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then 
+        if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
             copy_bgp_stress_test_binary
         fi
         sanity_cmd=${TEST_RUN_CMD:-"bash -x run_tests.sh -m -U -s "}
@@ -821,11 +861,13 @@ function reimage_and_bringup {
 }
 
 function create_testbed {
+
     search_package || die "Unable to locate package"
 
     if [ "$BRANCH" = "R1.10" ]; then
         export NEW_TEST_INFRA=0
     fi
+
 
     checkout_repo || die "Unable to checkout fab/test repos"
     use_testbed_file || die "Unable to set the testbed properly for use"
@@ -908,6 +950,12 @@ function unlock_testbed() {
 }
 
 function run_task() {
+
+    #use contrail cloud packages for branch R3.0 and above.
+    if [ "$BRANCH" \> "R2.22.x" ]; then
+        export USE_CLOUD_PKG=1
+    fi
+
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
     reimage_and_bringup

@@ -535,162 +535,192 @@ function reimage_using_SM() {
     then
         return 0
     fi
-    # set the parameters required for reimage.
-    if [[ $DISTRO =~ ubuntu-12.04 ]]; then
-        image="/cs-shared/images/ubuntu-12.04.3-server-amd64.iso" 
-        pkg_type="contrail-ubuntu-package"
-        iso_type="ubuntu"
-        SMID=ubuntu12$SKU${BUILDID}
-    elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
-        image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
-        pkg_type="contrail-ubuntu-package"
-        iso_type="ubuntu"
-        SMID=ubuntu14$SKU${BUILDID}
-    elif [[ $DISTRO =~ centos64 ]]; then 
-        image="/root/images/CentOS-6.4-x86_64-minimal.iso"
-        pkg_type="contrail-centos-package"
-        iso_type="centos"
-        SMID=centos64$SKU${BUILDID}
-    elif [[ $DISTRO =~ centos65 ]]; then 
-        image="/root/images/CentOS-6.5-x86_64-minimal.iso"
-        pkg_type="contrail-centos-package"
-        iso_type="centos"
-        SMID=centos65$SKU${BUILDID}
-    fi
 
-    pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
-    contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
-    echo ${contrail_pkg}
-    echo ${pkg_path}  
-    #set the parameters for multi/single node setup
-    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+    if [ $SMLITE_REGRESSION -eq 0 ]
     then
-        CLUSTER_FILE_NAME=${CLUSTER_FILE_NAME}_new_param
-        SERVER_FILE_NAME=${SERVER_FILE_NAME}_new_param
-        echo "Using NEW parameters for cluster and server json files."
+        # set the parameters required for reimage.
+        if [[ $DISTRO =~ ubuntu-12.04 ]]; then
+            image="/cs-shared/images/ubuntu-12.04.3-server-amd64.iso" 
+            pkg_type="contrail-ubuntu-package"
+            iso_type="ubuntu"
+            SMID=ubuntu12$SKU${BUILDID}
+        elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
+            image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
+            pkg_type="contrail-ubuntu-package"
+            iso_type="ubuntu"
+            SMID=ubuntu14$SKU${BUILDID}
+        elif [[ $DISTRO =~ centos64 ]]; then 
+            image="/root/images/CentOS-6.4-x86_64-minimal.iso"
+            pkg_type="contrail-centos-package"
+            iso_type="centos"
+            SMID=centos64$SKU${BUILDID}
+        elif [[ $DISTRO =~ centos65 ]]; then 
+            image="/root/images/CentOS-6.5-x86_64-minimal.iso"
+            pkg_type="contrail-centos-package"
+            iso_type="centos"
+            SMID=centos65$SKU${BUILDID}
+        fi
+    
+        pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
+        contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
+        echo ${contrail_pkg}
+        echo ${pkg_path}  
+        #set the parameters for multi/single node setup
+        if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+        then
+            CLUSTER_FILE_NAME=${CLUSTER_FILE_NAME}_new_param
+            SERVER_FILE_NAME=${SERVER_FILE_NAME}_new_param
+            echo "Using NEW parameters for cluster and server json files."
+        else
+            echo "Using OLD parameters for cluster and server json files."
+        fi
+        cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
+        server_json="/root/sm_files/$SERVER_FILE_NAME.json"
+    
+        echo "Connect to SM_SERVER to reimage and provision the targets"
+        sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+            set -e
+            echo "add required image/server/cluster for reimage and provision of the target"
+    
+            echo "delete iso image if it exists"
+            if [ ${BRANCH} == "R1.10" ]
+            then
+                server-manager delete image ${DISTRO}
+            else
+                server-manager delete image --image_id ${DISTRO}
+            fi
+    
+            echo "add base ISO image to server manager database"
+            if [ ${DISTRO} == "ubuntu-14-04" ]
+            then
+                server-manager add image -f /root/images/image142.json
+            else
+                #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
+                server-manager add image -f /root/images/image12.json
+            fi
+            if [ $? == 0 ]
+            then
+                echo "Server-manager adding image command is successful"
+            else
+                echo "Server-manager adding image command failed, aborting the process"
+                exit 1
+            fi
+    
+            echo "check if the image was added successfully"
+            server-manager show image | grep ${DISTRO}
+            if [ $? != 0 ] 
+            then
+                echo "Adding Base ISO image failed"
+                exit 1
+            fi
+    
+            echo "delete contrail package if it exists"
+            if [ ${BRANCH} == "R1.10" ]
+            then
+                server-manager delete image $SMID
+            else
+                server-manager delete image --image_id $SMID
+            fi
+            echo "add contrail package to the SM database"
+          
+            server-manager upload_image $SMID ${BUILDID} $pkg_type ${contrail_pkg}
+            if [ $? == 0 ]
+            then
+                echo "Server-manager adding contrail-package command is successful"
+            else
+                echo "Server-manager adding contrail-package command failed, aborting the process"
+                exit 1
+            fi
+    
+            echo "check if the package was added successfully"
+            server-manager show image | grep $SMID
+            if [ $? != 0 ] 
+            then
+                echo "Adding Contrail-packages $SMID failed"
+                exit 1
+            fi
+    
+            server-manager show image
+    
+            echo "Clean up cluster and server from SM database before adding."
+            server-manager delete server --cluster_id $CLUSTER_NAME
+            server-manager delete cluster --cluster_id $CLUSTER_NAME
+    
+            echo "add cluster to SM database"
+            server-manager add cluster -f $cluster_json
+            if [ $? == 0 ]
+            then
+                echo "Adding cluster to server-manager is sucessful!!!"
+            else
+                echo "Adding cluster to server-manager failed, aborting the process"
+                exit 1
+            fi
+    
+            server-manager show cluster --detail
+    
+            echo "add server to SM database"
+            server-manager add server -f $server_json
+            if [ $? == 0 ]
+            then
+                echo "Adding server to server-manager is sucessful!!!"
+            else
+                echo "Adding server to server-manager failed, aborting the process"
+                exit 1
+            fi
+    
+            server-manager show server --detail
+    
+            echo "reimage the target setup"
+            server-manager reimage -F --cluster_id $CLUSTER_NAME ${DISTRO}
+            if [ $? == 0 ]
+            then
+                echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
+            else
+                echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
+                exit 1
+            fi
+
+            echo "reimage in progress please wait ..."
+            sleep 10
+
+            #check if reimage is completed.
+            /root/sm_files/check_reimage.sh $CLUSTER_NAME
+            if [ $? == 0 ]
+            then
+                echo "reimaged the target $CLUSTER_NAME successfully"
+            else
+                echo "reimage of target $CLUSTER_NAME failed!!!"
+                exit 1
+            fi
+        ) "
     else
-        echo "Using OLD parameters for cluster and server json files."
+        echo "Connect to SM_SERVER to reimage the targets"
+        sshpass -p "root@nodej11" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+            set -e
+            server-manager reimage -F --cluster_id $CLUSTER_NAME ${REIMAGE_PARAM}
+            if [ $? == 0 ]
+            then
+                echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
+            else
+                echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
+                exit 1
+            fi
+
+            echo "reimage in progress please wait ..."
+            sleep 10
+
+            #check if reimage is completed.
+            /root/sm_files/check_reimage.sh $CLUSTER_NAME
+            if [ $? == 0 ]
+            then
+                echo "reimaged the target $CLUSTER_NAME successfully"
+            else
+                echo "reimage of target $CLUSTER_NAME failed!!!"
+                exit 1
+            fi
+        ) "
     fi
-    cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
-    server_json="/root/sm_files/$SERVER_FILE_NAME.json"
 
-    echo "Connect to SM_SERVER to reimage and provision the targets"
-    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
-        set -e
-        echo "add required image/server/cluster for reimage and provision of the target"
-
-        echo "delete iso image if it exists"
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image ${DISTRO}
-        else
-            server-manager delete image --image_id ${DISTRO}
-        fi
-
-        echo "add base ISO image to server manager database"
-        if [ ${DISTRO} == "ubuntu-14-04" ]
-        then
-            server-manager add image -f /root/images/image142.json
-        else
-            #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
-            server-manager add image -f /root/images/image12.json
-        fi
-        if [ $? == 0 ]
-        then
-            echo "Server-manager adding image command is successful"
-        else
-            echo "Server-manager adding image command failed, aborting the process"
-            exit 1
-        fi
-
-        echo "check if the image was added successfully"
-        server-manager show image | grep ${DISTRO}
-        if [ $? != 0 ] 
-        then
-            echo "Adding Base ISO image failed"
-            exit 1
-        fi
-
-        echo "delete contrail package if it exists"
-        if [ ${BRANCH} == "R1.10" ]
-        then
-            server-manager delete image $SMID
-        else
-            server-manager delete image --image_id $SMID
-        fi
-        echo "add contrail package to the SM database"
-      
-        server-manager upload_image $SMID ${BUILDID} $pkg_type ${contrail_pkg}
-        if [ $? == 0 ]
-        then
-            echo "Server-manager adding contrail-package command is successful"
-        else
-            echo "Server-manager adding contrail-package command failed, aborting the process"
-            exit 1
-        fi
-
-        echo "check if the package was added successfully"
-        server-manager show image | grep $SMID
-        if [ $? != 0 ] 
-        then
-            echo "Adding Contrail-packages $SMID failed"
-            exit 1
-        fi
-
-        server-manager show image
-
-        echo "Clean up cluster and server from SM database before adding."
-        server-manager delete server --cluster_id $CLUSTER_NAME
-        server-manager delete cluster --cluster_id $CLUSTER_NAME
-
-        echo "add cluster to SM database"
-        server-manager add cluster -f $cluster_json
-        if [ $? == 0 ]
-        then
-            echo "Adding cluster to server-manager is sucessful!!!"
-        else
-            echo "Adding cluster to server-manager failed, aborting the process"
-            exit 1
-        fi
-
-        server-manager show cluster --detail
-
-        echo "add server to SM database"
-        server-manager add server -f $server_json
-        if [ $? == 0 ]
-        then
-            echo "Adding server to server-manager is sucessful!!!"
-        else
-            echo "Adding server to server-manager failed, aborting the process"
-            exit 1
-        fi
-
-        server-manager show server --detail
-
-        echo "reimage the target setup"
-        server-manager reimage -F --cluster_id $CLUSTER_NAME ${DISTRO}
-        if [ $? == 0 ]
-        then
-            echo "Issue of Reimage command to reimage target nodes is sucessful!!!"
-        else
-            echo "Issue of Reimage command to reimage target nodes failed, aborting the process"
-            exit 1
-        fi
-
-        echo "reimage in progress please wait ..."
-        sleep 10
-
-        #check if reimage is completed.
-        /root/sm_files/check_reimage.sh $CLUSTER_NAME
-        if [ $? == 0 ]
-        then
-            echo "reimaged the target $CLUSTER_NAME successfully"
-        else
-            echo "reimage of target $CLUSTER_NAME failed!!!"
-            exit 1
-        fi
-
-    ) "
     if [ $? == 0 ]
     then
         echo "reimaged the target $CLUSTER_NAME successfully"
@@ -726,8 +756,9 @@ function run_smgr_regression_task() {
         exit 1
     fi
 
-    if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
-        echo "CLUSTER_NAME/SERVER_NAME env is not set, aborting the process"
+    if [ -z $CLUSTER_NAME ]; then
+    #if [ -z $CLUSTER_NAME ] && [ -z $SERVER_NAME ]; then
+        echo "CLUSTER_NAME env is not set, aborting the process"
         exit 1
     fi
     create_testbed || die "Failed to create required testbed details"

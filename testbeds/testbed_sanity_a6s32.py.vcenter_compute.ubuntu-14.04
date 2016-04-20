@@ -167,10 +167,10 @@ env.mx_gw_test=True
 env.testbed_location='US'
 env.interface_rename = False 
 env.image_web_server = '10.84.5.120'
-env.log_scenario='Vcenter As Compute MultiNode Single Intf Sanity'
+env.log_scenario='Vcenter-Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
 
 env.ntp_server = '10.84.5.100'
 
-#enable_ceilometer = True
+enable_ceilometer = True
 #ceilometer_polling_interval = 60

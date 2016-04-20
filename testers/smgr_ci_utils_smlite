@@ -118,7 +118,6 @@ function copy_smlite_pkg() {
     set -x
     #check if SM pkgs are available in artifacts before proceeding further.
     SMLite_check_SM_pkg_availability || die "SM pkg not available in artifacts"
-    SMLite_get_node_distro 
 
     pkg_dir="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
     echo $CONTRAIL_PACKAGE
@@ -156,39 +155,34 @@ function provision_using_SMLite() {
 
 
     ) "
-    sleep 300
+    sleep 300 
+    #assumption is by this time, SM is installed on cfgm0 and provision is at kernel upgrade and node reboot.
+
     cluster_name=$(sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
         server-manager show cluster | grep id | cut -d : -f2 | sed -e 's/^ \"//' -e 's/\"$//'
     ) ")
     cluster_name=`echo $cluster_name | tr -d '\r'`
+
+    sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+        set -e
+        set -x
+        #check provisioing status.
+        /root/check_provision.sh $cluster_name
+        if [ "$?" -eq 0 ]
+        then
+            echo "Provisioning of the target/cluster is sucessfull!!!"
+        else
+            echo "Provisioning of the target/cluster failed!!! aborting the process"
+            exit 1
+        fi
+    ) "
+    #special case for SINGLE NODE
     if [ ${TEST_SETUP} == "SINGLENODE" ]
     then
-        sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
-            set -e
-            set -x
-            #check provisioing status.
-            /root/check_provision.sh $cluster_name
-            if [ "$?" -eq 0 ]
-            then
-                echo "Provisioning of the target/cluster is sucessfull!!!"
-            fi
-        ) "
-        sleep 300
-        sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
-            set -e
-            set -x
-            #check provisioing status.
-            /root/check_provision.sh $cluster_name
-            if [ "$?" -eq 0 ]
-            then
-                echo "Provisioning of the target/cluster is sucessfull!!!"
-            else
-                echo "Provisioning of the target/cluster failed!!! aborting the process"
-                exit 1
-            fi
-        ) "
-    else
-        date
+        #connection to cfgm0 could have lost when provision of compute is done and node reboots.
+        #let's wait for node to come back.
+        sleep 180
+
         sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
             set -e
             set -x
