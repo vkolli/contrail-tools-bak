@@ -695,7 +695,7 @@ function reimage_using_SM() {
         ) "
     else
         echo "Connect to SM_SERVER to reimage the targets"
-        sshpass -p "root@nodej11" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
             set -e
             server-manager reimage -F --cluster_id $CLUSTER_NAME ${REIMAGE_PARAM}
             if [ $? == 0 ]

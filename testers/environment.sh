@@ -36,6 +36,7 @@ export SKIP_TEMPEST=${SKIP_TEMPEST:-1}
 
 export SKIP_SM_PROVISION=${SKIP_SM_PROVISION:-0}
 export SMLITE_REGRESSION=${SMLITE_REGRESSION:-0}
+export SM_SERVER_PASSWORD=${SM_SERVER_PASSWORD:-c0ntrail123}
 
 # set this flag to use contrail-cloud-pkgs.
 export USE_CLOUD_PKG=${USE_CLOUD_PKG:-0}
