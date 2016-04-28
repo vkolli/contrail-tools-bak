@@ -59,7 +59,7 @@ vm_node_details = {
                 'network' : [{'bridge' : 'br1', 'mac':'52:53:55:01:00:02'}
                             ],
             },
-    host2 : {   'name' : 'nodei14-vm3',
+    host2 : {   'name' : 'nodei14-vm2',
                 'server': kvm_nodei14,
                 'network' : [{'bridge' : 'br1', 'mac':'52:53:56:01:00:02'}
                             ]
