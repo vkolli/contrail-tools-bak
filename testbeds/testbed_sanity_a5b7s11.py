@@ -33,13 +33,13 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'host1': '5b7s11',
-    'host2': '5b7s12',
-    'host3': '5b7s13',
-    'host4': '5b7s14',
-    'host5': '5b7s15',
-    'host6': '5b7s16',
-    'host7': '5b7s17',
+    host1: '5b7s11',
+    host2: '5b7s12',
+    host3: '5b7s13',
+    host4: '5b7s14',
+    host5: '5b7s15',
+    host6: '5b7s16',
+    host7: '5b7s17',
 }
 
 #Openstack admin password
@@ -75,10 +75,10 @@ env.ostypes = {
 #OPTIONAL BONDING CONFIGURATION
 #==============================
 #Inferface Bonding
-#bond= {
-#    host2 : { 'name': 'bond0', 'member': ['p2p0p0','p2p0p1','p2p0p2','p2p0p3'], 'mode':'balance-xor' },
-#    host5 : { 'name': 'bond0', 'member': ['p4p0p0','p4p0p1','p4p0p2','p4p0p3'], 'mode':'balance-xor' },
-#}
+bond= {
+    host6 : { 'name': 'bond0', 'member': ['p514p1','p514p2'], 'mode':'802.3ad' },
+    host7 : { 'name': 'bond0', 'member': ['p514p1','p514p2'], 'mode':'802.3ad' },
+}
 
 #OPTIONAL SEPARATION OF MANAGEMENT AND CONTROL + DATA
 #====================================================
@@ -90,11 +90,15 @@ env.ostypes = {
 #}
 
 #Data Interface
-#control_data = {
-#   host1 : { 'ip': '13.0.0.1/24', 'gw' : '13.0.0.1', 'device':'HOST1_IFACE' },
-#   host2 : { 'ip': '13.0.0.2/24', 'gw' : '13.0.0.1', 'device':'HOST2_IFACE' },
-#   host3 : { 'ip': '13.0.0.3/24', 'gw' : '13.0.0.1', 'device':'HOST3_IFACE' },
-#}
+control_data = {
+   host1 : { 'ip': '192.16.7.1/24', 'gw' : '192.16.7.100', 'device':'p514p1' },
+   host2 : { 'ip': '192.16.7.2/24', 'gw' : '192.16.7.100', 'device':'p514p1' },
+   host3 : { 'ip': '192.16.7.3/24', 'gw' : '192.16.7.100', 'device':'p514p1' },
+   host4 : { 'ip': '192.16.7.4/24', 'gw' : '192.16.7.100', 'device':'p514p1' },
+   host5 : { 'ip': '192.16.7.5/24', 'gw' : '192.16.7.100', 'device':'p514p1' },
+   host6 : { 'ip': '192.16.7.6/24', 'gw' : '192.16.7.100', 'device':'bond0' },
+   host7 : { 'ip': '192.16.7.7/24', 'gw' : '192.16.7.100', 'device':'bond0' },
+}
 
 #To disable installing contrail interface rename package
 env.interface_rename = False
@@ -134,8 +138,8 @@ env.interface_rename = False
 #}
 #if os.getenv('HA_TEST',None) == 'True':
 env.ha = {
-             'internal_vip' : '192.168.7.50',
-             'external_vip' : '10.87.143.50',
+             'internal_vip' : '192.168.7.60',
+             'external_vip' : '10.87.121.60',
          }
 # HA Test configuration
 ha_setup = 'True'
