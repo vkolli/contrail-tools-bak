@@ -957,10 +957,20 @@ function run_task() {
             export USE_CLOUD_PKG=1
        fi
     fi
-
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
-    reimage_and_bringup
+    if [ -z "$SM_SERVER_IP" ]
+    then
+       reimage_and_bringup
+    elif [ -z "$PROVISION_SM" ]
+    then
+       reimage_using_SM || debug_and_die "reimage failed"
+       bringup_setup || die "Bringup failed"
+    else
+       reimage_using_SM || debug_and_die "reimage failed"
+       provision_using_SM || debug_and_die "provision failed"
+    fi
+    
     install_third_party_pkgs || die "installing GDB/ant failed" 
     #bringup_setup || die "Bringup failed"
     run_sanity || die "Run_sanity step failed"
