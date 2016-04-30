@@ -457,7 +457,7 @@ function setup_and_install_contrail {
             echo "Skipping kernel upgrade task"
         else 
             if [ $USE_CLOUD_PKG -eq 1 ]; then
-                fab upgrade_kernel_all:${TOOLS_WS}/${CLOUD_PKGS}/*.tgz || debug_and_die "Upgrading Kernel failed"
+                fab upgrade_kernel_all:${NODEHOME}/${CLOUD_PKGS}/*.tgz || debug_and_die "Upgrading Kernel failed"
             else
                 fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
             fi
