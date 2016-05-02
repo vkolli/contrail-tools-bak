@@ -101,7 +101,7 @@ function SMLite_get_node_distro() {
     if [[ $lsb_dist_output =~ Ubuntu ]]; then
         lsb_dist=Ubuntu
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb"
-        CONTRAIL_PACKAGE="contrail-install-packages*.deb"
+        CONTRAIL_PACKAGE="contrail-install-packages*.tgz"
     else
         lsb_dist=SomeOtherOS
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm"
