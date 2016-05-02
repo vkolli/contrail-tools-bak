@@ -25,13 +25,11 @@ host_build = 'root@10.84.29.31'
 env.roledefs = {
     'all': [host1, host2,host3, host4, host5, host6, host7],
     'cfgm': [host1, host2, host3],
-    'openstack': [host1],
-    'webui': [host2],
-    'control': [host1, host3],
+    'openstack': [host1,host2, host3],
+    'webui': [host1, host2, host3],
+    'control': [host1, host2, host3],
     'compute': [host4, host5, host6, host7],
-    'tsn': [host4],
-    'toragent': [host4],
-    'collector': [host1, host3],
+    'collector': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
 }
@@ -175,10 +173,10 @@ control_data = {
 #storage_replica_size = 3
 
 # VIP
-#env.ha = {
-#    'internal_vip' : '172.16.80.50',
-#    'external_vip' : '10.84.29.50'
-#}
+env.ha = {
+    'internal_vip' : '172.16.80.50',
+    'external_vip' : '10.84.29.50'
+}
 
 # OPTIONAL vrouter limit parameter
 # ==================================
