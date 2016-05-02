@@ -736,8 +736,8 @@ function setup_sanity_base {
         cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
     fi
-
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
+    if [[ ${SM_BASE_IMG} ]] && [[ ${SM_UPGD_IMG} ]] && [[ ${AR_BASE_DEB} ]] && [[ ${AR_UPGD_DEB} ]]; then
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
                                                          export SKU=${SKU};
@@ -747,11 +747,33 @@ function setup_sanity_base {
                                                          export EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
                                                          export MX_GW_TEST=${MX_GW_TEST};
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
-                                                         export BRANCH=$BRANCH; 
+                                                         export BRANCH=$BRANCH;
+                                                         export SM_BASE_IMG=${SM_BASE_IMG};
+                                                         export SM_UPGD_IMG=${SM_UPGD_IMG};
+                                                         export AR_BASE_DEB=${AR_BASE_DEB};
+                                                         export AR_UPGD_DEB=${AR_UPGD_DEB};
                                                          $OTHER_OPTS
-                                                         $cd_str 
+                                                         $cd_str
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
+    else
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
+                                                         export JENKINS_TRIGGERED=${jenkins_triggered};
+                                                         export BUILD_ID=${BUILDID};
+                                                         export SKU=${SKU};
+                                                         export PARAMS_FILE=${PARAMS_FILE};
+                                                         export TEST_TYPE=${TEST_TYPE};
+                                                         export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
+                                                         export EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
+                                                         export MX_GW_TEST=${MX_GW_TEST};
+                                                         export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export BRANCH=$BRANCH;
+                                                         $OTHER_OPTS
+                                                         $cd_str
+                                                         $pythonpath
+                                                         ${sanity_cmd};" || die "Task to run sanity failed"
+    fi
+
 }
 
 ##
