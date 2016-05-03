@@ -574,6 +574,7 @@ function reimage_using_SM() {
             contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.tgz`
         else
             contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.deb`
+        fi
 
         echo ${contrail_pkg}
         echo ${pkg_path}  
