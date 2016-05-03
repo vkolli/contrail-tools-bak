@@ -71,6 +71,10 @@ function install_third_party_pkgs() {
                 apt-get -y install gdb
                 if [ $API_SERVER_IP == $word ]; then
                     apt-get -y --force-yes --allow-unauthenticated install ant
+                    #temporary fix to take care of issue due to different paramiko version
+                    pip uninstall -y paramiko
+                    pip install paramiko==1.17.0
+
                     echo $TEST_RUN_CMD
                     if [ $BGP_STRESS_TEST -eq 1 ]; then
                         apt-get -y --force-yes --allow-unauthenticated install libboost-chrono-dev
