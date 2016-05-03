@@ -3,12 +3,11 @@ from fabric.api import env
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.84.29.31'
 host2 = 'root@10.84.29.32'
-host3 = 'root@10.84.29.33'
-host4 = 'root@10.84.29.34'
-host5 = 'root@10.84.29.35'
+host3 = 'root@10.84.29.221'
+host4 = 'root@10.84.29.220'
+host5 = 'root@10.84.29.219'
 host6 = 'root@10.84.29.36'
 host7 = 'root@10.84.29.37'
-
 
 #External routers if any
 #for eg.
