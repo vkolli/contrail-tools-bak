@@ -101,7 +101,10 @@ function SMLite_get_node_distro() {
     if [[ $lsb_dist_output =~ Ubuntu ]]; then
         lsb_dist=Ubuntu
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer_*\.*-${BUILDID}\~$SKU\_all.deb"
-        CONTRAIL_PACKAGE="contrail-install-packages*.tgz"
+        if [ $USE_CLOUD_PKG -eq 1 ]; then
+            CONTRAIL_PACKAGE="contrail-install-packages*.tgz"
+        else
+            CONTRAIL_PACKAGE="contrail-install-packages*.deb"
     else
         lsb_dist=SomeOtherOS
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm"
@@ -251,6 +254,11 @@ function run_smgr_regression_task() {
 
 function run_smgr_task() {
     echo "Running tests on $1.."
+
+    #use contrail cloud packages for branch R3.0 and above.
+    if [ "$BRANCH" \> "R2.22.x" ]; then
+        export USE_CLOUD_PKG=1
+    fi
 
     if [ ${TEST_SETUP} == "SINGLENODE" ]
     then
