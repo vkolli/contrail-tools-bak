@@ -105,6 +105,7 @@ function SMLite_get_node_distro() {
             CONTRAIL_PACKAGE="contrail-install-packages*.tgz"
         else
             CONTRAIL_PACKAGE="contrail-install-packages*.deb"
+        fi
     else
         lsb_dist=SomeOtherOS
         SERVER_MANAGER_INSTALLER="contrail-server-manager-installer-*\.*-${BUILDID}*.el6.noarch.rpm"
