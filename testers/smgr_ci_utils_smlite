@@ -25,6 +25,10 @@ function install_ant() {
             echo "ant  package installation failed"
             exit 1
         fi
+        #temporary fix to take care of issue due to different paramiko version
+        pip uninstall -y paramiko
+        pip install paramiko==1.17.0
+
         mv /usr/local/lib/python2.7/dist-packages/easy-install.pth /usr/local/lib/python2.7/dist-packages/easy-install.pth.orig
         if [ $? == 0 ]
         then
