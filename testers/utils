@@ -908,7 +908,6 @@ function setup_sanity_base {
         cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
     fi
-    other_test_params=`set_other_test_params`
     if [[ ${SM_BASE_IMG} ]] && [[ ${SM_UPGD_IMG} ]] && [[ ${AR_BASE_DEB} ]] && [[ ${AR_UPGD_DEB} ]]; then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
@@ -926,7 +925,6 @@ function setup_sanity_base {
                                                          export AR_BASE_DEB=${AR_BASE_DEB};
                                                          export AR_UPGD_DEB=${AR_UPGD_DEB};
                                                          $OTHER_OPTS
-                                                         $other_test_params
                                                          $cd_str
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
@@ -943,7 +941,6 @@ function setup_sanity_base {
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export BRANCH=$BRANCH;
                                                          $OTHER_OPTS
-                                                         $other_test_params
                                                          $cd_str
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
