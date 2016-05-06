@@ -150,3 +150,37 @@ export TASK_RUNNER_HOST_PASSWORD=${TASK_RUNNER_HOST_PASSWORD:-c0ntrail123}
 # the contrail-test artifact from the build
 # Default is to pick test code from build-artifacts path
 export USE_LATEST_TEST_CODE=${USE_LATEST_TEST_CODE:-0}
+
+# Defaults for some test environment
+export STACK_USER=${STACK_USER:-""}
+export STACK_PASSWORD=${STACK_PASSWORD:-""}
+export STACK_TENANT=${STACK_TENANT:-""}
+export TENANT_ISOLATION=${TENANT_ISOLATION:-""}
+export MAIL_TO=${MAIL_TO:-"dl-contrail-sw@juniper.net"}
+export WEBSERVER_HOST=${WEBSERVER_HOST:-"10.204.216.50"}
+export WEBSERVER_USER=${WEBSERVER_USER:-"bhushana"}
+export WEBSERVER_PASSWORD=${WEBSERVER_PASSWORD:-"bhu@123"}
+export WEBSERVER_LOG_PATH=${WEBSERVER_LOG_PATH:-"/home/bhushana/Documents/technical/logs"}
+export WEBSERVER_REPORT_PATH=${WEBSERVER_REPORT_PATH:-"/home/bhushana/Documents/technical/sanity"}
+export WEBROOT=${WEBROOT:-"Docs/logs"}
+export MAIL_SERVER=${MAIL_SERVER:-"10.204.216.49"}
+export MAIL_PORT=${MAIL_PORT:-"25"}
+export FIP_POOL_NAME=${FIP_POOL_NAME:-""}
+export PUBLIC_VIRTUAL_NETWORK=${PUBLIC_VIRTUAL_NETWORK:-""}
+export PUBLIC_TENANT_NAME=${PUBLIC_TENANT_NAME:-"admin"}
+export FIXTURE_CLEANUP=${FIXTURE_CLEANUP:-"yes"}
+export GENERATE_HTML_REPORT=${GENERATE_HTML_REPORT:-"True"}
+export KEYPAIR_NAME=${KEYPAIR_NAME:-"contrail_key"}
+export MAIL_SENDER=${MAIL_SENDER:-"contrailbuild@juniper.net"}
+export DISCOVERY_IP=${DISCOVERY_IP:-""}
+export CONFIG_API_IP=${CONFIG_API_IP:-""}
+export ANALYTICS_API_IP=${ANALYTICS_API_IP:-""}
+export DISCOVERY_PORT=${DISCOVERY_PORT:-""}
+export CONFIG_API_PORT=${CONFIG_API_PORT:-""}
+export ANALYTICS_API_PORT=${ANALYTICS_API_PORT:-""}
+export CONTROL_PORT=${CONTROL_PORT:-""}
+export DNS_PORT=${DNS_PORT:-""}
+export AGENT_PORT=${AGENT_PORT:-""}
+export USER_ISOLATION=${USER_ISOLATION:-"True"}
+
+

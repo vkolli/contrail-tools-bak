@@ -824,6 +824,40 @@ function setup_sanity_base_simple {
     fi
 }
 
+function set_other_test_params {
+    val="export CT_STACK_USER=\"${STACK_USER}\";
+         export CT_STACK_PASSWORD=\"${STACK_PASSWORD}\";
+         export CT_STACK_TENANT=\"$STACK_TENANT\";
+         export CT_TENANT_ISOLATION=\"$TENANT_ISOLATION\";
+         export CT_MAIL_TO=\"$MAIL_TO\";
+         export CT_WEBSERVER_HOST=\"$WEBSERVER_HOST\";
+         export CT_WEBSERVER_USER=\"$WEBSERVER_USER\";
+         export CT_WEBSERVER_PASSWORD=\"$WEBSERVER_PASSWORD\";
+         export CT_WEBSERVER_LOG_PATH=\"$WEBSERVER_LOG_PATH\";
+         export CT_WEBSERVER_REPORT_PATH=\"$WEBSERVER_REPORT_PATH\";
+         export CT_WEBROOT=\"$WEBROOT\";
+         export CT_MAIL_SERVER=\"$MAIL_SERVER\";
+         export CT_MAIL_PORT=\"$MAIL_PORT\";
+         export CT_FIP_POOL_NAME=\"$FIP_POOL_NAME\";
+         export CT_PUBLIC_VIRTUAL_NETWORK=\"$PUBLIC_VIRTUAL_NETWORK\";
+         export CT_PUBLIC_TENANT_NAME=\"$PUBLIC_TENANT_NAME\";
+         export CT_FIXTURE_CLEANUP=\"$FIXTURE_CLEANUP\";
+         export CT_GENERATE_HTML_REPORT=\"$GENERATE_HTML_REPORT\";
+         export CT_KEYPAIR_NAME=\"$KEYPAIR_NAME\";
+         export CT_MAIL_SENDER=\"$MAIL_SENDER\";
+         export CT_DISCOVERY_IP=\"$DISCOVERY_IP\";
+         export CT_CONFIG_API_IP=\"$CONFIG_API_IP\";
+         export CT_ANALYTICS_API_IP=\"$ANALYTICS_API_IP\";
+         export CT_DISCOVERY_PORT=\"$DISCOVERY_PORT\";
+         export CT_CONFIG_API_PORT=\"$CONFIG_API_PORT\";
+         export CT_ANALYTICS_API_PORT=\"$ANALYTICS_API_PORT\";
+         export CT_CONTROL_PORT=\"$CONTROL_PORT\";
+         export CT_DNS_PORT=\"$DNS_PORT\";
+         export CT_AGENT_PORT=\"$AGENT_PORT\";
+         export CT_USER_ISOLATION=\"$USER_ISOLATION\";"
+    echo $val
+}
+
 # base setup for sanity
 function setup_sanity_base {
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
@@ -866,6 +900,7 @@ function setup_sanity_base {
         cd_str="cd $CFGM_TEST_CODE_PATH/scripts ; export BRANCH=${BRANCH}"
         pythonpath="export PYTHONPATH=$PATH:${CFGM_TEST_CODE_PATH}/fixtures/:${CFGM_TEST_CODE_PATH}/scripts/ ;"
     fi
+    other_test_params=`set_other_test_params`
     if [[ ${SM_BASE_IMG} ]] && [[ ${SM_UPGD_IMG} ]] && [[ ${AR_BASE_DEB} ]] && [[ ${AR_UPGD_DEB} ]]; then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
@@ -883,6 +918,7 @@ function setup_sanity_base {
                                                          export AR_BASE_DEB=${AR_BASE_DEB};
                                                          export AR_UPGD_DEB=${AR_UPGD_DEB};
                                                          $OTHER_OPTS
+                                                         $other_test_params
                                                          $cd_str
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
@@ -899,6 +935,7 @@ function setup_sanity_base {
                                                          export IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export BRANCH=$BRANCH;
                                                          $OTHER_OPTS
+                                                         $other_test_params
                                                          $cd_str
                                                          $pythonpath
                                                          ${sanity_cmd};" || die "Task to run sanity failed"
