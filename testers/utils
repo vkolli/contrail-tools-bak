@@ -777,53 +777,6 @@ EOF
         sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT}${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
 }
 
-function setup_sanity_base_simple {
-    jenkins_triggered=${JENKINS_TRIGGERED:-0}
-
-    # run sanity in parallel/serial branch, default serial
-    if [ "${sanitytype}" = "" ]; then
-        sanitytype="serial"
-    fi
-
-    #PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
-    #TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
-    if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
-        copy_bgp_stress_test_binary # This is not going to work in container, this will need to happen while building the container
-    fi
-    sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
-    if [ $PARALLEL_RUN -eq 1 ]; then
-         EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS -t "
-    fi
-    pythonpath=""
-
-    if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
-        EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
-    fi
-
-    exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
-                                                         export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
-                                                         export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
-                                                         export CT_JENKINS_TRIGGERED=${jenkins_triggered};
-                                                         export CT_BUILD_ID=${BUILDID};
-                                                         export CT_PARAMS_FILE=${PARAMS_FILE};
-                                                         export CT_TEST_TYPE=${TEST_TYPE};
-                                                         export CT_EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
-                                                         export CT_EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
-                                                         export CT_MX_GW_TEST=${MX_GW_TEST};
-                                                         export CT_IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
-                                                         export CT_BRANCH=$BRANCH;
-                                                         $OTHER_OPTS
-                                                         $pythonpath
-                                                         ${sanity_cmd};"; rv_test_run=$?
-    if [ $rv_test_run -ne 0 ]; then
-        if [ $rv_test_run -gt 100 ]; then
-            die "Task to run sanity failed"
-        else
-            debug_and_die "Test failures exceed the threshold of $limit percent (Failures: ${rv_test_run}%"
-        fi
-    fi
-}
-
 function set_other_test_params {
     val="export CT_STACK_USER=\"${STACK_USER}\";
          export CT_STACK_PASSWORD=\"${STACK_PASSWORD}\";
@@ -857,6 +810,61 @@ function set_other_test_params {
          export CT_USER_ISOLATION=\"$USER_ISOLATION\";"
     echo $val
 }
+
+function setup_sanity_base_simple {
+    jenkins_triggered=${JENKINS_TRIGGERED:-0}
+
+    # run sanity in parallel/serial branch, default serial
+    if [ "${sanitytype}" = "" ]; then
+        sanitytype="serial"
+    fi
+
+    OTHER_OPTS=""
+    if [ ! -z $OS_TEST_PATH ] ; then
+        OTHER_OPTS="$OTHER_OPTS export CT_OS_TEST_PATH=$OS_TEST_PATH ; "
+    fi
+
+    #PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
+    #TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
+    if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
+        copy_bgp_stress_test_binary # This is not going to work in container, this will need to happen while building the container
+    fi
+    sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
+    if [ $PARALLEL_RUN -eq 1 ]; then
+         EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS -t "
+    fi
+    pythonpath=""
+
+    if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
+        EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
+    fi
+
+    other_test_params=`set_other_test_params`
+    exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
+                                                         export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
+                                                         export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
+                                                         export CT_JENKINS_TRIGGERED=${jenkins_triggered};
+                                                         export CT_BUILD_ID=${BUILDID};
+                                                         export CT_PARAMS_FILE=${PARAMS_FILE};
+                                                         export CT_TEST_TYPE=${TEST_TYPE};
+                                                         export CT_EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
+                                                         export CT_EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
+                                                         export CT_MX_GW_TEST=${MX_GW_TEST};
+                                                         export CT_IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export CT_BRANCH=$BRANCH;
+                                                         $OTHER_OPTS
+                                                         $other_test_params
+                                                         $pythonpath
+                                                         ${sanity_cmd};"; rv_test_run=$?
+    if [ $rv_test_run -ne 0 ]; then
+        if [ $rv_test_run -gt 100 ]; then
+            die "Task to run sanity failed"
+        else
+            debug_and_die "Test failures exceed the threshold of $limit percent (Failures: ${rv_test_run}%"
+        fi
+    fi
+}
+
 
 # base setup for sanity
 function setup_sanity_base {
