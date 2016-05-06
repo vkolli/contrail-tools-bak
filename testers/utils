@@ -181,7 +181,8 @@ function exec_cmds {
 
     sshpass -p ${host_password} ssh -t -t ${SSHOPT} ${host_string} "(
      $command
-    )"
+    )"; rv=$?
+    return $rv
 }
 
 ##
@@ -300,7 +301,18 @@ function copy_bgp_stress_test_binary {
         return 0
     fi
 #    search_package
-    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/store/sandbox/build/debug/bgp/test/bgp_stress_test ${API_SERVER_HOST_STRING}:$CFGM_TEST_CODE_PATH" || die "Failed to copy the bgp_stress_test binary  to $API_SERVER_HOST_STRING:"
+    exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $TEST_HOST_PASSWORD scp $PKG_FILE_DIR/store/sandbox/build/debug/bgp/test/bgp_stress_test ${TEST_HOST_STRING}:$CFGM_TEST_CODE_PATH" || die "Failed to copy the bgp_stress_test binary  to $TEST_HOST_STRING:"
+}
+
+# checkout_repo
+function checkout_fab_repo {
+    cd $TOOLS_WS
+    git clone git@github.com:Juniper/contrail-fabric-utils.git
+    ( cd $TOOLS_WS/contrail-fabric-utils
+      git stash
+      git checkout -b ${FAB_GIT_BRANCH} origin/${FAB_GIT_BRANCH}
+      git pull
+    )
 }
 
 ##
@@ -629,8 +641,17 @@ function add_to_sources_list {
        sshpass -p ${API_SERVER_HOST_PASSWORD} ssh -t -t ${SSHOPT} $API_SERVER_HOST_STRING ' (
        cd /etc/apt/; cp sources.list sources.list.original; echo 'deb http://us.archive.ubuntu.com/ubuntu trusty main' >> sources.list; apt-get update;
        echo "sources.list modified" )'
-       fi
+   fi
 }
+
+function run_sanity_simple {
+    if [ $SKIP_SANITY -ne 0 ]; then
+        return 0
+    fi
+    search_package
+    setup_sanity_base_simple
+}
+
 # run_sanity serial/parallel
 function run_sanity {
     if [ $SKIP_SANITY -ne 0 ]
@@ -653,21 +674,30 @@ function run_sanity {
 #Lock testbed if the test failures are more than the 
 #expected limit ,set through the shell varibale limit
 #export TEST_FAILURE_THRESHOLD needs to be set through jenkins
-
 function stop_on_failure {
     files='result*'
     limit=80
     if [ ! -z "$TEST_FAILURE_THRESHOLD" ];then
         limit=$TEST_FAILURE_THRESHOLD
     else
-        limit=$(set_threshold) 
+        limit=$(set_threshold)
     fi
     cd_str="cd $CFGM_TEST_CODE_PATH/"
     cmd_str="python tools/stop_on_fail.py --files $files --threshold $limit"
 
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cd_str;
                               $cmd_str;" || debug_and_die "Test failures exceed the threshold of $limit percent"
-    
+
+}
+
+function failure_threshold_limit {
+    if [[ -n $TEST_FAILURE_THRESHOLD ]];then
+        limit=$TEST_FAILURE_THRESHOLD
+    else
+        limit=$(set_threshold)
+    fi
+    echo $limit
+
 }
 
 function set_threshold {
@@ -698,7 +728,103 @@ function set_threshold {
 
 }
 
-# base setup for sanity 
+function setup_testnode {
+    if [[ $DISTRO =~ ^(centos|redhat) ]]; then
+        PACKAGE_INSTALL_CMD="
+        tee /etc/yum.repos.d/docker.repo <<-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/\$releasever/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+        yum install -y docker-engine ;\
+        service docker start
+        "
+    elif [[ $DISTRO =~ 'ubuntu' ]]; then
+        PACKAGE_INSTALL_CMD="
+        DEBIAN_FRONTEND=noninteractive ; \
+        apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+        echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main'  > /etc/apt/sources.list.d/docker.list && \
+        echo 'deb http://cz.archive.ubuntu.com/ubuntu trusty main'  > /etc/apt/sources.list.d/ubuntu-archive.list && \
+        apt-get -y update; apt-get install -y --force-yes docker-engine
+        "
+    else
+        echo "Unknown Distro - $DISTRO"
+        exit 1
+    fi
+    container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
+    container_image_file=`basename $container_image_path`
+    if [[ ! -f $container_image_path ]]; then
+        echo "ERROR!! Container image $container_image_path doesnt exist"
+        exit 1
+    fi
+    sshpass -p $TEST_HOST_PASSWORD scp $SSHOPT $container_image_path $TEST_HOST_STRING:/tmp/
+    exec_cmds -s $TEST_HOST_STRING -p $TEST_HOST_PASSWORD -c "(
+        docker  -v &> /dev/null ; rv=\$?
+        if [ \$rv -ne 0 ]; then
+            $PACKAGE_INSTALL_CMD
+        fi
+        s=$(docker images -q ${TEST_RUN}-${SKU}:${PACKAGE_VERSION} | grep -c [a-z])
+        wget -O /usr/local/bin/testrunner.sh https://raw.githubusercontent.com/Juniper/contrail-test-ci/master/testrunner.sh
+        chmod +x /usr/local/bin/testrunner.sh
+        if [ \$s -eq 0 ]; then
+            testrunner.sh load  /tmp/${container_image_file}
+        fi
+        mkdir -p ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}
+    )"
+        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT}${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
+}
+
+function setup_sanity_base_simple {
+    jenkins_triggered=${JENKINS_TRIGGERED:-0}
+
+    # run sanity in parallel/serial branch, default serial
+    if [ "${sanitytype}" = "" ]; then
+        sanitytype="serial"
+    fi
+
+    #PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
+    #TEST_CONFIG_FILE=$CFGM_TEST_CODE_PATH/sanity_params.ini
+    if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
+        copy_bgp_stress_test_binary # This is not going to work in container, this will need to happen while building the container
+    fi
+    sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
+    if [ $PARALLEL_RUN -eq 1 ]; then
+         EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS -t "
+    fi
+    pythonpath=""
+
+    if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
+        EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
+    fi
+
+    exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
+                                                         export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
+                                                         export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
+                                                         export CT_JENKINS_TRIGGERED=${jenkins_triggered};
+                                                         export CT_BUILD_ID=${BUILDID};
+                                                         export CT_PARAMS_FILE=${PARAMS_FILE};
+                                                         export CT_TEST_TYPE=${TEST_TYPE};
+                                                         export CT_EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
+                                                         export CT_EMAIL_SUBJECT=\"${EMAIL_SUBJECT}\";
+                                                         export CT_MX_GW_TEST=${MX_GW_TEST};
+                                                         export CT_IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
+                                                         export CT_BRANCH=$BRANCH;
+                                                         $OTHER_OPTS
+                                                         $pythonpath
+                                                         ${sanity_cmd};"; rv_test_run=$?
+    if [ $rv_test_run -ne 0 ]; then
+        if [ $rv_test_run -gt 100 ]; then
+            die "Task to run sanity failed"
+        else
+            debug_and_die "Test failures exceed the threshold of $limit percent (Failures: ${rv_test_run}%"
+        fi
+    fi
+}
+
+# base setup for sanity
 function setup_sanity_base {
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
     OTHER_OPTS=""
@@ -882,7 +1008,7 @@ function reimage_and_bringup {
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab cleanup_repo)
     bringup_setup || debug_and_die "Bringup failed!"
-    sleep 120
+#    sleep 120
     (cd ${TOOLS_WS}/contrail-fabric-utils;
      fab restore_repo)
 }
@@ -890,13 +1016,16 @@ function reimage_and_bringup {
 function create_testbed {
 
     search_package || die "Unable to locate package"
-
     if [ "$BRANCH" = "R1.10" ]; then
         export NEW_TEST_INFRA=0
     fi
 
-
-    checkout_repo || die "Unable to checkout fab/test repos"
+    if [[ $TEST_RUN_INFRA == 'docker' ]]; then
+        # No need to fetch test repos in case of docker
+        checkout_fab_repo || die "Unable to checkout fab/test repos" # No need to checkout test repo for container
+    else
+        checkout_repo
+    fi
     use_testbed_file || die "Unable to set the testbed properly for use"
     be_ready_to_reimage_remotely || die "Unable to setup the system for reimaging in US"
 }
@@ -986,6 +1115,7 @@ function run_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
+
     if [ -z "$SM_SERVER_IP" ]
     then
        reimage_and_bringup
@@ -997,12 +1127,25 @@ function run_task() {
        reimage_using_SM || debug_and_die "reimage failed"
        provision_using_SM || debug_and_die "provision failed"
     fi
-    
-    install_third_party_pkgs || die "installing GDB/ant failed" 
-    #bringup_setup || die "Bringup failed"
-    run_sanity || die "Run_sanity step failed"
+
+    if [[ $TEST_RUN_INFRA == 'docker' ]]; then
+        search_package
+        pkg_file_name=`basename $PKG_FILE`
+        export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'`
+        if [[ -z $TEST_HOST_STRING ]]; then
+            export TEST_HOST_STRING=$API_SERVER_HOST_STRING
+            export TEST_HOST_PASSWORD=$API_SERVER_HOST_PASSWORD
+        fi
+        export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
+        export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
+        setup_testnode || die "test node setup failed"
+        run_sanity_simple || die "run_sanity_simple failed"
+    else
+        install_third_party_pkgs || die "installing GDB/ant failed"
+        run_sanity || die "Run_sanity step failed"
+    fi
     run_tempest || die "Run_Tempest step failed"
-    echo "Test Done" 
+    echo "Test Done"
     collect_tech_support || die "Task to collect logs/cores failed"
     echo "Ending test on $TBFILE_NAME"
 }
