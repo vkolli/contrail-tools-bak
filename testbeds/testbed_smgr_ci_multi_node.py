@@ -72,4 +72,9 @@ env.log_scenario='Server Manager CI Sanity'
 
 
                                                                    
+env.test = {
+'mail_to': 'dl-contrail-server-manager@juniper.net',
+}
+
+
 

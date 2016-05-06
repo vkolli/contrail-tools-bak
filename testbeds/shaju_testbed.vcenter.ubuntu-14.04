@@ -127,3 +127,8 @@ env.log_scenario='single_int_Vcenter Sanity[mgmt, ctrl=data]'
 
 # To configure the encapsulation priority. Default: MPLSoGRE 
 #env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
+#
+
+env.test = {
+            'mail_to' : 'shajuvk@juniper.net'
+            }

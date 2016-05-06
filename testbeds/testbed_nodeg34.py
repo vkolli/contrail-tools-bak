@@ -71,3 +71,7 @@ env.test_repo_dir='/homes/pbharat/github/contrail-test'
 #env.mail_from='pbharat@juniper.net'
 env.mail_to='dl-contrail-server-manager@juniper.net'
 env.subject='Multi node Multi-interface sanity'
+
+env.test = {
+    'mail_to': 'dl-contrail-server-manager@juniper.net'
+    }

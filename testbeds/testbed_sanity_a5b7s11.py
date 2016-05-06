@@ -159,3 +159,7 @@ env.image_web_server = '10.84.5.120'
 
 #storage_replica_size = 2
 #env.test_repo_dir='/home/stack/jenkins/workspace/fab_HA_ubuntu-14-04_Multi_Node_Sanity_Solution_setup/contrail-tools/contrail-test'
+
+env.test = {
+'mail_to' :'jebap@juniper.net',
+}
