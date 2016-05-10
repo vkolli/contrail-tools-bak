@@ -777,12 +777,52 @@ EOF
         sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT}${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
 }
 
+function set_other_test_params {
+    val="export CT_STACK_USER=\"${STACK_USER}\";
+         export CT_STACK_PASSWORD=\"${STACK_PASSWORD}\";
+         export CT_STACK_TENANT=\"$STACK_TENANT\";
+         export CT_TENANT_ISOLATION=\"$TENANT_ISOLATION\";
+         export CT_MAIL_TO=\"$MAIL_TO\";
+         export CT_WEBSERVER_HOST=\"$WEBSERVER_HOST\";
+         export CT_WEBSERVER_USER=\"$WEBSERVER_USER\";
+         export CT_WEBSERVER_PASSWORD=\"$WEBSERVER_PASSWORD\";
+         export CT_WEBSERVER_LOG_PATH=\"$WEBSERVER_LOG_PATH\";
+         export CT_WEBSERVER_REPORT_PATH=\"$WEBSERVER_REPORT_PATH\";
+         export CT_WEBROOT=\"$WEBROOT\";
+         export CT_MAIL_SERVER=\"$MAIL_SERVER\";
+         export CT_MAIL_PORT=\"$MAIL_PORT\";
+         export CT_FIP_POOL_NAME=\"$FIP_POOL_NAME\";
+         export CT_PUBLIC_VIRTUAL_NETWORK=\"$PUBLIC_VIRTUAL_NETWORK\";
+         export CT_PUBLIC_TENANT_NAME=\"$PUBLIC_TENANT_NAME\";
+         export CT_FIXTURE_CLEANUP=\"$FIXTURE_CLEANUP\";
+         export CT_GENERATE_HTML_REPORT=\"$GENERATE_HTML_REPORT\";
+         export CT_KEYPAIR_NAME=\"$KEYPAIR_NAME\";
+         export CT_MAIL_SENDER=\"$MAIL_SENDER\";
+         export CT_DISCOVERY_IP=\"$DISCOVERY_IP\";
+         export CT_CONFIG_API_IP=\"$CONFIG_API_IP\";
+         export CT_ANALYTICS_API_IP=\"$ANALYTICS_API_IP\";
+         export CT_DISCOVERY_PORT=\"$DISCOVERY_PORT\";
+         export CT_CONFIG_API_PORT=\"$CONFIG_API_PORT\";
+         export CT_ANALYTICS_API_PORT=\"$ANALYTICS_API_PORT\";
+         export CT_CONTROL_PORT=\"$CONTROL_PORT\";
+         export CT_DNS_PORT=\"$DNS_PORT\";
+         export CT_AGENT_PORT=\"$AGENT_PORT\";
+         export CT_USER_ISOLATION=\"$USER_ISOLATION\";"
+    echo $val
+}
+
 function setup_sanity_base_simple {
     jenkins_triggered=${JENKINS_TRIGGERED:-0}
 
     # run sanity in parallel/serial branch, default serial
     if [ "${sanitytype}" = "" ]; then
         sanitytype="serial"
+    fi
+
+    # OS_TEST_PATH is used for test discovery by testr
+    OTHER_OPTS=""
+    if [ ! -z $OS_TEST_PATH ] ; then
+        OTHER_OPTS="$OTHER_OPTS export CT_OS_TEST_PATH=$OS_TEST_PATH ; "
     fi
 
     #PARAMS_FILE=$CFGM_TEST_CODE_PATH/scripts/sanity_params.ini
@@ -800,6 +840,7 @@ function setup_sanity_base_simple {
         EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
     fi
 
+    other_test_params=`set_other_test_params`
     exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
                                                          export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
                                                          export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
@@ -813,6 +854,7 @@ function setup_sanity_base_simple {
                                                          export CT_IMAGE_WEB_SERVER=${IMAGE_WEB_SERVER};
                                                          export CT_BRANCH=$BRANCH;
                                                          $OTHER_OPTS
+                                                         $other_test_params
                                                          $pythonpath
                                                          ${sanity_cmd};"; rv_test_run=$?
     if [ $rv_test_run -ne 0 ]; then
@@ -823,6 +865,7 @@ function setup_sanity_base_simple {
         fi
     fi
 }
+
 
 # base setup for sanity
 function setup_sanity_base {

@@ -53,3 +53,7 @@ env.test_repo_dir='/homes/pbharat/github/2187/contrail-test'
 #env.mail_to='pbharat@juniper.net'
 env.mail_to= 'dl-contrail-server-manager@juniper.net'
 env.log_scenario='Single-Node Sanity'
+
+env.test = {
+    'mail_to': 'dl-contrail-server-manager@juniper.net'
+    }

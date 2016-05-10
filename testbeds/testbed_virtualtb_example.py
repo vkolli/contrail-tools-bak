@@ -95,3 +95,6 @@ env.test_repo_dir = '/homes/hkumar/contrail-test'
 env.mail_from = 'hkumar@juniper.net'
 env.mail_to = 'hkumar@juniper.net'
 
+env.test = {
+'mail_to': 'hkumar@juniper.net'
+}

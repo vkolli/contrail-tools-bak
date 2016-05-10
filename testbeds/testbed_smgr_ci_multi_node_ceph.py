@@ -81,3 +81,6 @@ storage_replica_size = 2
 
 env.minimum_diskGB = 32
 
+env.test = {
+'mail_to': 'dl-contrail-server-manager@juniper.net',
+}
