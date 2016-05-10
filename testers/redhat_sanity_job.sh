@@ -63,7 +63,7 @@ if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         fi
         export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
-        export TEST_RUN='contrail-test-ci'
+        export TEST_RUN='contrail-test'
         setup_testnode || die "test node setup failed"
         run_sanity_simple || die "run_sanity_simple failed"
     else
