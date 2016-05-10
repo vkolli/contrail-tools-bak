@@ -819,6 +819,7 @@ function setup_sanity_base_simple {
         sanitytype="serial"
     fi
 
+    # OS_TEST_PATH is used for test discovery by testr
     OTHER_OPTS=""
     if [ ! -z $OS_TEST_PATH ] ; then
         OTHER_OPTS="$OTHER_OPTS export CT_OS_TEST_PATH=$OS_TEST_PATH ; "
