@@ -188,7 +188,7 @@ function bringup_SM_setup() {
             cd /root/sm_files; 
             if [ $SM_TYPE -eq 1 ]
             then
-                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
+                ./ubuntu_smgr_purge_and_install.sh $SM_SERVER_PKG_FILE
             else
                 ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             fi
