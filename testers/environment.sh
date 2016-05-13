@@ -17,7 +17,7 @@ export SKU=${SKU:-icehouse}
 # docker: using docker container for test run
 # legacy: Run legacy contrail-test - this is applicable for R2.x branches
 ##
-if [[ $BRANCH =~ ^R[12]\. ]]; then
+if [[ $BRANCH =~ ^R[12]\. ]] || [[ $VCENTER_ONLY_TESTBED -eq 1 ]]; then
     export TEST_RUN_INFRA='legacy'
 else
     export TEST_RUN_INFRA='docker'
