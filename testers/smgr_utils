@@ -188,7 +188,7 @@ function bringup_SM_setup() {
             cd /root/sm_files; 
             if [ $SM_TYPE -eq 1 ]
             then
-                ./ubuntu_smgr_purge_and_install.sh $SM_SERVER_PKG_FILE
+                ./ubuntu_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             else
                 ./centos_smgr_upgrade.sh $SM_SERVER_PKG_FILE
             fi
@@ -839,19 +839,15 @@ function run_smgr_task() {
         fi
         export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
-        add_sourcelist || die "source.list copy failed on all target nodes"
-        install_fabric_cfgm || die "fabric installation failed on cfgm"
         setup_testnode || die "test node setup failed"
         run_sanity_simple || die "run_sanity_simple failed"
     else
+	add_sourcelist || die "source.list copy failed on all target nodes"
         install_third_party_pkgs || die "installing GDB/ant failed"
         run_sanity || die "Run_sanity step failed"
     fi		
-    #add_sourcelist || die "source.list copy failed on all target nodes"
-    #install_fabric_cfgm || die "fabric installation failed on cfgm"
-    #run_sanity || debug_and_die "Run_sanity step failed"
-    #run_tempest || die "Run_Tempest step failed"
-    #collect_tech_support || die "Task to collect logs/cores failed"
+    run_tempest || die "Run_Tempest step failed"
+    collect_tech_support || die "Task to collect logs/cores failed"
     if [ ${BRANCH} == "R3.0" ]
     then
         delete_pkg_from_SM_cliff_client || die "Task to delete package from SM failed"
