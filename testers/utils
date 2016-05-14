@@ -101,7 +101,9 @@ function search_package {
         VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
         export VCENTER_PLUGIN
         if [ $USE_CLOUD_PKG -eq 1 ]; then
-            PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}"
+            if ! [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
+                PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}"
+            fi
         else
             PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}"
         fi
