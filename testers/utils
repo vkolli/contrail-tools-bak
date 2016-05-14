@@ -103,9 +103,9 @@ function search_package {
         if [ $USE_CLOUD_PKG -eq 1 ]; then
             if ! [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
                 PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}"
+            else
+                PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}"
             fi
-        else
-            PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}"
         fi
         export PKG_FILE
     else    
