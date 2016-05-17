@@ -665,6 +665,7 @@ function run_sanity {
     run_fab "setup_test_env"
     # check venv exist before running test
     check_venv_exists
+    install_dep_pkgs_for_test
     setup_sanity_base
     if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
         stop_on_failure
@@ -728,6 +729,13 @@ function set_threshold {
 
 }
 
+function install_dep_pkgs_for_test {
+    # For R2.x or lower, fab setup_test_env takes care of these
+    if [[ ( $INSTALL_EXTRA_PKG_ON_NODES -eq 1 ) && ( ! $BRANCH =~ "R2." ) ]] ; then
+        run_build_fab "install_pkgs_on_roles:compute,\"python-setuptools\,python-ncclient\,tcpdump\""
+    fi
+}
+
 function setup_testnode {
     if [[ $DISTRO =~ ^(centos|redhat) ]]; then
         PACKAGE_INSTALL_CMD="
@@ -774,7 +782,7 @@ EOF
         fi
         mkdir -p ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}
     )"
-        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT}${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
+    sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT}${TOOLS_WS}/testbeds/${tb_filename} $TEST_HOST_STRING:${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py
 }
 
 function set_other_test_params {
@@ -1182,9 +1190,11 @@ function run_task() {
         export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
         setup_testnode || die "test node setup failed"
+        install_dep_pkgs_for_test
         run_sanity_simple || die "run_sanity_simple failed"
     else
         install_third_party_pkgs || die "installing GDB/ant failed"
+        install_dep_pkgs_for_test
         run_sanity || die "Run_sanity step failed"
     fi
     run_tempest || die "Run_Tempest step failed"

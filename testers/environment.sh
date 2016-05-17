@@ -183,4 +183,7 @@ export DNS_PORT=${DNS_PORT:-""}
 export AGENT_PORT=${AGENT_PORT:-""}
 export USER_ISOLATION=${USER_ISOLATION:-"True"}
 
-
+# Enable installation of some required packages on compute nodes
+# for few tests to be runnable
+# Default mode is enabled(1)
+export INSTALL_EXTRA_PKG_ON_NODES=${INSTALL_EXTRA_PKG_ON_NODES:-1}
