@@ -61,6 +61,9 @@ env.passwords = {
     host_build: 'stack@123',
 }
 
+env.xmpp_auth_enable=True
+env.xmpp_dns_auth_enable=True
+
 multi_tenancy = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.test_repo_dir='/home/stack/smgr_github_multi_interface/contrail-test'
