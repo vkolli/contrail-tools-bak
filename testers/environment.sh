@@ -59,6 +59,9 @@ export SM_SERVER_PASSWORD=${SM_SERVER_PASSWORD:-c0ntrail123}
 # set this flag to use contrail-cloud-pkgs.
 export USE_CLOUD_PKG=${USE_CLOUD_PKG:-0}
 
+# set this flag to use contrail-networking-pkgs.
+export USE_NETWORKING_PKG=${USE_NETWORKING_PKG:-0}
+
 # Enable tests which depend on public network connectivity
 export MX_GW_TEST=${MX_GW_TEST:-0}
 

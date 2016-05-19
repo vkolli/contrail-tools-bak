@@ -100,7 +100,7 @@ function search_package {
         fi
         VCENTER_PLUGIN=`ls /github-build/${BRANCH}/${BUILDID}/vcenter-plugin/juno/store/sandbox/build/contrail-install-vcenter-plugin*.deb`
         export VCENTER_PLUGIN
-        if [ $USE_CLOUD_PKG -eq 1 ]; then
+        if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
             PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}`
         else
             PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}`
@@ -144,13 +144,19 @@ function search_package {
 }
 
 function search_tgz_packages {
-    tgz_pkg="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-cloud_*.tgz"
-    export TGZ_PKG_FILES=`ls $tgz_pkg`
-    if [ -z "$TGZ_PKG_FILES" ]; then
-        die "Unable to find the cloud pkgs $tgz_pkg"
+    if [ $USE_NETWORKING_PKG -eq 1 ]; then
+        net_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-networking*.tgz`
+        export net_tgz_pkg
+        if [ -z "$net_tgz_pkg" ]; then
+            die "Unable to find the networking pkg $net_tgz_pkg"
+        fi
+    fi
+    cloud_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-cloud_*.tgz`
+    export cloud_tgz_pkg
+    if [ -z "$cloud_tgz_pkg" ]; then
+        die "Unable to find the cloud pkgs $cloud_tgz_pkg"
     fi
 }
-
 
 function search_third_party_package {
     export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
@@ -371,6 +377,9 @@ function use_testbed_file {
     if [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.vcenter_compute
     fi
+    if [ $USE_NEWORKING_PKG -eq 1 ]; then
+            tbfile_hyper=${tbfile}.networking
+    fi
 
     if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
             tbfile_hyper=${tbfile}.docker
@@ -407,21 +416,66 @@ function run_setup_shell_script {
         find /opt/contrail -name "setup.sh" -exec {} \;"  || debug_and_die "Failed while running setup.sh"
 }
 
-# copy cloud packages
-function copy_cloud_packages {
-    export CLOUD_PKGS="cloud_pkgs"
-    if [ -e ${TOOLS_WS}/${CLOUD_PKGS} ]; then
-        echo "removing the existing cloud_pkg folder"
-        rm -rf ${TOOLS_WS}/${CLOUD_PKGS}
+#extract the openstack roles from testbed.py and copy the cloud pkg to all openstack nodes.
+function copy_cloud_pkg_to_openstack_nodes {
+    #get the openstack roles from testbed.py file.
+    hosts=`awk /\'openstack\':/ ${TOOLS_WS}/testbeds/${tb_filename}`
+    host=`echo $hosts | cut -d : -f2 | cut -d [ -f2 | cut -d ] -f1`
+    count=`echo $host | awk -F',' '{print NF}'`
+    i=0
+    if [ $count -eq 1 ]; then
+        array[$i]=$host 
+    else 
+        while [ $count -ne $i ]
+        do
+            j=`expr $i + 1`
+            host1=`echo $host | cut -d , -f$j`
+            array[$i]=$host1
+            i=`expr $i + 1`
+        done
     fi
-    mkdir -p ${TOOLS_WS}/${CLOUD_PKGS}
-    #export CLOUD_PKGS="${TOOLS_WS}/${CLOUD_PKGS}"
-    search_tgz_packages
-    cp ${TGZ_PKG_FILES} ${TOOLS_WS}/${CLOUD_PKGS}
+    echo ${array[@]}
 
-    #copy the cloud pkgs to cfgm0 also
-    sshpass -p $API_SERVER_HOST_PASSWORD scp -r ${SSHOPT} ${TOOLS_WS}/${CLOUD_PKGS}  ${API_SERVER_HOST_STRING}:${NODEHOME}
+    #get the mapping of host to host-string.
+    for node in "${array[@]}"
+    do
+        host=`echo $node | tr -d ""`
+        host_info=`grep "$host =" fabfile/testbeds/testbed.py | awk '{print $3}' | tr -d "'"`
+        sshpass -p 'c0ntrail123' scp -r ${SSHOPT} $cloud_tgz_pkg $host_info:${NODEHOME}
+        if [[ $DISTRO =~ centos ]]; then
+            exec_cmds -s $host_info -p 'c0ntrail123' -c "
+                find /opt/contrail -name "setup.sh" -exec {} \;" || debug_and_die "Failed while running setup.sh on openstack node"
+        fi
+    done
+    
 }
+
+
+# copy cloud/networking packages
+function copy_tgz_packages {
+
+    search_tgz_packages
+
+    if [ $USE_NETWORKING_PKG -eq 1 ]; then
+        #copy the networking pkg to cfgm0 
+        sshpass -p $API_SERVER_HOST_PASSWORD scp -r ${SSHOPT} $net_tgz_pkg  ${API_SERVER_HOST_STRING}:${NODEHOME}
+        if [ $? != 0 ]; then
+            echo "failed to copy the networking pkg to cfgm0"
+            exit 1
+        fi
+
+        #also copy cloud pkg to openstack node.
+        copy_cloud_pkg_to_openstack_nodes
+    else
+        #copy the cloud pkgs to cfgm0 
+        sshpass -p $API_SERVER_HOST_PASSWORD scp -r ${SSHOPT} $cloud_tgz_pkg ${API_SERVER_HOST_STRING}:${NODEHOME}
+        if [ $? != 0 ]; then
+            echo "failed to copy the cloud pkg to cfgm0"
+            exit 1
+        fi
+    fi
+}
+
 
 # bringup_setup
 function bringup_setup {
@@ -451,8 +505,8 @@ function bringup_setup {
         sleep 120
     fi
 
-    if [ $USE_CLOUD_PKG -eq 1 ]; then
-        copy_cloud_packages
+    if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
+        copy_tgz_packages
     fi
     setup_and_install_contrail
 }
@@ -473,7 +527,9 @@ function setup_and_install_contrail {
             echo "Skipping kernel upgrade task"
         else 
             if [ $USE_CLOUD_PKG -eq 1 ]; then
-                fab upgrade_kernel_all:${TOOLS_WS}/${CLOUD_PKGS}/*.tgz || debug_and_die "Upgrading Kernel failed"
+                fab upgrade_kernel_all:$cloud_tgz_pkg || debug_and_die "Upgrading Kernel failed"
+            elif [ $USE_NETWORKING_PKG -eq 1 ]; then
+                fab upgrade_kernel_all:$net_tgz_pkg || debug_and_die "Upgrading Kernel failed"
             else
                 fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
             fi
@@ -482,10 +538,17 @@ function setup_and_install_contrail {
         fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
     fi
 
-    if [ $USE_CLOUD_PKG -eq 1 ]; then
+    if [ $USE_NETWORKING_PKG -eq 1 ]; then
+        fab install_contrail_openstack:$cloud_tgz_pkg,reboot=False || debug_and_die "install_contrail_openstack failed"
+        pkg_name=`basename $net_tgz_pkg`
         cmd="export HA_TEST=$HA_TEST;
                cd fabric-utils;
-               fab install_contrail:${NODEHOME}/${CLOUD_PKGS}/*.tgz" 
+               fab install_without_openstack:${NODEHOME}/$pkg_name"
+    elif [ $USE_CLOUD_PKG -eq 1 ]; then
+        pkg_name=`basename $cloud_tgz_pkg`
+        cmd="export HA_TEST=$HA_TEST;
+               cd fabric-utils;
+               fab install_contrail:${NODEHOME}/$pkg_name" 
     else
         cmd="export HA_TEST=$HA_TEST;
                cd fabric-utils;
@@ -501,7 +564,7 @@ function setup_and_install_contrail {
         then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cmd" || debug_and_die "fab install_contrail failed"
         else
-            if [ $USE_CLOUD_PKG -eq 1 ]; then
+            if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
                 exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                     $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
             else
@@ -512,7 +575,7 @@ function setup_and_install_contrail {
         fi
     else
         if [ $IS_UBUNTU_14042 -eq 1 ]; then
-            if [ $USE_CLOUD_PKG -eq 1 ]; then
+            if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
                 exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                     $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
             else
@@ -536,14 +599,31 @@ function setup_and_install_contrail {
         fab install_contrail_vcenter_plugin:${VCENTER_PLUGIN} || die "fab install_contrail_vcenter_plugin failed"
     fi
 
-    # setup multi interface, if any
-    # provision contrail
-    exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd fabric-utils; 
+    if [ $USE_NETWORKING_PKG -eq 1 ]; then
+        #setup rabbitmq  openstack on openstack node
+        fab setup_rabbitmq_cluster || debug_and_die "setup_rabbitmq_cluster failed"
+        fab setup_orchestrator || debug_and_die "fab setup_orchestrator failed"
+        run_fab "update_keystone_admin_token" || debug_and_die "update_keystone_admin_token failed"
+
+        # setup multi interface, if any
+        # provision contrail
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+            cd fabric-utils;
             export HA_TEST=$HA_TEST;
             fab setup_interface || exit 1;
-            fab add_static_route 
-            fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
+            fab add_static_route
+            fab setup_without_openstack:False" || debug_and_die "fab setup_interface or setup_all task failed"
+    else
+
+        # setup multi interface, if any
+        # provision contrail
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                cd fabric-utils; 
+                export HA_TEST=$HA_TEST;
+                fab setup_interface || exit 1;
+                fab add_static_route 
+                fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
+    fi
 
     if [ $SKIP_ZONES -eq 0 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
@@ -839,8 +919,8 @@ function setup_sanity_base_simple {
     if [[ "$TEST_RUN_CMD" != *"-d"* ]]; then
         EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS --test-failure-threshold $(failure_threshold_limit) "
     fi
-
     other_test_params=`set_other_test_params`
+
     exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "export CT_SCRIPT_TS=\"${SCRIPT_TIMESTAMP}\";
                                                          export TEST_RUN_CMD=\"${TEST_RUN_CMD}\";
                                                          export EXTRA_RUN_TEST_ARGS=\"${EXTRA_RUN_TEST_ARGS}\";
@@ -865,7 +945,6 @@ function setup_sanity_base_simple {
         fi
     fi
 }
-
 
 # base setup for sanity
 function setup_sanity_base {
@@ -1153,7 +1232,9 @@ function run_task() {
     #use contrail cloud packages for branch R3.0 and above.
     if [ "$BRANCH" \> "R2.22.x" ]; then
         if ! [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
-            export USE_CLOUD_PKG=1
+            if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
+                export USE_CLOUD_PKG=1
+            fi
        fi
     fi
     create_testbed || die "Failed to create required testbed details"
