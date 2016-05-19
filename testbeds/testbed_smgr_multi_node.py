@@ -79,6 +79,9 @@ env.interface_rename = False
 #To enable multi-tenancy feature
 multi_tenancy = True
 
+env.xmpp_auth_enable=True
+env.xmpp_dns_auth_enable=True
+
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True

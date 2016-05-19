@@ -61,6 +61,8 @@ env.test_repo_dir='/home/stack/smgr_github_ubuntu_single_node/contrail-test'
 env.mail_to='dl-contrail-sw@juniper.net'
 env.log_scenario='Server Manager Single-Node Sanity'
 env.enable_lbaas = True
+env.xmpp_auth_enable=True
+env.xmpp_dns_auth_enable=True
 
 #enable ceilometer
 enable_ceilometer = True
