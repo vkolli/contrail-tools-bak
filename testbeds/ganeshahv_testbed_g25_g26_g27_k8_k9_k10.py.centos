@@ -68,4 +68,6 @@ multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Ganesha HV Topo'
+
 env.enable_lbaas = True
+haproxy = True

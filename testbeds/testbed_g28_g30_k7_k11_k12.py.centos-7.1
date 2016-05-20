@@ -68,7 +68,9 @@ env.mail_to='dl-contrail-sw@juniper.net'
 env.interface_rename = False
 multi_tenancy=True
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.enable_lbaas = True
+
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.log_scenario='MultiNode Multi-Interface Sanity'
+env.enable_lbaas = True
+haproxy = True

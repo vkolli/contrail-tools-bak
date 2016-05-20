@@ -94,4 +94,6 @@ multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Five node sanity'
+
 env.enable_lbaas = True
+haproxy = True

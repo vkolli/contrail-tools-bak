@@ -71,3 +71,5 @@ env.interface_rename = True
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Node Sanity'
 #env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+env.enable_lbaas = True
+haproxy = True
