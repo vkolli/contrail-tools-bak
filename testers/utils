@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 TOOLS_WS=${TOOLS_WS:-$(pwd)}
 IS_UBUNTU_14041=0
-IS_UBUNTU_14042=0
 source $TOOLS_WS/testers/environment.sh
 source $TOOLS_WS/testers/smgr_utils
 declare -A BUILD_MAP
@@ -123,19 +122,20 @@ function search_package {
             export DISTRO=${DISTRO:-centos65}
         fi
     fi
-    #if build is greater than R2.20 and DISTRO is ubuntu, set ubuntu-14.04.2 as default base OS.
+    #for R3.0 and above set ubuntu base os as 14.04.4
+    #if build is greater than R2.20 and less than R3.0, set ubuntu-14.04.2 as base OS.
     #but keep 14.04.1 as is.
     if [[ ${BUILD_MAP[${DISTRO}]} =~ ubuntu-14 ]]; then
         if [ $IS_UBUNTU_14041 -eq 0 ]; then
-            if [[ ("$BRANCH" > "R2.1" ) || ( ${BRANCH} == "mainline" ) ]]; then
+            if [ "$BRANCH" \> "R2.22.x" ] || [ "$BRANCH" == "mainline" ]; then
+                export REIMAGE_PARAM="ubuntu-14.04.4"
+            elif [ "$BRANCH" \> "R2.1" ] && [ "$BRANCH" \< "R3.0" ]; then
                 export REIMAGE_PARAM="ubuntu-14.04.2"
-                IS_UBUNTU_14042=1
             else
                 export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
-            fi
+            fi    
         else
             export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
-            IS_UBUNTU_14041=1
         fi
     else
         export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
@@ -384,7 +384,7 @@ function use_testbed_file {
     if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
             tbfile_hyper=${tbfile}.docker
     fi 
-    if [[ ($IS_UBUNTU_14042 -eq 1)  || ($IS_UBUNTU_14041 -eq 1) ]]; then
+    if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
         distro_name="ubuntu-14.04"
         cp -f ${tbfile_hyper}.$distro_name ${tbfile}
     elif [ -f ${tbfile_hyper}.$image_name ]; then
@@ -574,17 +574,13 @@ function setup_and_install_contrail {
             need_reboot=1
         fi
     else
-        if [ $IS_UBUNTU_14042 -eq 1 ]; then
-            if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
-                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                    $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
-            else
-                exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                    $cmd:reboot=False"|| debug_and_die "fab install_contrail failed"
-            fi        
+        if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                $cmd,reboot=False"|| debug_and_die "fab install_contrail failed"
         else
-            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "$cmd" || debug_and_die "fab install_contrail failed"
-        fi
+            exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                $cmd:reboot=False"|| debug_and_die "fab install_contrail failed"
+        fi        
     fi
 
     # reboot compute nodes after intf rename package install
