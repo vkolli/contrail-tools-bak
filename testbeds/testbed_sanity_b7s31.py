@@ -137,7 +137,7 @@ env.ostypes = {
 #analytics_statistics_ttl controls TTL for stats/control_data
 #following parameter allows to specify minimum amount of disk space in the analytics
 #database partition, if configured amount of space is not present, it will fail provisioning
-minimum_diskGB = 5
+#minimum_diskGB = 5
 
 #OPTIONAL BONDING CONFIGURATION
 #==============================
