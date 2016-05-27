@@ -1266,7 +1266,7 @@ function run_task() {
         if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 ]  &&  [  $VCENTER_ONLY_TESTBED -ne 1 ]; then
             export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
         else
-            export PACKAGE_VERSION=`cho ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'
+            export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'
         fi
         if [[ -z $TEST_HOST_STRING ]]; then
             export TEST_HOST_STRING=$API_SERVER_HOST_STRING
