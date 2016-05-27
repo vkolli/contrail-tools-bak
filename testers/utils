@@ -1259,7 +1259,11 @@ function run_task() {
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package
         pkg_file_name=`basename $PKG_FILE`
-        export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
+        if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 ]  &&  [  $VCENTER_COMPUTE_TESTBED -ne 1 ]; the
+            export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
+        else
+            export PACKAGE_VERSION=`cho ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'
+        fi
         if [[ -z $TEST_HOST_STRING ]]; then
             export TEST_HOST_STRING=$API_SERVER_HOST_STRING
             export TEST_HOST_PASSWORD=$API_SERVER_HOST_PASSWORD
