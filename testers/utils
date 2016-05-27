@@ -838,7 +838,11 @@ EOF
         echo "Unknown Distro - $DISTRO"
         exit 1
     fi
-    container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
+    if [  $VCENTER_COMPUTE_TESTBED -ne 1 ]; then
+        container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
+    else
+        container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}/kilo-${PACKAGE_VERSION}.tar.gz"}
+    fi
     container_image_file=`basename $container_image_path`
     if [[ ! -f $container_image_path ]]; then
         echo "ERROR!! Container image $container_image_path doesnt exist"
