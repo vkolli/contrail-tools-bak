@@ -1233,8 +1233,8 @@ function unlock_testbed() {
 
 function run_task() {
 
-    #use contrail cloud packages for branch R3.0 and above.
-    if [ "$BRANCH" \> "R2.22.x" ]; then
+    #use contrail cloud packages for branch R3.1 and above.
+    if [ "$BRANCH" \> "R3.0" ]; then
         if ! [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
             if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
                 export USE_CLOUD_PKG=1
