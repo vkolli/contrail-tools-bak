@@ -13,33 +13,43 @@ reimage_setup || debug_and_die "Reimage failed!"
 search_third_party_package
 run_build_fab "cleanup_repo"
 
-# Workaround for Bug #1463953; Adding carriage return to authorized keys
-(cd $TOOLS_WS/contrail-fabric-utils; fab -R openstack -- 'echo "$(cat ~/.ssh/authorized_keys)" > ~/.ssh/authorized_keys')
+if [ -z $REDHAT_72 ]; then
+    # Workaround for Bug #1463953; Adding carriage return to authorized keys
+    (cd $TOOLS_WS/contrail-fabric-utils; fab -R openstack -- 'echo "$(cat ~/.ssh/authorized_keys)" > ~/.ssh/authorized_keys')
 
-if [ "$SKU" == icehouse ]; then
-run_build_fab install_rhosp5_repo || debug_and_die "Failed during installing rhosp5 repo"
-elif [ "$SKU" == juno ]; then
-run_build_fab install_rhosp6_repo || debug_and_die "Failed during installing rhosp6 repo"
+    if [ "$SKU" == icehouse ]; then
+    run_build_fab install_rhosp5_repo || debug_and_die "Failed during installing rhosp5 repo"
+    elif [ "$SKU" == juno ]; then
+    run_build_fab install_rhosp6_repo || debug_and_die "Failed during installing rhosp6 repo"
+    else
+    run_build_fab install_rhosp7_repo || debug_and_die "Failed during installing rhosp7 repo"
+    fi
 else
-run_build_fab install_rhosp7_repo || debug_and_die "Failed during installing rhosp7 repo"
+    fab install_rhosp8_repo || debug_and_die "Failed during installing rhosp8 repo"
 fi
-
 run_build_fab "install_pkg_all_without_openstack:${THIRD_PARTY_PKG_FILE}"  || debug_and_die "Task install_pkg_all_without_openstack failed!!"
 copy_fabric_test_artifacts
 run_build_fab "install_pkg_all_without_openstack:${PKG_FILE}" || debug_and_die "Task install_pkg_all_without_openstack failed!!"
 run_setup_shell_script
 
-if [ "$SKU" == icehouse ]; then
-run_build_fab upgrade_kernel_without_openstack
+if [ -z $REDHAT_72 ]; then
+    if [ "$SKU" == icehouse ]; then
+    run_build_fab upgrade_kernel_without_openstack
+    else
+    run_build_fab update_all_node
+    echo "Waiting for 300secs for target nodes to be UP"
+    sleep 300
+    fi
 else
-run_build_fab update_all_node
-echo "Waiting for 300secs for target nodes to be UP"
-sleep 300
+    run_build_fab update_all_node || debug_and_die "update_all_node failed"
+    run_build_fab upgrade_kernel_all || debug_and_die "upgrade_kernel_all failed"
 fi
 
 run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_node"
 run_build_fab "update_keystone_admin_token"
-run_build_fab "update_service_tenant"
+if [ -z $REDHAT_72 ]; then
+    run_build_fab "update_service_tenant"
+fi
 run_build_fab "update_neutron_password"
 run_build_fab "update_nova_password"
 sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/fabfile/testbeds/testbed.py  ${API_SERVER_HOST_STRING}:$tbpath/testbed.py
