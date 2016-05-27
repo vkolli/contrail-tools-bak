@@ -68,4 +68,3 @@ env.interface_rename = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 do_parallel = True
 env.enable_lbaas = True
-haproxy = True

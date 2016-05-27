@@ -78,4 +78,3 @@ env.openstack = {
     'amqp_host' : '10.204.217.147',
 }
 env.enable_lbaas = True
-haproxy = True

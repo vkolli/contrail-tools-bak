@@ -47,4 +47,3 @@ env.mail_to='ganeshahv@juniper.net'
 #haproxy = True
 
 env.enable_lbaas = True
-haproxy = True

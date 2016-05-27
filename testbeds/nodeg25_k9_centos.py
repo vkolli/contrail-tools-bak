@@ -96,4 +96,3 @@ env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Five node sanity'
 
 env.enable_lbaas = True
-haproxy = True

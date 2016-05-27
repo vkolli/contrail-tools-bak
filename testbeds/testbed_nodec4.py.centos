@@ -61,4 +61,3 @@ env.interface_rename = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"                                                                                                                                                                                                                         
 env.log_scenario='ECMP Regression'
 env.enable_lbaas = True
-haproxy = True

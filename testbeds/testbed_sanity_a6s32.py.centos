@@ -110,4 +110,3 @@ env.interface_rename = True
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
-haproxy = True
