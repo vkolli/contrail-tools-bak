@@ -24,7 +24,7 @@ else
 fi
 export TEST_RUN=${TEST_RUN:-'contrail-test'}
 export TEST_CONTAINER_IMAGE=${TEST_CONTAINER_IMAGE:-''}
-if [  $VCENTER_COMPUTE_TESTBED -ne 1 ]; then
+if ! [  $VCENTER_ONLY_TESTBED == 1 ]; then
     export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts/"}
 else
     export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/kilo/artifacts/"}

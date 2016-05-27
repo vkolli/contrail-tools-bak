@@ -838,7 +838,7 @@ EOF
         echo "Unknown Distro - $DISTRO"
         exit 1
     fi
-    if [  $VCENTER_COMPUTE_TESTBED -ne 1 ]; then
+    if [  $VCENTER_ONLY_TESTBED -ne 1 ]; then
         container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
     else
         container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}/kilo-${PACKAGE_VERSION}.tar.gz"}
@@ -1263,7 +1263,7 @@ function run_task() {
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package
         pkg_file_name=`basename $PKG_FILE`
-        if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 ]  &&  [  $VCENTER_COMPUTE_TESTBED -ne 1 ]; the
+        if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 ]  &&  [  $VCENTER_ONLY_TESTBED -ne 1 ]; then
             export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
         else
             export PACKAGE_VERSION=`cho ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'
