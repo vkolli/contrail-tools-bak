@@ -918,7 +918,11 @@ function setup_sanity_base_simple {
     if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
         copy_bgp_stress_test_binary # This is not going to work in container, this will need to happen while building the container
     fi
-    sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
+    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+        sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-kilo:${PACKAGE_VERSION}"
+    else
+        sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
+    fi
     if [ $PARALLEL_RUN -eq 1 ]; then
          EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS -t "
     fi
