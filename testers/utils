@@ -1247,11 +1247,9 @@ function run_task() {
 
     #use contrail cloud packages for branch R3.1 and above.
     if [ "$BRANCH" \> "R3.0" ]; then
-        if ! [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
-            if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
-                export USE_CLOUD_PKG=1
-            fi
-       fi
+        if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
+            export USE_CLOUD_PKG=1
+        fi
     fi
     create_testbed || die "Failed to create required testbed details"
     echo "Running tests on $TBFILE_NAME .." 
