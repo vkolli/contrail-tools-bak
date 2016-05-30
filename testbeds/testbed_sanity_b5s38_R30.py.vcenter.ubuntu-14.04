@@ -73,7 +73,7 @@ env.vcenter_servers = {
            'auth': 'https',
            'datacenter': 'vc-orch-b5s38-sanity',
       #     'vcenter_compute': '10.84.24.70',
-           'cluster': ['sriov_cluster1'],
+           'cluster': ['sriov_cluster1', 'sriov_cluster2'],
        #    'dv_switch_sr_iov': { 'dv_switch_name': 'dvs-sriov-shaju',},
        #    'dv_port_group_sr_iov': { 'dv_portgroup_name': 'dvs-sriov-pgroup-sha',
        #                           'number_of_ports': '2',},
@@ -114,7 +114,7 @@ esxi_hosts = {
         'password' : 'c0ntrail123',
         'datastore': "/vmfs/volumes/datastore1",
         'vcenter_server': 'vcenter55',
-        'cluster': 'sriov_cluster1',
+        'cluster': 'sriov_cluster2',
         'contrail_vm' : {
             'name' : 'ContrailVM-b5s41',
             'mac' : '00:50:56:08:ab:ac',
