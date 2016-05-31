@@ -42,6 +42,13 @@ env.hostnames = {
     host7: '5b7s17',
 }
 
+env.hypervisor = {
+    host4: 'docker',
+    host5: 'docker',
+    host6: 'libvirt',
+    host7: 'libvirt'
+}
+
 #Openstack admin password
 env.openstack_admin_password = 'c0ntrail123'
 

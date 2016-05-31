@@ -12,26 +12,28 @@ host7 = 'root@10.84.29.37'
 
 #External routers if any
 #for eg.
-ext_routers = [('b6-mx80-4', '7.7.7.77')]
+ext_routers = [('b6-mx80-4', '172.16.80.100')]
 #ext_routers = []
 
 #Autonomous system number
 router_asn = 64513
+public_vn_rtgt = 10000
+public_vn_subnet = "10.84.11.96/28"
 
 #Host from which the fab commands are triggered to install and provision
-host_build = 'root@10.84.29.31'
+host_build = 'root@10.84.24.64'
 
 #Role definition of the hosts.
 env.roledefs = {
     'all': [host1, host2,host3, host4, host5, host6, host7],
     'cfgm': [host1, host2, host3],
-    'openstack': [host1],
-    'webui': [host2],
-    'control': [host1, host3],
+    'openstack': [host1, host2, host3],
+    'webui': [host1, host2, host3],
+    'control': [host1, host2, host3],
     'compute': [host4, host5, host6, host7],
-    'tsn': [host4],
-    'toragent': [host4],
-    'collector': [host1, host3],
+#    'tsn': [host4],
+#    'toragent': [host4],
+    'collector': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
 }
@@ -135,7 +137,7 @@ env.ostypes = {
 #analytics_statistics_ttl controls TTL for stats/control_data
 #following parameter allows to specify minimum amount of disk space in the analytics
 #database partition, if configured amount of space is not present, it will fail provisioning
-#minimum_diskGB = 256
+#minimum_diskGB = 5
 
 #OPTIONAL BONDING CONFIGURATION
 #==============================
@@ -175,17 +177,17 @@ control_data = {
 #storage_replica_size = 3
 
 # VIP
-#env.ha = {
-#    'internal_vip' : '172.16.80.50',
-#    'external_vip' : '10.84.29.50'
-#}
+env.ha = {
+    'internal_vip' : '172.16.80.50',
+    'external_vip' : '10.84.29.50'
+}
 
 # OPTIONAL vrouter limit parameter
 # ==================================
 
 do_parallel = True
-env.mail_from='chhandak@juniper.net'
-env.mail_to='chhandak@juniper.net'
+env.mail_from='jebap@juniper.net'
+env.mail_to='jebap@juniper.net'
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.test_repo_dir='/root/contrail-test'
 env.ca_cert_file='/root/cacert.pem'
