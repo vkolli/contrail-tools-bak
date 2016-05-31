@@ -158,4 +158,7 @@ env.ntp_server = '10.84.5.100'
 
 enable_ceilometer = True
 #ceilometer_polling_interval = 60
+env.test = {
+           'mail_to' :'shajuvk@juniper.net',
+           }
 env.test_repo_dir='/root/contrail-test'

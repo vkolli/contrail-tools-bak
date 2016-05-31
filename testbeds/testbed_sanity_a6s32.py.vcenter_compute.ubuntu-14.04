@@ -169,7 +169,9 @@ env.interface_rename = False
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Vcenter-Compute MultiNode Single Intf Sanity'
 env.enable_lbaas = True
-
+env.test = {
+           'mail_to' :'dl-contrail-sw@juniper.net',
+           }
 env.ntp_server = '10.84.5.100'
 
 enable_ceilometer = True
