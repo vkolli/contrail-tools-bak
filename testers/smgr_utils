@@ -429,7 +429,7 @@ function reimage_using_SM_cliff_client() {
         server-manager-client delete image --image_id ${DISTRO}
 
         echo "add base ISO image to server manager database"
-        server-manager-client add image -f /root/images/image142.json
+        server-manager-client add image -f /root/images/image144.json
         if [ $? == 0 ]
         then
             echo "Server-manager adding image command is successful"
@@ -606,7 +606,7 @@ function reimage_using_SM() {
             echo "add base ISO image to server manager database"
             if [ ${DISTRO} == "ubuntu-14-04" ]
             then
-                server-manager add image -f /root/images/image142.json
+                server-manager add image -f /root/images/image144.json
             else
                 #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
                 server-manager add image -f /root/images/image12.json
