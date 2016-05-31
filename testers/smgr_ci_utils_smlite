@@ -261,7 +261,7 @@ function run_smgr_task() {
     echo "Running tests on $1.."
 
     #use contrail cloud packages for branch R3.0 and above.
-    if [ "$BRANCH" \> "R2.22.x" ]; then
+    if [ "$BRANCH" \> "R3.0" ]; then
         export USE_CLOUD_PKG=1
     fi
 
