@@ -1273,10 +1273,10 @@ function run_task() {
         search_package
         pkg_file_name=`basename $PKG_FILE`
         if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
-            if [ $VCENTER_AS_COMPUTE_TESTBED -ne 1 ] && [ $VCENTER_ONLY_TESTBED -ne 1 ]; then
-                export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
-            else
+            if [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 && $VCENTER_ONLY_TESTBED -eq 1 ]]; then
                 export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'`
+            else
+                export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
             fi
         fi
         if [[ -z $TEST_HOST_STRING ]]; then
