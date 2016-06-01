@@ -101,8 +101,10 @@ function search_package {
         export VCENTER_PLUGIN
         if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
             PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-package*${pkg_suffix}`
+            export PKG_FILE
         else
             PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}`
+            export PKG_FILE
         fi
         export PKG_FILE
     else    
