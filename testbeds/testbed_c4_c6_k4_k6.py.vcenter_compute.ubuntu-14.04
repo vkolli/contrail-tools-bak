@@ -151,7 +151,9 @@ if os.getenv('HA_TEST',None) == 'True':
     '10.204.216.226':'10.204.216.250',
     }
 
-
+env.test = {
+     'mail_to' = 'dl-contrail-sw@juniper.net',
+           }
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
