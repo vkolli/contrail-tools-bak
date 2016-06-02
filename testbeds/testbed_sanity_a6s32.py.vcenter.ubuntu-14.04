@@ -170,10 +170,11 @@ env.interface_rename = False
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Vcenter MultiNode Single Intf Sanity'
 env.enable_lbaas = True
+env.test = {
+     'mail_to': 'dl-contrail-sw@juniper.net',
+           }
 do_parallel=True
 env.ntp_server = '10.84.5.100'
-env.test = {
-     'mail_to' = 'dl-contrail-sw@juniper.net',
-           }
+
 #enable_ceilometer = True
 #ceilometer_polling_interval = 60
