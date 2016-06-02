@@ -301,7 +301,6 @@ function run_smgr_task() {
     else
         export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-install-packages[-_]\([0-9\.\-]*\).*/\1/'`
     fi
-    export PACKAGE_VERSION=`echo ${pkg_file_name} | sed 's/contrail-installer-packages[-_]\([0-9\.\-]*\).*/\1/'`
     if [[ -z $TEST_HOST_STRING ]]; then
         export TEST_HOST_STRING=$API_SERVER_HOST_STRING
         export TEST_HOST_PASSWORD=$API_SERVER_HOST_PASSWORD
