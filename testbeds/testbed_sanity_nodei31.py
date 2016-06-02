@@ -119,3 +119,4 @@ env.test = {
 #  'fixture_cleanup' : 'yes',
 #   'keypair_name': 'contrail_key',  
 }
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

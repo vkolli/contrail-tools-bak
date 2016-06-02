@@ -89,3 +89,4 @@ env.cluster_id='clusterb8'
 #enable ceilometer
 enable_ceilometer = True
 ceilometer_polling_interval = 60
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

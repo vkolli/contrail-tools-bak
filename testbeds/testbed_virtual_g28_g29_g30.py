@@ -106,3 +106,4 @@ env.log_scenario='MultiNode Multi-Interface Virtual Testbed Sanity'
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.ntp_server = '10.204.217.158'
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

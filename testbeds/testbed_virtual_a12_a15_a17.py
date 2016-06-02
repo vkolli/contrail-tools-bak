@@ -84,3 +84,4 @@ enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data]'
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
