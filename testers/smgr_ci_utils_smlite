@@ -309,6 +309,7 @@ function run_smgr_task() {
     export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
     install_third_party_pkgs || die "installing GDB/ant failed"
     setup_testnode || die "test node setup failed"
+    install_dep_pkgs_for_test
     run_sanity_simple || die "run_sanity_simple failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
