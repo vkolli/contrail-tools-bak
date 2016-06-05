@@ -11,6 +11,7 @@ export BRANCH=${BRANCH:-mainline}
 export BUILDID=${BUILDID:-LATEST}
 export DISTRO=${DISTRO:-"ubuntu-12-04"}
 export SKU=${SKU:-icehouse}
+export VCENTER_TEST_SKU=${VCENTER_TEST_SKU:-kilo}
 
 ##
 # TEST_RUN_INFRA: to specify where the test is run, possible values are
@@ -24,10 +25,10 @@ else
 fi
 export TEST_RUN=${TEST_RUN:-'contrail-test'}
 export TEST_CONTAINER_IMAGE=${TEST_CONTAINER_IMAGE:-''}
-if [  $VCENTER_ONLY_TESTBED -ne 1 ]; then
-    export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts/"}
+if [  $VCENTER_ONLY_TESTBED -eq 1 ]; then
+    export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${VCENTER_TEST_SKU}/artifacts/"}
 else
-    export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/kilo/artifacts/"}
+    export TEST_CONTAINER_IMAGE_DIR=${TEST_CONTAINER_IMAGE_DIR:-"/github-build/${BRANCH}/${BUILDID}/ubuntu-14-04/${SKU}/artifacts/"}
 fi
 
 # If BRANCH, BUILID, DISTRO, SKU are not defined,
