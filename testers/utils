@@ -945,7 +945,7 @@ function setup_sanity_base_simple {
                                                          $other_test_params
                                                          $pythonpath
                                                          ${sanity_cmd};"; rv_test_run=$?
-    if [ $rv_test_run -ne 0 ]; then
+    if [ $rv_test_run -ne 0 ] || [ $rv_test_run -ne 100 ]; then
         if [ $rv_test_run -gt 100 ]; then
             die "Task to run sanity failed"
         else
