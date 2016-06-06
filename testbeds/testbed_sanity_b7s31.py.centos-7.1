@@ -27,7 +27,7 @@ host_build = 'root@10.84.24.64'
 env.roledefs = {
     'all': [host1, host2,host3, host4, host5, host6, host7],
     'cfgm': [host1, host2, host3],
-    'openstack': [host1, host2, host3],
+    'openstack': [host1],
     'webui': [host1, host2, host3],
     'control': [host1, host2, host3],
     'compute': [host4, host5, host6, host7],
@@ -178,8 +178,8 @@ control_data = {
 
 # VIP
 env.ha = {
-    'internal_vip' : '172.16.80.50',
-    'external_vip' : '10.84.29.50'
+    'contrail_internal_vip' : '172.16.80.50',
+    'contrail_external_vip' : '10.84.29.50'
 }
 
 # OPTIONAL vrouter limit parameter
