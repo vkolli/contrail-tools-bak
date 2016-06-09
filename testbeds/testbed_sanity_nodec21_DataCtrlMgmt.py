@@ -20,12 +20,12 @@ host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3, host4, host5, host6],
-    'cfgm': [host1, host3],
-    'openstack': [host2],
+    'cfgm': [host1, host2, host3],
+    'openstack': [host1, host2, host3],
     'webui': [host3],
     'control': [host1, host3],
     'compute': [host4, host5, host6],
-    'collector': [host1, host3],
+    'collector': [host1, host2, host3],
     'database': [host1, host2, host3],
     'build': [host_build],
 }
@@ -69,6 +69,7 @@ env.passwords = {
 
     host_build: 'c0ntrail123',
 }
+
 env.physical_routers={
 'blr-mx2'     : {       'vendor': 'juniper',
                      'model' : 'mx',
@@ -80,12 +81,18 @@ env.physical_routers={
              }
 }
 
+env.ha = {
+    'internal_vip' : '192.168.10.7'
+}
+ha_setup = True
+
 env.cluster_id='clusterc18c19c20c21c60c61'
 minimum_diskGB=32
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = True 
-env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
-env.log_scenario = 'Multi-Interface Sanity[mgmt, ctrl=data]'
+env.encap_priority =  "'VXLAN, 'MPLSoUDP','MPLSoGRE'"
+env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data]'

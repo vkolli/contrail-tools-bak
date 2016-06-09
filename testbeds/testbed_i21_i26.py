@@ -16,12 +16,12 @@ host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3,host4,host5, host6],
-    'cfgm': [host1, host2],
-    'webui': [host1],
-    'openstack': [host1],
-    'control': [host2, host3],
-    'collector': [host1],
-    'database': [host1],
+    'cfgm': [host1, host2, host3],
+    'openstack': [host1, host2, host3],
+    'webui': [host2],
+    'control': [host1, host2, host3],
+    'collector': [host1, host2],
+    'database': [host1, host2, host3],
     'compute': [host4, host5, host6],
     'build': [host_build]
 }
@@ -70,6 +70,11 @@ env.physical_routers={
              }
 }
 
+env.ha = {
+    'internal_vip' : '10.204.217.170'
+}
+ha_setup = True
+
 env.cluster_id='i21_i26_cluster'
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
@@ -82,5 +87,4 @@ env.enable_lbaas = True
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.log_scenario='Multi-Node Sanity'
-#env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+env.log_scenario='Multi-Node HA Sanity'
