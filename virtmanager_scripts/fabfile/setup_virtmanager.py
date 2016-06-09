@@ -5,6 +5,7 @@ from fabric.api import run,put,env,parallel, cd
 from fabric.operations import get, put
 from fabric.context_managers import settings, hide
 import re
+import random
 
 #env.hosts  = ['nodei12', 'nodei13','nodei14','nodei15']
 env.user = 'root'
@@ -23,20 +24,24 @@ def copy_virt_manager_script():
 def copy_image(image_source, image_dest='/root/tmp/', image_name=None):
 
     dest_folder = os.path.dirname(image_dest)
+    rand_number = random.randint(1,10000)
+    temp_file = "tmp_%s" % (rand_number)
     run('mkdir -p %s' % (dest_folder))
     with cd(dest_folder):
         src_file = os.path.basename(image_source)
         if image_source.endswith('.gz'):
             src_file_name = src_file.split('.gz')[0]
+            temp_file = '%s.gz' % (temp_file)
         else:
             src_file_name = src_file
         image_name = image_name or src_file_name
 
         run('rm -f %s %s' % (image_name, src_file))
-        run('wget %s' % (image_source))
+        run('wget %s -O %s' % (image_source, temp_file))
         if image_source.endswith('.gz'):
-            run('gunzip -f %s' % (src_file))
-        run('mv %s %s' % (src_file_name, image_name))
+            run('gunzip -f %s' % (temp_file))
+            temp_file = temp_file.split('.gz')[0]
+        run('mv %s %s' % (temp_file, image_name))
 
 
 @parallel
