@@ -160,6 +160,11 @@ env.ntp_server = '10.84.5.100'
 # To configure the encapsulation priority. Default: MPLSoGRE 
 #
 env.test = {
-            'mail_to' : 'shajuvk@juniper.net'
+     'mail_to' : 'shajuvk@juniper.net'
+     'mail_server': '10.84.24.64',
+     'mail_port': '4000',
+     'image_web_server': '10.84.5.120',
+     'log_scenario': 'Vcenter-Compute MultiNode Single Intf Sanity',
+           }
 }
 
