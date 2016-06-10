@@ -101,9 +101,9 @@ function search_package {
         export VCENTER_PLUGIN
         if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
             if [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
-                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-package*${pkg_suffix}`
+                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/contrail-install-package*${pkg_suffix}`
             else
-                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-installer-packages*${pkg_suffix}`
+                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/contrail-installer-packages*${pkg_suffix}`
             fi
         fi
         export PKG_FILE
@@ -151,13 +151,13 @@ function search_package {
 
 function search_tgz_packages {
     if [ $USE_NETWORKING_PKG -eq 1 ]; then
-        net_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-networking*.tgz`
+        net_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/artifacts/contrail-networking*.tgz`
         export net_tgz_pkg
         if [ -z "$net_tgz_pkg" ]; then
             die "Unable to find the networking pkg $net_tgz_pkg"
         fi
     fi
-    cloud_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-cloud_*.tgz`
+    cloud_tgz_pkg=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/artifacts/contrail-cloud_*.tgz`
     export cloud_tgz_pkg
     if [ -z "$cloud_tgz_pkg" ]; then
         die "Unable to find the cloud pkgs $cloud_tgz_pkg"
@@ -165,7 +165,7 @@ function search_tgz_packages {
 }
 
 function search_third_party_package {
-    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
+    export THIRD_PARTY_PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/artifacts/contrail-thirdparty-packages*${pkg_suffix}`
 }
 
 ##
@@ -848,11 +848,7 @@ EOF
         echo "Unknown Distro - $DISTRO"
         exit 1
     fi
-    if [  $VCENTER_ONLY_TESTBED -eq 1 ]; then
-        container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${VCENTER_TEST_SKU}-${PACKAGE_VERSION}.tar.gz"}
-    else
-        container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${SKU}-${PACKAGE_VERSION}.tar.gz"}
-    fi
+    container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${TEST_SKU}-${PACKAGE_VERSION}.tar.gz"}
     container_image_file=`basename $container_image_path`
     if [[ ! -f $container_image_path ]]; then
         echo "ERROR!! Container image $container_image_path doesnt exist"
@@ -864,7 +860,7 @@ EOF
         if [ \$rv -ne 0 ]; then
             $PACKAGE_INSTALL_CMD
         fi
-        s=$(docker images -q ${TEST_RUN}-${SKU}:${PACKAGE_VERSION} | grep -c [a-z])
+        s=$(docker images -q ${TEST_RUN}-${TEST_SKU}:${PACKAGE_VERSION} | grep -c [a-z])
         wget -O /usr/local/bin/testrunner.sh https://raw.githubusercontent.com/Juniper/contrail-test-ci/master/testrunner.sh
         chmod +x /usr/local/bin/testrunner.sh
         if [ \$s -eq 0 ]; then
@@ -928,11 +924,7 @@ function setup_sanity_base_simple {
     if [[ "$TEST_RUN_CMD" == *"control_node_scaling"* ]]; then
         copy_bgp_stress_test_binary # This is not going to work in container, this will need to happen while building the container
     fi
-    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
-        sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${VCENTER_TEST_SKU}:${PACKAGE_VERSION}"
-    else
-        sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${SKU}:${PACKAGE_VERSION}"
-    fi
+    sanity_cmd="bash -x /usr/local/bin/testrunner.sh run -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${TEST_SKU}:${PACKAGE_VERSION}"
     if [ $PARALLEL_RUN -eq 1 ]; then
          EXTRA_RUN_TEST_ARGS="$EXTRA_RUN_TEST_ARGS -t "
     fi
@@ -1014,7 +1006,7 @@ function setup_sanity_base {
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
-                                                         export SKU=${SKU};
+                                                         export SKU=${TEST_SKU};
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export TEST_TYPE=${TEST_TYPE};
                                                          export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
@@ -1034,7 +1026,7 @@ function setup_sanity_base {
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "export SCRIPT_TS=${SCRIPT_TIMESTAMP};
                                                          export JENKINS_TRIGGERED=${jenkins_triggered};
                                                          export BUILD_ID=${BUILDID};
-                                                         export SKU=${SKU};
+                                                         export SKU=${TEST_SKU};
                                                          export PARAMS_FILE=${PARAMS_FILE};
                                                          export TEST_TYPE=${TEST_TYPE};
                                                          export EMAIL_SUBJECT_PREFIX=\"${EMAIL_SUBJECT_PREFIX}\";
