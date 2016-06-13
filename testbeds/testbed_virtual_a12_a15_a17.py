@@ -45,13 +45,15 @@ env.passwords = {
     host_build: 'stack@123',
 }
 
+reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
+
 vm_node_details = {
     'default': {
                 'image_dest' : '/mnt/disk1/images/',
                 'ram' : '16384',
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
-                'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
+                'image_source' : ''http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param)',
                 },
     host1 : {  
                 'name' : 'nodei13-vm2',
@@ -84,4 +86,3 @@ enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data]'
-env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
