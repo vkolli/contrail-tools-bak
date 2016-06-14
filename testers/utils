@@ -101,7 +101,7 @@ function search_package {
         export VCENTER_PLUGIN
         if [[ $USE_CLOUD_PKG -eq 1 || $USE_NETWORKING_PKG -eq 1 ]]; then
             if [[ $VCENTER_AS_COMPUTE_TESTBED -eq 1 || $VCENTER_ONLY_TESTBED -eq 1 ]]; then
-                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/contrail-install-package*${pkg_suffix}`
+                PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-package*${pkg_suffix}`
             else
                 PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/contrail-installer-packages*${pkg_suffix}`
             fi
@@ -377,12 +377,23 @@ function use_testbed_file {
     if [ $ESXI_ONLY_TESTBED -eq 1 ]; then
             tbfile_hyper=${tbfile}.esx
     fi
-    if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
-            tbfile_hyper=${tbfile}.vcenter
+    if [ "$BRANCH" \> "R3.0" ]; then
+
+        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+                tbfile_hyper=${tbfile}.vcenter
+        fi
+        if [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
+                tbfile_hyper=${tbfile}.vcenter_compute
+        fi
+    else
+        if [ $VCENTER_ONLY_TESTBED -eq 1 ]; then
+            tbfile_hyper=${tbfile}.vcenter_R20
+        fi
+        if [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
+                tbfile_hyper=${tbfile}.vcenter_compute_R20
+        fi
     fi
-    if [ $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]; then
-            tbfile_hyper=${tbfile}.vcenter_compute
-    fi
+
     if [ $USE_NEWORKING_PKG -eq 1 ]; then
             tbfile_hyper=${tbfile}.networking
     fi

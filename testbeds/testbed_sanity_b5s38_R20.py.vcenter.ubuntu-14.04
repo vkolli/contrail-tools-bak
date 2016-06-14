@@ -155,7 +155,7 @@ env.log_scenario='single_int_Vcenter Sanity'
 #multi_tenancy = True
 #env.enable_lbaas = True
 #To Enable prallel execution of task in multiple nodes
-do_parallel = True
+#do_parallel = True
 env.ntp_server = '10.84.5.100'
 # To configure the encapsulation priority. Default: MPLSoGRE 
 #
