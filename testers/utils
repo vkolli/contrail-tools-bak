@@ -105,6 +105,8 @@ function search_package {
             else
                 PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${TEST_SKU}/contrail-installer-packages*${pkg_suffix}`
             fi
+        else
+            PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}`
         fi
         export PKG_FILE
     else    
