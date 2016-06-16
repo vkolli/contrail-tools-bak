@@ -22,7 +22,7 @@ public_vn_subnet = "10.84.51.96/27"
 router_asn = 64512
 
 #Host from which the fab commands are triggered to install and provision
-host_build = 'root@10.84.24.64' 
+host_build = 'stack@10.84.24.64'
 env.orchestrator = 'vcenter'
 #Role definition of the hosts.
 env.roledefs = {
