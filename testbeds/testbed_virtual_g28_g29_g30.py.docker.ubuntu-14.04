@@ -1,4 +1,5 @@
 from fabric.api import env
+import os
 
 host1 = 'root@10.204.217.103'
 host2 = 'root@10.204.217.232'
