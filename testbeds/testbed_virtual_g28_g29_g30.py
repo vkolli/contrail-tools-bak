@@ -72,7 +72,7 @@ vm_node_details = {
                 'ram' : '16384',
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
-                'image_source' : ''http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param)',
+                'image_source' : 'http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
     host1 : {
                 'name' : 'nodei13-vm1',
