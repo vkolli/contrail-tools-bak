@@ -101,6 +101,9 @@ function search_package {
         else
             PKG_FILE="/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}"
         fi
+	PKG_FILE="/tmp/sanity/contrail-install-packages*${pkg_suffix}"
+	USE_CLOUD_PKG=0
+	export USE_CLOUD_PKG
         export PKG_FILE
     else    
         pkg_file_name=`basename $PKG_FILE`
