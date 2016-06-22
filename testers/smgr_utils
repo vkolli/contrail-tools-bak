@@ -606,7 +606,7 @@ function reimage_using_SM() {
             echo "add base ISO image to server manager database"
             if [ ${DISTRO} == "ubuntu-14-04" ]
             then
-                server-manager add image -f /root/images/image144.json
+                server-manager add image -f /root/images/image142.json
             else
                 #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
                 server-manager add image -f /root/images/image12.json
@@ -821,7 +821,7 @@ function run_smgr_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup" 
-    if [ ${BRANCH} == "R3.0" ]
+    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
     then
         reimage_using_SM_cliff_client || debug_and_die "reimage failed"
         provision_using_SM_cliff_client || debug_and_die "provision failed"
