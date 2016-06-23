@@ -31,6 +31,16 @@ env.roledefs = {
 
 
 }
+env.physical_routers={
+'blr-mx2'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx2',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.216.245',
+             }
+}
  
 env.hostnames ={
     'all': ['nodeg21', 'nodeg33', 'nodec58', 'nodec38', 'nodeg17']

@@ -29,6 +29,16 @@ env.roledefs = {
     'database': [host1, host2, host3],
     'build': [host_build],
 }
+env.physical_routers={
+'blr-mx1'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx1',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.204.216.253',
+             }
+}
 
 env.hostnames = {
     'all': ['nodea35', 'nodea34', 'nodec53', 'nodec54', 'nodec55', 'nodec56']

@@ -29,6 +29,16 @@ env.roledefs = {
     'compute': [host4, host5, host6],
     'build': [host_build]
 }
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
+}
 
 env.hostnames = {
     'all': ['nodei13-vm2', 'nodei14-vm2', 'nodek7-vm2', 'nodea12', 'nodea15', 'nodea17']

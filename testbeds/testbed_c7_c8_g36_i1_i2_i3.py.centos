@@ -31,6 +31,16 @@ env.roledefs = {
 env.hostnames = {
     'all': ['nodec7', 'nodec8', 'nodeg36', 'nodei1', 'nodei2', 'nodei3']
 }
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
+}
 
 env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'

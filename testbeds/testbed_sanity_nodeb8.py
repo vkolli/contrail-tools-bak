@@ -34,6 +34,16 @@ env.hostnames = {
 
 #Openstack admin password
 env.openstack_admin_password = 'contrail123'
+env.physical_routers={
+'mx1'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'mx1',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.204.216.253',
+             }
+}
 
 env.password = 'c0ntrail123'
 #Passwords of each host
