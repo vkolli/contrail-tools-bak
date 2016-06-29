@@ -751,6 +751,13 @@ function run_sanity_simple {
     setup_sanity_base_simple
 }
 
+#Install webui packages and set keystone expiry time for webui runs
+function install_ui {
+    run_fab "install_webui_packages:~"
+    run_fab "update_config_option:openstack,/etc/keystone/keystone.conf,token,expiration,86400,keystone"
+    run_fab "update_js_config:openstack,/etc/contrail/config.global.js,contrail-webui"
+}
+
 # run_sanity serial/parallel
 function run_sanity {
     if [ $SKIP_SANITY -ne 0 ]
@@ -762,6 +769,11 @@ function run_sanity {
     add_to_sources_list
     run_fab "install_test_repo"
     run_fab "setup_test_env"
+    # Check if this is webui run and if yes, install webui packages
+    if [ $ui == 'webui' ]
+    then
+        install_ui
+    fi
     # check venv exist before running test
     check_venv_exists
     install_dep_pkgs_for_test
@@ -1255,7 +1267,7 @@ function unlock_testbed() {
 }
 
 function run_task() {
-
+    ui=$1
     #use contrail cloud packages for branch R3.1 and above.
     if [ "$BRANCH" \> "R3.0" ]; then
         if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
