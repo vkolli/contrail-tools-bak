@@ -752,7 +752,7 @@ function run_sanity_simple {
 }
 
 #Install webui packages and set keystone expiry time for webui runs
-function install_ui {
+function setup_webui_environment {
     run_fab "install_webui_packages:~"
     run_fab "update_config_option:openstack,/etc/keystone/keystone.conf,token,expiration,86400,keystone"
     run_fab "update_js_config:openstack,/etc/contrail/config.global.js,contrail-webui"
@@ -772,7 +772,7 @@ function run_sanity {
     # Check if this is webui run and if yes, install webui packages
     if [ $ui == 'webui' ]
     then
-        install_ui
+        setup_webui_environment
     fi
     # check venv exist before running test
     check_venv_exists
