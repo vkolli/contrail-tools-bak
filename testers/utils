@@ -882,6 +882,8 @@ EOF
     fi
     container_image_path=${TEST_CONTAINER_IMAGE:-"${TEST_CONTAINER_IMAGE_DIR}/docker-image-${TEST_RUN}-${TEST_SKU}-${PACKAGE_VERSION}.tar.gz"}
     container_image_file=`basename $container_image_path`
+    container_image_path="/github-build/R3.0/52/ubuntu-14-04/liberty/artifacts//docker-image-contrail-test-liberty-3.0.2.0-52.tar.gz"
+    container_image_file="docker-image-contrail-test-liberty-3.0.2.0-52.tar.gz"
     if [[ ! -f $container_image_path ]]; then
         echo "ERROR!! Container image $container_image_path doesnt exist"
         exit 1
