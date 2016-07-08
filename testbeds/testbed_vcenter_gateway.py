@@ -4,7 +4,7 @@ from fabric.api import env
 host1 = 'root@10.204.216.15'
 host2 = 'root@10.204.216.10'
 host3 = 'root@10.204.217.209'
-host4 = 'root@10.204.217.122'
+host4 = 'root@10.204.217.121'
 
 
 ext_routers = [('blr-mx1', '10.204.216.253')]
@@ -28,7 +28,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodea19', 'nodea14','nodel3','nodei10']
+    'all': ['nodea19', 'nodea14','nodel3','nodei9']
 }
 
 env.password = 'c0ntrail123'
