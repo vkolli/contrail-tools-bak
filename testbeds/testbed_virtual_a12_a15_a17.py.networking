@@ -1,4 +1,5 @@
 from fabric.api import env
+import os
 
 host1 = 'root@10.204.217.172'
 host2 = 'root@10.204.217.179'
@@ -27,6 +28,16 @@ env.roledefs = {
     'database': [host2],
     'compute': [host4, host5, host6],
     'build': [host_build]
+}
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
 }
 
 env.hostnames = {
@@ -72,6 +83,8 @@ env.cfgm = {
     'amqp_port' : '5672'
 }
 
+reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
+
 
 vm_node_details = {
     'default': {
@@ -79,7 +92,7 @@ vm_node_details = {
                 'ram' : '16384',
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
-                'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
+                'image_source' : 'http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
     host1 : {  
                 'name' : 'nodei13-vm2',

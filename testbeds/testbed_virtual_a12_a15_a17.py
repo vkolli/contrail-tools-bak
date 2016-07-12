@@ -1,4 +1,5 @@
 from fabric.api import env
+import os
 
 host1 = 'root@10.204.217.172'
 host2 = 'root@10.204.217.179'
@@ -28,6 +29,16 @@ env.roledefs = {
     'compute': [host4, host5, host6],
     'build': [host_build]
 }
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
+}
 
 env.hostnames = {
     'all': ['nodei13-vm2', 'nodei14-vm2', 'nodek7-vm2', 'nodea12', 'nodea15', 'nodea17']
@@ -45,13 +56,15 @@ env.passwords = {
     host_build: 'stack@123',
 }
 
+reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
+
 vm_node_details = {
     'default': {
                 'image_dest' : '/mnt/disk1/images/',
                 'ram' : '16384',
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
-                'image_source' : 'http://10.204.217.158/images/node_vm_images/ubuntu-14.04.2-256G.img.gz',
+                'image_source' : 'http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
     host1 : {  
                 'name' : 'nodei13-vm2',
@@ -84,4 +97,3 @@ enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data]'
-env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

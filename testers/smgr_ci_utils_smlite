@@ -246,7 +246,7 @@ function run_smgr_regression_task() {
 
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || die "Failed to bringup SM setup"
-    reimage_using_SM || debug_and_die "reimage failed"
+    reimage_using_SM_cliff_client || debug_and_die "reimage failed"
     copy_smlite_pkg || die "copy of sm-lite packages failed"
     provision_using_SMLite || die "provision failed"
     add_sourcelist_SMLite || die "source.list copy failed on all target nodes"
@@ -291,7 +291,7 @@ function run_smgr_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup"
-    reimage_using_SM || debug_and_die "reimage failed"
+    reimage_using_SM_cliff_client || debug_and_die "reimage failed"
     copy_smlite_pkg || die "copy of sm-lite packages failed"
     provision_using_SMLite || die "provision failed"
     search_package

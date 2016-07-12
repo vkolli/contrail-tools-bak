@@ -75,6 +75,7 @@ if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
         export TEST_RUN='contrail-test'
         setup_testnode || die "test node setup failed"
+        run_fab "install_test_repo"
         install_dep_pkgs_for_test
         run_sanity_simple || die "run_sanity_simple failed"
     else

@@ -22,7 +22,7 @@ env.roledefs = {
     'all': [host1, host2, host3, host4, host5],
     'cfgm': [host1, host2, host3],
     'openstack': [host1, host2, host3],
-    'control': [host1, host2, host3],
+    'control': [host1, host2],
     'compute': [host4, host5],
     'collector': [host1, host2, host3],
     'webui': [host1, host2, host3],
@@ -30,6 +30,16 @@ env.roledefs = {
     'build': [host_build],
 
 
+}
+env.physical_routers={
+'blr-mx2'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx2',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.216.245',
+             }
 }
  
 env.hostnames ={
@@ -88,6 +98,9 @@ do_parallel = True
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 minimum_diskGB=32
+env.xmpp_auth_enable=True
+env.xmpp_dns_auth_enable=True
+
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'

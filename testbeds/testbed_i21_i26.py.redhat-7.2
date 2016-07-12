@@ -49,7 +49,6 @@ env.physical_routers={
 #    host5 : { 'ip': '192.168.193.5/24', 'gw' : '192.168.193.254', 'device':'p4p0p1' },
 #}
 
-env.openstack_admin_password = 'contrail123'
 env.password = 'c0ntrail123'
 env.passwords = {
     host1: 'c0ntrail123',
@@ -80,7 +79,7 @@ env.keystone = {
     'admin_password': 'c0ntrail123',           #Default is contrail123
     'nova_password'   : 'contrail123',           #Default is the password set in admin_password
     'neutron_password': 'contrail123',           #Default is the password set in admin_password
-    'service_tenant': 'service',               #Default is service
+    'service_tenant': 'services',               #Default is service
     'admin_tenant'  : 'admin',                 #Default is admin
     'region_name'   : 'RegionOne',             #Default is RegionOne
     'insecure'      : 'True',                  #Default = False
@@ -90,6 +89,12 @@ env.keystone = {
 env.openstack = {
     'service_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
     'amqp_host' : '10.204.217.134',
+    'manage_amqp' : 'no'
+}
+
+env.cfgm = {
+    'amqp_hosts' : ['10.204.217.134'],
+    'amqp_port' : '5672'
 }
 
 

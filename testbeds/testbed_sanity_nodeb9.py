@@ -39,6 +39,16 @@ env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Single Node Sanity'
 env.enable_lbaas = True
 env.cluster_id='clusterb9'
+env.physical_routers={
+'blr-mx1'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx1',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.204.216.253',
+             }
+}
 
 #enable ceilometer
 enable_ceilometer = True

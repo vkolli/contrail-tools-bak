@@ -7,5 +7,9 @@ testbeds=(${AVAILABLE_TESTBEDS//,/ })
 echo "AVAILABLE TESTBEDS : ${testbeds[@]}"
 
 get_testbed
-run_task
+if [ $1 == 'webui' ]; then
+    run_task webui
+else
+    run_task
+fi
 unlock_testbed $TBFILE_NAME
