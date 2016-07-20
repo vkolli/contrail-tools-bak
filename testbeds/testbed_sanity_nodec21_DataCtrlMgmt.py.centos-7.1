@@ -9,7 +9,7 @@ host2 = 'root@10.204.217.4'
 host3 = 'root@10.204.217.5'
 host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
-host6 = 'root@10.204.217.3'
+host6 = 'root@10.204.217.15'
 
 ext_routers = [('blr-mx2', '192.168.10.254')]
 router_asn = 64512
@@ -41,7 +41,7 @@ env.physical_routers={
 }
 
 env.hostnames = {
-    'all': ['nodec21.englab.juniper.net', 'nodec19.englab.juniper.net', 'nodec20.englab.juniper.net', 'nodec61.englab.juniper.net', 'nodec60.englab.juniper.net','nodec18.englab.juniper.net']
+    'all': ['nodec21.englab.juniper.net', 'nodec19.englab.juniper.net', 'nodec20.englab.juniper.net', 'nodec61.englab.juniper.net', 'nodec60.englab.juniper.net','nodec30.englab.juniper.net']
 }
 
 bond= {
@@ -77,7 +77,7 @@ env.passwords = {
     host_build: 'c0ntrail123',
 }
 
-env.cluster_id='clusterc18c19c20c21c60c61'
+env.cluster_id='clusterc19c20c21c30c60c61'
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'
