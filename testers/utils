@@ -396,7 +396,7 @@ function use_testbed_file {
         fi
     fi
 
-    if [ $USE_NEWORKING_PKG -eq 1 ]; then
+    if [ $USE_NETWORKING_PKG -eq 1 ]; then
             tbfile_hyper=${tbfile}.networking
     fi
 
