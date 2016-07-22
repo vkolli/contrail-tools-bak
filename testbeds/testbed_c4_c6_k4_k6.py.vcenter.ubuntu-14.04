@@ -113,7 +113,7 @@ esxi_hosts = {
             'mac' : '00:50:56:aa:aa:03',
             'host' : host4,
             'cluster' : 'c4k4rack14',
-            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
+            'vmdk' : '/cs-shared/images/vcenter-vmdk/ContrailVM-disk1.vmdk',
         }
     },
     'nodek5' : {
@@ -127,7 +127,7 @@ esxi_hosts = {
             'name' : 'nodek5-compute-vm',
             'mac' : '00:50:56:aa:aa:04',
             'host' : host5,
-            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
+            'vmdk' : '/cs-shared/images/vcenter-vmdk/ContrailVM-disk1.vmdk',
         }
     },
     'nodek6' : {
@@ -141,7 +141,7 @@ esxi_hosts = {
             'name' : 'nodek6-compute-vm',
             'mac' : '00:50:56:aa:aa:05',
             'host' : host6,
-            'vmdk' : '/cs-shared/images/Ubuntu-precise-14.04-LTS.vmdk',
+            'vmdk' : '/cs-shared/images/vcenter-vmdk/ContrailVM-disk1.vmdk',
         }
     },
 
@@ -177,7 +177,7 @@ multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Vcenter MultiNode Single Intf Sanity'
-env.enable_lbaas = True
+#env.enable_lbaas = True
 do_parallel = True
 env.ntp_server = '10.204.217.158'
 env.optional_services = {

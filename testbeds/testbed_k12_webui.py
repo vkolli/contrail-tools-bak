@@ -8,7 +8,7 @@ webui = True
 horizon = False
 ui_config = 'contrail'
 ui_browser = 'firefox'
-host1='root@10.204.217.64'
+host1='root@10.204.216.232'
 ext_routers = []
 router_asn = 64512
 public_vn_rtgt = 10000
@@ -26,7 +26,7 @@ env.roledefs = {
     'build': [host_build],
 }
 env.hostnames = {
-    'all': ['nodeg24']
+    'all': ['nodek12']
 }
 env.ostypes = {
      host1: 'ubuntu'
