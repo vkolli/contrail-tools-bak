@@ -79,7 +79,7 @@ env.test_repo_dir='/home/stack/multi_interface_parallel/centos/icehouse/contrail
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
-env.interface_rename = True
+env.interface_rename = False
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
 
