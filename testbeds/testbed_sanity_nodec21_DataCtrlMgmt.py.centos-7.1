@@ -62,7 +62,9 @@ control_data= {
 }
 
 env.ha = {
-    'internal_vip' : '192.168.10.7'
+    #'internal_vip' : '192.168.10.7'
+    'contrail_internal_vip' : '192.168.10.7',
+    'contrail_internal_virtual_router_id' :  200
 }
 ha_setup = True
 
@@ -86,5 +88,5 @@ env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = False 
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data]'
+env.log_scenario = 'Multi-Interface Contrail-HA Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
