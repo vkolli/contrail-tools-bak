@@ -78,7 +78,7 @@ env.ostypes = {
 #    host3 : { 'ip': '10.87.140.199/22', 'gw' : '10.87.159.254', 'device':'eth0' },
 #}
 
-Data Interface
+#Data Interface
 control_data = {
    host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'eth1' },
    host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'eth1' },
