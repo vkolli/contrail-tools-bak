@@ -84,7 +84,7 @@ env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = True 
-env.encap_priority =  "'VXLAN, 'MPLSoUDP','MPLSoGRE'"
+env.encap_priority =  "VXLAN,MPLSoUDP,MPLSoGRE"
 env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
 
