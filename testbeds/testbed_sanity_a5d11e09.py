@@ -128,6 +128,15 @@ env.ha = {
              'external_vip' : '10.87.143.50',
              'internal_vip' : '192.168.11.50',
          }
+ipmi_username = 'root'
+ipmi_password = 'superuser'
+env.hosts_ipmi = {
+    '10.87.143.84': '10.87.143.85',
+    '10.87.143.90': '10.87.143.89',
+    '10.87.143.92': '10.87.143.91',
+    '10.87.143.94': '10.87.143.93',
+    '10.87.143.100': '10.87.143.99',
+}
 # HA Test configuration
 ha_setup = 'True'
 minimum_diskGB=32
