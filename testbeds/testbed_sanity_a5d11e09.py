@@ -16,7 +16,7 @@ ext_routers = [('montreal', '10.87.140.140')]
 router_asn = 64512
 
 #Host from which the fab commands are triggered to install and provision
-host_build = 'root@10.87.143.84'
+host_build = 'root@10.84.24.64'
 
 #Role definition of the hosts.
 env.roledefs = {
