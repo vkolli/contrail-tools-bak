@@ -32,7 +32,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['a5d11e36','a5d11e14','a5d11e13','a5d11e12','a5d11e09']
+    'all': ['a5d11e35','a5d11e14','a5d11e13','a5d11e12','a5d11e09']
 }
 
 #Openstack admin password
@@ -80,15 +80,15 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'eth1' },
-   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'eth1' },
-   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.100', 'device':'eth1' },
-   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'eth1' },
-   host6 : { 'ip': '192.168.11.6/24', 'gw' : '192.168.11.100', 'device':'eth1' },
+   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'p51p2' },
+   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host6 : { 'ip': '192.168.11.6/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
 }
 
 #To disable installing contrail interface rename package
-env.interface_rename = False
+env.interface_rename = True
 
 #To use existing service_token
 #service_token = 'your_token'
