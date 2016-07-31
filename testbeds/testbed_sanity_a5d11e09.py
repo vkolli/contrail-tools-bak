@@ -127,8 +127,8 @@ env.interface_rename = True
 env.ha = {
              'external_vip' : '10.87.143.50',
              'internal_vip' : '192.168.11.50',
-	     'internal_virtual_router_id' : '111',
-	     'external_virtual_router_id' : '111',
+	     'internal_virtual_router_id' : 111,
+	     'external_virtual_router_id' : 112,
          }
 ipmi_username = 'root'
 ipmi_password = 'superuser'
