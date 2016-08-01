@@ -80,11 +80,11 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'p51p2' },
-   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
-   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
-   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
-   host6 : { 'ip': '192.168.11.6/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host1 : { 'ip': '172.16.91.1/24', 'gw' : '172.16.91.100', 'device':'p51p2' },
+   host2 : { 'ip': '172.16.91.2/24', 'gw' : '172.16.91.100', 'device':'p51p1' },
+   host3 : { 'ip': '172.16.91.3/24', 'gw' : '172.16.91.100', 'device':'p51p1' },
+   host4 : { 'ip': '172.16.91.4/24', 'gw' : '172.16.91.100', 'device':'p51p1' },
+   host6 : { 'ip': '172.16.91.6/24', 'gw' : '172.16.91.100', 'device':'p51p1' },
 }
 
 #To disable installing contrail interface rename package
@@ -126,7 +126,7 @@ env.interface_rename = True
 #if os.getenv('HA_TEST',None) == 'True':
 env.ha = {
              'external_vip' : '10.87.143.50',
-             'internal_vip' : '192.168.11.50',
+             'internal_vip' : '172.16.91.50',
 	     'internal_virtual_router_id' : 111,
 	     'external_virtual_router_id' : 112,
          }
