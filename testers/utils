@@ -1268,8 +1268,9 @@ function unlock_testbed() {
 
 function run_task() {
     ui=$1
-    #use contrail cloud packages for branch R3.1 and above.
-    if [ "$BRANCH" \> "R3.0" ]; then
+    #cloud pkgs are not prioritized for productization for R3.1, let's have mix-match of .deb/.rpm and .tgz
+    #will set USE_CLOUD_PKG to 1 explicitly in jenkins for some of the sanity jobs.
+    if [ "$BRANCH" \> "R3.1" ]; then
         if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
             export USE_CLOUD_PKG=1
         fi
