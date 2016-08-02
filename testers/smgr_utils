@@ -607,7 +607,9 @@ function reimage_using_SM() {
             if [ ${DISTRO} == "ubuntu-14-04" ]
             then
                 server-manager add image -f /root/images/image142.json
-            else
+            elif [ ${DISTRO} == "centos71" ]
+	        server-manager add image -f /root/images/imagec72.json
+	    else
                 #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
                 server-manager add image -f /root/images/image12.json
             fi
