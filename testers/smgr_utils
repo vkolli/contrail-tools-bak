@@ -567,6 +567,11 @@ function reimage_using_SM() {
             pkg_type="contrail-centos-package"
             iso_type="centos"
             SMID=centos65$SKU${BUILDID}
+        elif [[ $DISTRO =~ centos71 ]]; then 
+            image="/root/images/CentOS-7-x86_64-Minimal-1511.iso"
+            pkg_type="contrail-centos-package"
+            iso_type="centos"
+            SMID=centos71$SKU${BUILDID}
         fi
     
         pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
