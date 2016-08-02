@@ -604,10 +604,9 @@ function reimage_using_SM() {
             fi
     
             echo "add base ISO image to server manager database"
-            if [ ${DISTRO} == "ubuntu-14-04" ]
-            then
+            if [ ${DISTRO} == "ubuntu-14-04" ]; then
                 server-manager add image -f /root/images/image142.json
-            elif [ ${DISTRO} == "centos71" ]
+            elif [ ${DISTRO} == "centos71" ]; then
 	        server-manager add image -f /root/images/imagec72.json
 	    else
                 #server-manager upload_image $DISTRO ${REIMAGE_PARAM} $iso_type $image
