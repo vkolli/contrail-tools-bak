@@ -143,7 +143,11 @@ function search_package {
         fi
     else
         if [ -z $REDHAT_72 ]; then
-            export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            if [ -z $CENTOS_72 ]; then
+                export REIMAGE_PARAM=${BUILD_MAP[${DISTRO}]}
+            else
+                export REIMAGE_PARAM="centos-7.2"
+            fi
         else
             export REIMAGE_PARAM="redhat-7.2"
         fi
