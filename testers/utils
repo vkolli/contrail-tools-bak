@@ -648,7 +648,7 @@ function setup_and_install_contrail {
                 fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
     fi
     #In Liberty systems restart nova-compute to workaround LP 1560725
-    if [ $SKU =~ 'liberty' ];then
+    if [[ $SKU =~ 'liberty' ]];then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
                 export HA_TEST=$HA_TEST;
