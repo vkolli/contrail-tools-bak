@@ -21,13 +21,13 @@ host_build = 'root@10.84.24.64'
 #Role definition of the hosts.
 env.roledefs = {
     'all': [host1, host2, host3, host4, host6 ],
-    'cfgm': [host1, host2, host3],
-    'openstack': [host1, host2, host3],
-    'control': [host1, host2, host3],
-    'compute': [host4, host6],
-    'collector': [host1, host2, host3],
-    'webui': [host1, host2, host3],
-    'database': [host1, host2, host3],
+    'cfgm': [host2, host3, host4],
+    'openstack': [host2, host3, host4],
+    'control': [host2, host3, host4],
+    'compute': [host1, host6],
+    'collector': [host2, host3, host4],
+    'webui': [host2, host3, host4],
+    'database': [host2, host3, host4],
     'build': [host_build],
 }
 
