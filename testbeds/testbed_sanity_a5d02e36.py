@@ -37,6 +37,16 @@ env.hostnames = {
 
 #Openstack admin password
 env.openstack_admin_password = 'c0ntrail123'
+env.physical_routers={
+'montreal'     : {       'vendor': 'juniper',
+                         'model' : 'mx',
+                         'asn'   : '64515',
+                         'name'  : 'montreal',
+                         'ssh_username' : 'root',
+                         'ssh_password' : 'Embe1mpls',
+                         'mgmt_ip'  : '10.87.140.140',
+                 }
+}
 
 env.password = 'c0ntrail123'
 #Passwords of each host
