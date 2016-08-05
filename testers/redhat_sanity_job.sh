@@ -51,6 +51,8 @@ run_build_fab "setup_rhosp_node" || debug_and_die "Failed during setup_rhosp_nod
 run_build_fab "update_keystone_admin_token"
 if [ -z $REDHAT_72 ]; then
     run_build_fab "update_service_tenant"
+    exec_cmds -s "root@10.204.217.134" -p ${API_SERVER_HOST_PASSWORD} -c "                                               
+        openstack-config --set /etc/nova/nova.conf neutron url http://10.204.217.133:9696"
 fi
 run_build_fab "update_neutron_password"
 run_build_fab "update_nova_password"
