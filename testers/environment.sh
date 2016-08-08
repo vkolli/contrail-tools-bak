@@ -11,7 +11,8 @@ export BRANCH=${BRANCH:-mainline}
 export BUILDID=${BUILDID:-LATEST}
 export DISTRO=${DISTRO:-"ubuntu-12-04"}
 if [  $VCENTER_ONLY_TESTBED -eq 1 ]; then
-    export TEST_SKU=${VCENTER_TEST_SKU:-liberty}
+   # export TEST_SKU=${VCENTER_TEST_SKU:-liberty}
+   export TEST_SKU=${VCENTER_TEST_SKU:-kilo}
 else
     export TEST_SKU=${SKU:-icehouse}
 fi
