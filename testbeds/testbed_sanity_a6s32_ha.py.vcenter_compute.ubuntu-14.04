@@ -20,7 +20,7 @@ public_vn_subnet = "10.84.51.96/27"
 # env.orchestrator = 'vcenter'
 
 host_build = 'stack@10.84.24.64'
-
+do_parallel = True
 env.roledefs = {
     'all': [host1, host2, host3, host4, contrail_vm2, contrail_vm3],
     'cfgm': [host1, host2, host3],
@@ -152,7 +152,7 @@ env.testbed_location='US'
 env.interface_rename = False 
 env.image_web_server = '10.84.5.120'
 env.log_scenario='Vcenter-Compute MultiNode Single Intf Sanity'
-env.enable_lbaas = True
+#env.enable_lbaas = True
 env.test = {
      'mail_to': 'dl-contrail-sw@juniper.net',
      'mail_server': '10.84.24.64',
