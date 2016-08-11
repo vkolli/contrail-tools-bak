@@ -647,13 +647,6 @@ function setup_and_install_contrail {
                 fab add_static_route 
                 fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
     fi
-    #In Liberty systems restart nova-compute to workaround LP 1560725
-    if [[ $SKU =~ 'liberty' && ( $VCENTER_ONLY_TESTBED -ne 1  && $VCENTER_AS_COMPUTE_TESTBED -ne 1 ) ]];then
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                cd fabric-utils;
-                export HA_TEST=$HA_TEST;
-                fab -R compute -- \"service nova-compute restart\"" || debug_and_die "service nova-compute restart failed"
-    fi
 
     if [ $SKIP_ZONES -eq 0 ]; then
        (cd ${TOOLS_WS}/contrail-fabric-utils
@@ -666,6 +659,13 @@ function setup_and_install_contrail {
     # reboot compute nodes after setup
     (cd ${TOOLS_WS}/contrail-fabric-utils
     fab compute_reboot)
+    #In Liberty systems restart nova-compute to workaround LP 1560725
+    if [[ $SKU =~ 'liberty' && ( $VCENTER_ONLY_TESTBED -ne 1  && $VCENTER_AS_COMPUTE_TESTBED -ne 1 ) ]];then
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                cd fabric-utils;
+                export HA_TEST=$HA_TEST;
+                fab -R compute -- \"sleep 30;service nova-compute restart\"" || debug_and_die "service nova-compute restart failed"
+    fi
 }
 
 function initialize_any_vms {
