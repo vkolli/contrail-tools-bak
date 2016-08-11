@@ -1,7 +1,7 @@
 from fabric.api import env
 
 os_username = 'admin'
-os_password = 'contrail123'
+#os_password = 'contrail123'
 os_tenant_name = 'demo'
 
 host1 = 'root@10.204.221.58'
@@ -31,6 +31,9 @@ env.roledefs = {
 env.hostnames = {
     'all': [ 'nodec35', 'nodec33', 'nodec57', 'nodea4']
 }
+
+#Openstack admin password
+env.openstack_admin_password = 'contrail123'
 
 env.password = 'c0ntrail123'
 
