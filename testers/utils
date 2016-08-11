@@ -660,16 +660,16 @@ function setup_and_install_contrail {
     (cd ${TOOLS_WS}/contrail-fabric-utils
     fab compute_reboot)
     #In Liberty systems restart nova-compute to workaround LP 1560725
-    if [[ $SKU =~ 'liberty' && ( $VCENTER_ONLY_TESTBED -ne 1  && $VCENTER_AS_COMPUTE_TESTBED -ne 1 ) ]];then
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                cd fabric-utils;
-                export HA_TEST=$HA_TEST;
-                fab -R compute -- \"sleep 30;service nova-compute restart\"" || debug_and_die "service nova-compute restart failed"
-    elif [[ $SKU =~ 'liberty' && $DISTRO =~ 'centos' ]];then
+    if [[ $SKU =~ 'liberty' && $DISTRO =~ 'centos' ]];then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
                 export HA_TEST=$HA_TEST;
                 fab -R compute -- \"sleep 30;systemctl restart openstack-nova-compute.service\"" || debug_and_die "systemctl restart openstack-nova-compute.service failed"
+    elif [[ $SKU =~ 'liberty' && ( $VCENTER_ONLY_TESTBED -ne 1  && $VCENTER_AS_COMPUTE_TESTBED -ne 1 ) ]];then
+        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+                cd fabric-utils;
+                export HA_TEST=$HA_TEST;
+                fab -R compute -- \"sleep 30;service nova-compute restart\"" || debug_and_die "service nova-compute restart failed"
     fi
 }
 
