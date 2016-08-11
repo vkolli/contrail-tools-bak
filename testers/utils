@@ -544,7 +544,7 @@ function setup_and_install_contrail {
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
-    if [[ "${DISTRO}" =~ "ubuntu" ]]; then
+    if [[ "${DISTRO}" =~ "ubuntu" || $CENTOS_72 -eq 1 ]]; then
         if [ $SKIP_KERNEL_UPGRADE -ne 0 ]
         then
             echo "Skipping kernel upgrade task"
