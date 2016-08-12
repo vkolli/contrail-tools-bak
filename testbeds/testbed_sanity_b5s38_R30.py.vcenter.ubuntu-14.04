@@ -27,12 +27,12 @@ env.orchestrator = 'vcenter'
 #Role definition of the hosts.
 env.roledefs = {
     'all': [host1, host2, host3, contrail_vm1, contrail_vm2],
-    'cfgm': [host1, host2, host3],
+    'cfgm': [host1, host2 ],
     'control': [host1, host2, host3],
     'compute': [contrail_vm1, contrail_vm2],
     'collector': [host1, host2, host3],
     'webui': [host1],
-    'database': [host1],
+    'database': [host1, host2, host3],
     'build': [host_build],
 }
 
