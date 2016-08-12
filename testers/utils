@@ -407,6 +407,9 @@ function use_testbed_file {
     if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "docker") ]];then
             tbfile_hyper=${tbfile}.docker
     fi 
+    if [[ (! -z  "$HYPERVISOR_TYPE")  && (${HYPERVISOR_TYPE} == "dpdk") ]];then
+            tbfile_hyper=${tbfile}.dpdk
+    fi 
     if [[ ${DISTRO} =~ ubuntu-14-04 ]]; then
         distro_name="ubuntu-14.04"
         cp -f ${tbfile_hyper}.$distro_name ${tbfile}
