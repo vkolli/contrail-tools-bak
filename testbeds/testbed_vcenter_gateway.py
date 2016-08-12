@@ -66,7 +66,6 @@ env.enable_lbaas = True
 do_parallel = True
 env.ntp_server = 'ntp.juniper.net'
 
-#enable ceilometer
-#enable_ceilometer = True
-#ceilometer_polling_interval = 60
+enable_ceilometer = True
+ceilometer_polling_interval = 60
 env.test_repo_dir='/root/contrail-test'
