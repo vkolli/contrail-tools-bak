@@ -9,10 +9,21 @@ host4 = 'root@10.84.23.4'
 host5 = 'root@10.84.23.5'
 
 #External routers if any
-#ext_routers = [('montreal', '10.87.140.140')]
+ext_routers = [('b6-mx80-4', '10.84.26.51')]
 
 #Autonomous system number
-#router_asn = 64523
+router_asn = 64523
+env.physical_routers={
+'b6-mx80-4'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64523',
+                     'name'  : 'b6-mx80-4',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '64523',
+             }
+}
+
 
 #Host from which the fab commands are triggered to install and provision
 host_build = 'root@10.84.24.64'
