@@ -145,8 +145,8 @@ env.interface_rename = True
 #}
 #if os.getenv('HA_TEST',None) == 'True':
 env.ha = {
-             'contrail_external_vip' : '10.84.23.250',
-#             'contrail_internal_vip' : '192.168.12.50',
+#             'contrail_external_vip' : '10.84.23.250',
+             'contrail_internal_vip' : '10.84.23.250',
 	     'contrail_internal_virtual_router_id' : 113,
 #	     'contrail_external_virtual_router_id' : 114,
          }
