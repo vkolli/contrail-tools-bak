@@ -34,9 +34,7 @@ env.passwords = {
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/centos_github_sanity/contrail-test'
 env.mail_from='ankitja@juniper.net'
-env.mail_to='ankitja@juniper.net'
 
-multi_tenancy=True
 env.interface_rename=True 
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Single Node Sanity'
@@ -51,6 +49,10 @@ env.physical_routers={
                      'ssh_password' : 'Embe1mpls',
                      'mgmt_ip'  : '10.204.216.253',
              }
+}
+
+env.test = {
+'mail_to' : 'ankitja@juniper.net',
 }
 
 #enable ceilometer
