@@ -7,6 +7,7 @@ os_tenant_name = 'demo'
 host1 = 'root@10.204.221.58'
 host2 = 'root@10.204.221.59'
 host3 = 'root@10.204.221.60'
+host4 = 'root@10.204.221.61'
 
 ext_routers = []
 router_asn = 64512
@@ -15,11 +16,11 @@ database_dir = '/home/cassandra'
 host_build = 'root@10.204.216.4'
 
 env.roledefs = {
-    'all': [host1, host2, host3],
+    'all': [host1, host2, host3, host4],
     'cfgm': [host1, host2],
     'openstack': [host1],
     'control': [host1,host2],
-    'compute': [host3],
+    'compute': [host3,host4],
     'collector': [host2],
     'webui': [host2],
     'database': [host2],
@@ -28,7 +29,7 @@ env.roledefs = {
 
 
 env.hostnames = {
-    'all': [ 'nodec35', 'nodec33', 'nodea4']
+    'all': [ 'nodec35', 'nodec33', 'nodea4', 'nodec57']
 }
 
 #Openstack admin password
@@ -39,7 +40,8 @@ env.password = 'c0ntrail123'
 env.ostypes = {
     host1:'ubuntu',
     host2:'ubuntu',
-    host3:'ubuntu'
+    host3:'ubuntu',
+    host4:'ubuntu'	
 }
 
 bond= {
@@ -50,6 +52,7 @@ control_data = {
     host2 : { 'ip': '192.168.100.3/24', 'gw' : '', 'device':'eth1' },
     host1 : { 'ip': '192.168.100.4/24', 'gw' : '', 'device':'eth1' },
     host3 : { 'ip': '192.168.100.1/24', 'gw' : '', 'device':'bond0' },
+    host4 : { 'ip': '192.168.100.2/24', 'gw' : '', 'device':'eth1' },
 }
 
 
@@ -57,6 +60,7 @@ env.passwords = {
     host1: 'c0ntrail123',
     host2: 'c0ntrail123',
     host3: 'c0ntrail123',
+    host4: 'c0ntrail123',
     host_build: 'stack@123',
 }
 
