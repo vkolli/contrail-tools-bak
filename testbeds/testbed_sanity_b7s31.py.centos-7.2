@@ -177,18 +177,51 @@ control_data = {
 #storage_replica_size = 3
 
 # VIP
-env.ha = {
-    'contrail_internal_vip' : '172.16.80.50',
-    'contrail_external_vip' : '10.84.29.50'
-}
-
-# OPTIONAL vrouter limit parameter
-# ==================================
-
 do_parallel = True
+
+env.ha = {
+             'contrail_external_vip' : '10.84.29.50',
+             'contrail_internal_vip' : '172.16.80.50',
+       	     'contrail_internal_virtual_router_id' : 123,
+       	     'contrail_external_virtual_router_id' : 124,
+         }
+ipmi_username = 'ADMIN'
+ipmi_password = 'ADMIN'
+env.hosts_ipmi = {
+    '10.84.29.31': '10.84.60.89',
+    '10.84.29.32': '10.84.60.90',
+    '10.84.29.33': '10.84.60.91',
+    '10.84.29.34': '10.84.60.92',
+    '10.84.29.35': '10.84.60.93',
+    '10.84.29.36': '10.84.60.94',
+    '10.84.29.37': '10.84.60.95',
+}
+# HA Test configuration
+ha_setup = 'True'
+minimum_diskGB=32
 env.mail_from='jebap@juniper.net'
 env.mail_to='jebap@juniper.net'
-env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.test_repo_dir='/root/contrail-test'
-env.ca_cert_file='/root/cacert.pem'
-#env.ca_cert_file='/root/contrail-test/tools/tor/cacert.pem'
+multi_tenancy=True
+env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
+env.mail_server='10.84.24.64'
+env.mail_port='4000'
+#env.mx_gw_test=True
+env.testbed_location='US'
+env.interface_rename = False
+env.image_web_server = '10.84.5.120'
+env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, CEPH]'
+env.enable_lbaas = True
+env.test = {
+     'mail_to': 'dl-contrail-sw@juniper.net',
+     'mail_server': '10.84.24.64',
+     'mail_port': '4000',
+     'image_web_server': '10.84.5.120',
+     'log_scenario': 'Multi-Interface Sanity[mgmt, ctrl=data]',
+           }
+env.ntp_server = '10.84.5.100'
+enable_ceilometer = True
+ceilometer_polling_interval = 60
+
+
+storage_replica_size = 2
+env.test_repo_dir="/home/stack/centos_sanity/contrail-test"
