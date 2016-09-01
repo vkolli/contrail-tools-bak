@@ -392,6 +392,7 @@ function reimage_using_SM_cliff_client() {
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu14$SKU${BUILDID}
+        isofile="/root/images/image144.json"
     elif [[ $DISTRO =~ centos64 ]]; then
         image="/root/images/CentOS-6.4-x86_64-minimal.iso"
         pkg_type="contrail-centos-package"
@@ -406,14 +407,16 @@ function reimage_using_SM_cliff_client() {
 	image="/root/images/CentOS-7-x86_64-Minimal-1511.iso"
 	pkg_type="contrail-centos-package"
 	iso_type="redhat"
-	SMID=centos71$SKU${BUILDID}
+	SMID=centos72$SKU${BUILDID}
 	contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.rpm`
+        isofile="/root/images/centos72.json"
     elif [[ $DISTRO =~ centos71 ]]; then
         image="/root/images/CentOS-7-x86_64-Minimal-1503-01.iso"
         pkg_type="contrail-centos-package"
         iso_type="redhat"
         SMID=centos71$SKU${BUILDID}
         contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.rpm`
+	isofile="/root/images/centos71.json"
     fi
 
     pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
@@ -433,8 +436,16 @@ function reimage_using_SM_cliff_client() {
     CLUSTER_FILE_NAME=${CLUSTER_FILE_NAME}_new_param
     SERVER_FILE_NAME=${SERVER_FILE_NAME}_new_param
     echo "Using NEW parameters for cluster and server json files."
+    if [[ $DISTRO =~ ubuntu-14.04 ]]; then
     cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
     server_json="/root/sm_files/$SERVER_FILE_NAME.json"
+    else
+    # set the cluster,server json for centos
+    CLUSTER_FILE_NAME=${CLUSTER_FILE_NAME}_centos
+    SERVER_FILE_NAME=${SERVER_FILE_NAME}_centos
+    cluster_json="/root/sm_files/$CLUSTER_FILE_NAME.json"
+    server_json="/root/sm_files/$SERVER_FILE_NAME.json"
+    fi
 
     echo "Connect to SM_SERVER to reimage and provision the targets"
     sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
@@ -445,7 +456,7 @@ function reimage_using_SM_cliff_client() {
         server-manager-client delete image --image_id ${DISTRO}
 
         echo "add base ISO image to server manager database"
-        server-manager-client add image -f /root/images/image144.json
+        server-manager-client add image -f  $isofile 
         if [ $? == 0 ]
         then
             echo "Server-manager adding image command is successful"
