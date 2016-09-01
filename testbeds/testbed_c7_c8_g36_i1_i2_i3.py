@@ -84,3 +84,4 @@ env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
 do_parallel = True
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
