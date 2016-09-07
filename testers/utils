@@ -108,6 +108,9 @@ function search_package {
         else
             PKG_FILE=`ls /github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${pkg_suffix}`
         fi
+        if [[ -z $PKG_FILE ]]; then
+            die "Unable to find install package file"
+        fi
         export PKG_FILE
     else    
         pkg_file_name=`basename $PKG_FILE`
