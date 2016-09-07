@@ -547,7 +547,7 @@ function setup_and_install_contrail {
 
     # upgrade kernel to latest if its ubuntu
     cd ${TOOLS_WS}/contrail-fabric-utils
-    if [[ "${DISTRO}" =~ "ubuntu" || $CENTOS_72 -eq 1 ]]; then
+    if [[ "${DISTRO}" =~ "ubuntu" || $CENTOS_72 -eq 1 || "${DISTRO}" =~ "centos65" ]]; then
         if [ $SKIP_KERNEL_UPGRADE -ne 0 ]
         then
             echo "Skipping kernel upgrade task"
@@ -566,6 +566,9 @@ function setup_and_install_contrail {
         fi
         sleep 60
         fab wait_till_all_up:waitdown=False,attempts=90 || debug_and_die "Failed waiting for nodes to come up"
+        if [[ "${DISTRO}" =~ "centos65" ]]; then
+            fab dist_upgrade_all || debug_and_die "Upgrading Distribution failed"
+        fi
     fi
 
     if [ $USE_NETWORKING_PKG -eq 1 ]; then
