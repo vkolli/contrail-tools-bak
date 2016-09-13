@@ -76,5 +76,5 @@ env.test = {
 'mail_to': 'dl-contrail-server-manager@juniper.net',
 }
 
-
+minimum_diskGB = 32
 
