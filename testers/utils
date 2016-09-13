@@ -1119,6 +1119,11 @@ function collect_tech_support {
     fi
 }
 
+function remove_lock_file() {
+    rm -f ${LOCK_FILE_DIR}/lockfile1
+    return 0
+}
+
 function debug_and_die
 {
     local message=$1
@@ -1128,13 +1133,14 @@ function debug_and_die
             collect_tech_support 
         fi
         export RELEASE_TESTBED=0
-        (  
-            set -x
-            flock -n 5
-            echo "Locking testbed $tb_lock_file for debugging"
-            echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
-            cat $tb_lock_file
-        ) 5>${LOCK_FILE_DIR}/lockfile
+        lockfile ${LOCK_FILE_DIR}/lockfile1
+
+        set -x
+        echo "Locking testbed $tb_lock_file for debugging"
+        echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
+        cat $tb_lock_file
+
+        remove_lock_file
     else
         collect_tech_support
         if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
@@ -1258,21 +1264,19 @@ done
 function lock_testbed() {
     tb_lock_file=$LOCK_FILE_DIR/$1
     export tb_lock_file
-    (
-        set -x
-        touch $tb_lock_file || die "touch $tb_lock_file failed"
-        flock -n 5
-        # if file is non-zero ; then it is occupied
-        if [[ -s $tb_lock_file ]]; then
-            cat $tb_lock_file
-            return 1
-        fi 
-        echo "Locking testbed $tb_lock_file"
+    set -x
+    lockfile ${LOCK_FILE_DIR}/lockfile1
+    touch $tb_lock_file || ( remove_lock_file && die "touch $tb_lock_file failed" )
+    if [[ -s $tb_lock_file ]]; then
         cat $tb_lock_file
-        echo "Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}" >> $tb_lock_file || die "Unable to properly lock $tb_lock_file"
-        cat $tb_lock_file
-        return 0
-    ) 5>${LOCK_FILE_DIR}/lockfile
+        remove_lock_file
+        return 1
+    fi
+    echo "Locking testbed $tb_lock_file"
+    cat $tb_lock_file
+    echo "Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}" >> $tb_lock_file || ( remove_lock_file && die "Unable to properly lock $tb_lock_file" )
+    remove_lock_file
+    return 0
 }
 
 function unlock_testbed() {
@@ -1283,15 +1287,15 @@ function unlock_testbed() {
         echo "Skipping unlocking the testbed $tb_lock_file" 
         return 0
     fi
-    (
-        set -x
-        touch $tb_lock_file || die "touch $tb_lock_file failed"
-        flock -n 5
-        echo "Unlocking testbed $tb_lock_file"
-        cat $tb_lock_file
-        sed -i "/Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}/d" $tb_lock_file || die "Unable to properly free up $tb_lock_file"
-        cat $tb_lock_file
-    ) 5>${LOCK_FILE_DIR}/lockfile
+    set -x
+    lockfile ${LOCK_FILE_DIR}/lockfile1
+    touch $tb_lock_file || ( remove_lock_file && die "touch $tb_lock_file failed" )
+    echo "Unlocking testbed $tb_lock_file"
+    cat $tb_lock_file
+    sed -i "/Occupied! BRANCH: $BRANCH, BUILDID: $BUILDID, BUILD_TAG: ${BUILD_TAG}/d" $tb_lock_file || ( remove_lock_file && die "Unable to properly free up $tb_lock_file" )
+    cat $tb_lock_file
+    remove_lock_file
+    return 0
 }
 
 function run_task() {
