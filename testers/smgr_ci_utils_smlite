@@ -176,14 +176,14 @@ function provision_using_SMLite() {
         set -x
         #check provisioing status.
         /root/check_provision.sh $cluster_name
-        if grep -rn "true" /tmp/smgr_prov
+        if [ "$?" -eq 0 ]
         then
             echo "Provisioning of the target/cluster is sucessfull!!!"
         else
             echo "Provisioning of the target/cluster failed!!! aborting the process"
             exit 1
         fi
-    ) "
+    ) "; rv=$?
     #special case for SINGLE NODE
     if [ ${TEST_SETUP} == "SINGLENODE" ]
     then
@@ -196,17 +196,17 @@ function provision_using_SMLite() {
             set -x
             #check provisioing status.
             /root/check_provision.sh $cluster_name
-            if grep -rn "true" /tmp/smgr_prov
+            if [ "$?" -eq 0 ]
             then
                 echo "Provisioning of the target/cluster is sucessfull!!!"
             else
                 echo "Provisioning of the target/cluster failed!!! aborting the process"
                 exit 1
             fi
-        ) "
+        ) "; rv=$?
     fi
 
-    if [ $? == 0 ]
+    if [ $rv == 0 ]
     then
         echo "Provisioning of the target/cluster is sucessfull!!!"
     else
