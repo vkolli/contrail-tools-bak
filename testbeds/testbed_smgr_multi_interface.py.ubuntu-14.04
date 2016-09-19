@@ -52,7 +52,7 @@ control_data = {
     host2 : { 'ip': '192.168.100.3/24', 'gw' : '', 'device':'p1p2' },
     host1 : { 'ip': '192.168.100.4/24', 'gw' : '', 'device':'p1p2' },
     host3 : { 'ip': '192.168.100.1/24', 'gw' : '', 'device':'bond0' },
-    host4 : { 'ip': '192.168.100.2/24', 'gw' : '', 'device':'eth1' },
+    host4 : { 'ip': '192.168.100.2/24', 'gw' : '', 'device':'p1p2' },
 }
 
 
