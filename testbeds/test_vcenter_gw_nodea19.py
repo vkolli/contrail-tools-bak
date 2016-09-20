@@ -109,6 +109,7 @@ esxi_hosts = {
         'cluster' : 'a11a29_blr',
         'datastore' : '/vmfs/volumes/l5-ds',
         'vcenter_server': 'vcenter10',
+        'skip_reimage' : 'true',
         },
     'nodel6' : {
         'ip' : '10.204.217.215',
@@ -117,6 +118,7 @@ esxi_hosts = {
        'cluster' : 'a11a29_blr',
         'vcenter_server': 'vcenter10',
         'datastore' : '/vmfs/volumes/l6-ds',
+        'skip_reimage' : 'true',
     },
 
 }
