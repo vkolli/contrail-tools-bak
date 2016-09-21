@@ -673,11 +673,11 @@ function setup_and_install_contrail {
     fab compute_reboot)
     #In Liberty systems restart nova-compute to workaround LP 1560725
     #Centos needs neutron server to be restarted as workaround after provision due to bug 1586023
-    if [ $DISTRO =~ 'centos' ]; then
+    if [[ $DISTRO =~ 'centos' ]]; then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
                 fab -R cfgm -- \"sleep 30;service neutron-server restart\"" || debug_and_die "service restart neutron server failed"
-        if [ $SKU =~ 'liberty' ];then
+        if [[ $SKU =~ 'liberty' ]];then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
                 export HA_TEST=$HA_TEST;
