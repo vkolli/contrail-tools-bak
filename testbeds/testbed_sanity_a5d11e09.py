@@ -40,6 +40,10 @@ env.hostnames = {
     'all': ['a5d11e42','a5d06e38','a5d10e33','a5d10e34','a5d11e37','a5d11e38','a5d11e14','a5d11e13','a5d11e12','a5d11e35','a5d11e09']
 }
 
+env.openstack = {
+    manage_amqp='yes'
+}
+
 #Openstack admin password
 env.openstack_admin_password = 'c0ntrail123'
 env.physical_routers={
