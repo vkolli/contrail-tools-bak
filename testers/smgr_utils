@@ -873,6 +873,13 @@ function run_smgr_task() {
         reimage_using_SM || debug_and_die "reimage failed"
         provision_using_SM || debug_and_die "provision failed"
     fi
+
+    #add fab basic images.
+    if [ $ADD_IMAGES -eq 1 ]; then
+       (cd ${TOOLS_WS}/contrail-fabric-utils
+        fab add_basic_images)
+    fi
+
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package
         pkg_file_name=`basename $PKG_FILE`
