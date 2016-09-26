@@ -41,7 +41,7 @@ env.hostnames = {
 }
 
 env.openstack = {
-    manage_amqp='yes'
+    'manage_amqp':'yes'
 }
 
 #Openstack admin password
