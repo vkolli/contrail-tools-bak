@@ -1187,20 +1187,27 @@ function run_tempest {
     then
         echo "****** Running tempest supported on only Ubuntu as of today!!******* "
     else
+        if [[ ${TEST_SKU} = "kilo" || ${TEST_SKU} = "juno" ]]
+        then
+          branch="kilo"
+        else
+          branch="master"
+        fi
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            apt-get -y install git
-            git clone https://github.com/Juniper/tempest.git"
+          apt-get -y install git
+          git clone -b $branch https://github.com/Juniper/tempest.git"
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd tempest; 
             source testbed_env
             bash -x tempest_run.sh"
+        retval=$?
         # Fetch results.xml 
         mkdir -p $TOOLS_WS/results
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build.txt $TOOLS_WS/results
-            
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build_id.txt $TOOLS_WS/results
+        return $retval
     fi
 }
             
