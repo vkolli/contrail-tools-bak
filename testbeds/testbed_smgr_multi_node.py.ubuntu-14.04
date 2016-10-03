@@ -95,11 +95,11 @@ multi_tenancy = True
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.enable_lbaas = True
 do_parallel = True
-enable_ceilometer = True
+enable_ceilometer = False
 ceilometer_polling_interval = 60
 minimum_diskGB=32
-env.xmpp_auth_enable=True
-env.xmpp_dns_auth_enable=True
+env.xmpp_auth_enable=False
+env.xmpp_dns_auth_enable=False
 
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
 env.mail_from='contrail-build@juniper.net'
