@@ -83,7 +83,8 @@ export VCENTER_AS_COMPUTE_TESTBED=${VCENTER_AS_COMPUTE_TESTBED:-0}
 #Wait random time before generating SCRIPT_TIMESTAMP
 sleep $[ ( $RANDOM % 3 )  + 1 ]s
 #
-if [[ -v BUILD_TAG ]]
+#if [[ -v BUILD_TAG ]] //This is not compatible with bash 4.1 (used in US jenkins server)
+if [[ "$BUILD_TAG" != "" ]]
 then
     export SCRIPT_TIMESTAMP=${BUILD_TAG}
     echo $SCRIPT_TIMESTAMP
