@@ -83,7 +83,15 @@ export VCENTER_AS_COMPUTE_TESTBED=${VCENTER_AS_COMPUTE_TESTBED:-0}
 #Wait random time before generating SCRIPT_TIMESTAMP
 sleep $[ ( $RANDOM % 3 )  + 1 ]s
 #
-export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
+if [[ -v BUILD_TAG ]]
+then
+    export SCRIPT_TIMESTAMP=${BUILD_TAG}
+    echo $SCRIPT_TIMESTAMP
+else
+    export SCRIPT_TIMESTAMP=`date +"%Y_%m_%d_%H_%M_%S"`
+    echo $SCRIPT_TIMESTAMP
+fi
+     
 export SSHOPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 export NODEHOME=${NODEHOME:-/root}
 export FAB_GIT_BRANCH=${BRANCH:-master}
