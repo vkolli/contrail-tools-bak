@@ -35,4 +35,4 @@ def send_mail(mail_id, subject, content, mail_server='10.204.216.49'):
 
 if __name__ == "__main__":
     #send_mail('vjoshi@juniper.test','Test Subject', 'Test content') 
-    send_mail(sys.argv[1], sys.argv[2], sys.argv[3])
+    send_mail(sys.argv[1], sys.argv[2], sys.argv[3], '10.84.24.64')

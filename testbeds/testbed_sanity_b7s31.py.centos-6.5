@@ -184,11 +184,31 @@ env.ha = {
 
 # OPTIONAL vrouter limit parameter
 # ==================================
+ha_setup = 'True'
+minimum_diskGB=32
+env.mail_from='dl-contrail-sw@juniper.net'
+env.mail_to='dl-contrail-sw@juniper.net'
+multi_tenancy=True
+env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
+env.mail_server='10.84.24.64'
+#env.mx_gw_test=True
+env.testbed_location='US'
+env.interface_rename = False
+env.image_web_server = '10.84.5.120'
+env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, CEPH]'
+env.enable_lbaas = True
+env.test = {
+     'mail_to': 'dl-contrail-sw@juniper.net',
+     'mail_server': '10.84.24.64',
+     'mail_port': '4000',
+     'image_web_server': '10.84.5.120',
+     'log_scenario': 'Multi-Interface Sanity[mgmt, ctrl=data]',
+           }
+env.ntp_server = '10.84.5.100'
+enable_ceilometer = True
+ceilometer_polling_interval = 60
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 
-do_parallel = True
-env.mail_from='jebap@juniper.net'
-env.mail_to='jebap@juniper.net'
-env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.test_repo_dir='/root/contrail-test'
 env.ca_cert_file='/root/cacert.pem'
 #env.ca_cert_file='/root/contrail-test/tools/tor/cacert.pem'
