@@ -190,12 +190,11 @@ env.hosts_ipmi = {
 # HA Test configuration
 ha_setup = 'True'
 minimum_diskGB=32
-env.mail_from='jebap@juniper.net'
-env.mail_to='jebap@juniper.net'
+env.mail_from='dl-contrail-sw@juniper.net'
+env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.encap_priority="'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.mail_server='10.84.24.64'
-env.mail_port='4000'
 #env.mx_gw_test=True
 env.testbed_location='US'
 env.interface_rename = False
@@ -212,6 +211,7 @@ env.test = {
 env.ntp_server = '10.84.5.100'
 enable_ceilometer = True
 ceilometer_polling_interval = 60
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 
 
 storage_replica_size = 2
