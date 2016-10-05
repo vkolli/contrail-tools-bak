@@ -1317,7 +1317,10 @@ function run_task() {
     #will set USE_CLOUD_PKG to 1 explicitly in jenkins for some of the sanity jobs.
     if [ "$BRANCH" \> "R3.1" ]; then
         if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
-            export USE_CLOUD_PKG=1
+	    #Do not pick USE_CLOUD_PKG by default even for mainline if USE_CLOUD_PKG is set to 0 by the user
+	    if [ $USE_CLOUD_PKG -ne 0 ];then
+                export USE_CLOUD_PKG=1
+	    fi
         fi
     fi
     create_testbed || die "Failed to create required testbed details"
