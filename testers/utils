@@ -304,7 +304,13 @@ function copy_fabric_test_artifacts {
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test-[[:digit:]].*.tgz"
 
-        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        #If CONTRAIL_FABRIC_UTILS is defined use this variable to locate contrail-fabric-utils*.tgz
+        export CONTRAIL_FABRIC_UTILS=`ls $CONTRAIL_FABRIC_UTILS`
+        if ! [ -z "$CONTRAIL_FABRIC_UTILS" ]; then
+            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $CONTRAIL_FABRIC_UTILS  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        else
+            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        fi
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     fi
     
