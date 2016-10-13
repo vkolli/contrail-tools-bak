@@ -144,7 +144,6 @@ env.ha = {
 	     'internal_virtual_router_id' : 111,
 	     'external_virtual_router_id' : 112,
              'contrail_external_vip' : '10.87.143.151',
-             'contrail_internal_vip' : '192.168.11.51',
 	     'contrail_internal_virtual_router_id' : 113,
 	     'contrail_external_virtual_router_id' : 114,
          }
