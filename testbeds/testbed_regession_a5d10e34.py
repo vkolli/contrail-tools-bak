@@ -5,8 +5,8 @@ import os
 host1 = 'root@10.87.143.18'
 host2 = 'root@10.87.143.35'
 host3 = 'root@10.87.143.37'
-host4 = 'root@10.87.143.90'
-host5 = 'root@10.87.143.92'
+host4 = 'root@10.87.143.84'
+host5 = 'root@10.87.143.100'
 
 #External routers if any
 ext_routers = [('montreal', '10.87.140.140')]
@@ -31,7 +31,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['a5d10e34','a5d11e37','a5d11e38','a5d11e14','a5d11e13']
+    'all': ['a5d10e34','a5d11e37','a5d11e38','a5d11e35','a5d11e09']
 }
 
 env.openstack = {
@@ -94,11 +94,11 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host2 : { 'ip': '192.168.11.5/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host3 : { 'ip': '192.168.11.6/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host4 : { 'ip': '192.168.11.7/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
-   host5 : { 'ip': '192.168.11.8/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
+   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
+   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
+   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'p51p2' },
+   host5 : { 'ip': '192.168.11.5/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
 }
 
 #To disable installing contrail interface rename package
