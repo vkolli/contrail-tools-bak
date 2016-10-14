@@ -43,7 +43,7 @@ env.physical_routers={
 }
  
 env.hostnames ={
-    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodec38', 'nodec58']
+    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodea5', 'nodec58']
 }
 
 env.ostypes = {
