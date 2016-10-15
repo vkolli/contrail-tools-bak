@@ -94,11 +94,11 @@ env.ostypes = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.100', 'device':'p5p2' },
-   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.100', 'device':'p51p2' },
-   host5 : { 'ip': '192.168.11.5/24', 'gw' : '192.168.11.100', 'device':'p51p1' },
+   host1 : { 'ip': '192.168.11.1/24', 'gw' : '192.168.11.1', 'device':'p5p2' },
+   host2 : { 'ip': '192.168.11.2/24', 'gw' : '192.168.11.1', 'device':'p5p2' },
+   host3 : { 'ip': '192.168.11.3/24', 'gw' : '192.168.11.1', 'device':'p5p2' },
+   host4 : { 'ip': '192.168.11.4/24', 'gw' : '192.168.11.1', 'device':'p51p2' },
+   host5 : { 'ip': '192.168.11.5/24', 'gw' : '192.168.11.1', 'device':'p51p1' },
 }
 
 #To disable installing contrail interface rename package
