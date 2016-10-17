@@ -9,7 +9,7 @@ host4 = 'root@10.87.143.84'
 host5 = 'root@10.87.143.100'
 
 #External routers if any
-ext_routers = [('montreal', '10.87.140.140')]
+ext_routers = [('mx-80-a5d06e40', '10.87.144.44')]
 
 #Autonomous system number
 router_asn = 64515
