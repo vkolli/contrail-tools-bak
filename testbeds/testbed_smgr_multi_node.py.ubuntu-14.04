@@ -3,7 +3,7 @@ from fabric.api import env
 host1 = 'root@10.204.217.61'
 host2 = 'root@10.204.217.73'
 host3 = 'root@10.204.217.57'
-host4 = 'root@10.204.217.23'
+host4 = 'root@10.204.217.40'
 host5 = 'root@10.204.217.98' 
 
 
@@ -43,7 +43,7 @@ env.physical_routers={
 }
  
 env.hostnames ={
-    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodea5', 'nodec58']
+    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodea9', 'nodec58']
 }
 
 env.ostypes = {
