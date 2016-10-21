@@ -34,7 +34,7 @@ function search_package_ceph {
       STORAGE_PKG_FILE=$(echo "${STORAGE_PKG_FILE}" | sed -e 's/\r//g;s/ //g;s/^$//g')
     else
       INSTALL_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*${SKU}_all.deb` || die "Unable to find install package"
-      STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*${SKU}_all.deb` || die "Unable to find storage package"
+      STORAGE_PKG_FILE=`ls ${BUILD_PREFIX}/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/artifacts/contrail-storage-packages*~${SKU}_all.deb` || die "Unable to find storage package"
     fi
 
     export INSTALL_PKG_TYPE="contrail-ubuntu-package"
