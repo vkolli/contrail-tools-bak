@@ -173,12 +173,10 @@ minimum_diskGB=32
 env.test_repo_dir='/home/stack/multi_interface_parallel/centos65/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-multi_tenancy=True
 env.interface_rename = False
 env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.log_scenario='Vcenter MultiNode Single Intf Sanity'
-#env.enable_lbaas = True
-do_parallel = True
+#do_parallel = True
 env.ntp_server = '10.204.217.158'
 env.optional_services = {
     'cfgm' : ['device-manager'],
