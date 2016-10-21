@@ -131,6 +131,24 @@ esxi_hosts = {
 
 }
 
+env.test = {
+  'mail_to' : 'sandipd@juniper.net',
+  'webserver_host': '10.204.216.50',
+  'webserver_user' : 'bhushana',
+  'webserver_password' : 'bhu@123',
+  'webserver_log_path' :  '/home/bhushana/Documents/technical/logs',
+  'webserver_report_path': '/home/bhushana/Documents/technical/sanity',
+  'webroot' : 'Docs/logs',
+  'mail_server' :  '10.204.216.49',
+  'mail_port' : '25',
+  'mail_sender': 'contrailbuild@juniper.net',
+#  'fip_pool_name': 'floating-ip-pool',
+#  'public_virtual_network': 'public',
+#  'public_tenant_name' : 'admin',
+#  'fixture_cleanup' : 'yes',
+#   'keypair_name': 'contrail_key',  
+}
+
 minimum_diskGB=32
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='sandipd@juniper.net'
