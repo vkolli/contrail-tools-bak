@@ -9,7 +9,7 @@ host5 = 'root@10.204.217.114'
 host6 = 'root@10.204.217.115'
 host7 = 'root@10.204.217.76'
 
-kvm_node1 = '10.204.217.130'
+kvm_node1 = '10.204.217.145'
 
 ext_routers = [('umesh','7.7.7.78')]
 router_asn = 64512 
