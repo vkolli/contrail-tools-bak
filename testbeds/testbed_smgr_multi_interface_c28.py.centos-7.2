@@ -63,6 +63,7 @@ env.passwords = {
     host2: 'c0ntrail123',
     host3: 'c0ntrail123',
     host4: 'c0ntrail123',
+    host5: 'c0ntrail123',
     host_build: 'stack@123',
 }
 
