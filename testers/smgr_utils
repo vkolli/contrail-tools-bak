@@ -848,6 +848,19 @@ function run_smgr_task() {
     elif [ ${TEST_SETUP} == "MULTIINTERFACE" ]
     then
         multi_node=1
+        if [ ${tb_filename} == "testbed_smgr_multi_interface.py" ]
+        then
+            SM_SERVER_IP=10.204.217.160
+            echo $SM_SERVER_IP
+        elif [ ${tb_filename} == "testbed_smgr_multi_interface_c28.py" ]
+        then
+            SM_SERVER_IP=10.204.217.159
+            echo $SM_SERVER_IP
+        else
+            echo "Could not get testbed file name for MULTI INTERFACE Setup."
+            echo "Exiting the test."
+            exit 1
+        fi
     else
         echo "TEST_SETUP is not defined, abort the process"
         exit 1
