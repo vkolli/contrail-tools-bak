@@ -69,7 +69,7 @@ env.passwords = {
 
 env.dpdk = {
 #    host2: { 'huge_pages' : '75', 'coremask' : '0xff'},
-#    host3: { 'huge_pages' : '75', 'coremask' : '0xff'},
+    host3: { 'huge_pages' : '75', 'coremask' : '0xff'},
 #    host4: { 'huge_pages' : '75', 'coremask' : '0xff'},
 }
 
@@ -87,9 +87,6 @@ ipmi_username = 'ADMIN'
 ipmi_password = 'ADMIN'
 
 env.hosts_ipmi = {
-    '10.87.64.36': '10.87.122.130',
-    '10.87.64.157': '10.87.122.116',
-    '10.87.64.158': '10.87.122.117',
 }
 
 
