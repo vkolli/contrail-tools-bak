@@ -893,13 +893,6 @@ function run_smgr_task() {
         fab add_basic_images)
     fi
     
-    #Centos needs neutron server to be restarted as workaround after provision due to bug 1586023
-    if [[ $DISTRO =~ 'centos' ]]; then
-	exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-                cd fabric-utils;
-                fab -R cfgm -- \"sleep 30;service neutron-server restart\"" || debug_and_die "service restart neutron server failed"
-    fi   
-
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package
         pkg_file_name=`basename $PKG_FILE`
