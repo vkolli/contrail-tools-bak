@@ -304,7 +304,13 @@ function copy_fabric_test_artifacts {
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-test*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy test artifacts to $API_SERVER_HOST_STRING:"
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-test-[[:digit:]].*.tgz"
 
-        exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        #If CONTRAIL_FABRIC_UTILS is defined use this variable to locate contrail-fabric-utils*.tgz
+        #export CONTRAIL_FABRIC_UTILS=`ls $CONTRAIL_FABRIC_UTILS`
+        if ! [ -z "$CONTRAIL_FABRIC_UTILS" ]; then
+            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $CONTRAIL_FABRIC_UTILS  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        else
+            exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "sshpass -p $API_SERVER_HOST_PASSWORD scp $PKG_FILE_DIR/artifacts_extra/contrail-fabric-utils*.tgz  ${API_SERVER_HOST_STRING}:" || die "Failed to copy fab artifacts to $API_SERVER_HOST_STRING:"
+        fi
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "tar xzf contrail-fabric-utils*.tgz"
     fi
     
@@ -1157,7 +1163,7 @@ function debug_and_die
     [ -z "$message" ] && message="Died"
     echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
     cat $tb_lock_file
-    python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $BUILD_TAG
+    python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $SCRIPT_TIMESTAMP
     exit 1
 }
 
@@ -1187,20 +1193,27 @@ function run_tempest {
     then
         echo "****** Running tempest supported on only Ubuntu as of today!!******* "
     else
+        if [[ ${TEST_SKU} = "kilo" || ${TEST_SKU} = "juno" ]]
+        then
+          branch="kilo"
+        else
+          branch="master"
+        fi
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            apt-get -y install git
-            git clone https://github.com/Juniper/tempest.git"
+          apt-get -y install git
+          git clone -b $branch https://github.com/Juniper/tempest.git"
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd tempest; 
             source testbed_env
             bash -x tempest_run.sh"
+        retval=$?
         # Fetch results.xml 
         mkdir -p $TOOLS_WS/results
         sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build.txt $TOOLS_WS/results
-            
+        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build_id.txt $TOOLS_WS/results
+        return $retval
     fi
 }
             
@@ -1310,7 +1323,10 @@ function run_task() {
     #will set USE_CLOUD_PKG to 1 explicitly in jenkins for some of the sanity jobs.
     if [ "$BRANCH" \> "R3.1" ]; then
         if ! [ $USE_NETWORKING_PKG -eq 1 ]; then
-            export USE_CLOUD_PKG=1
+	    #Do not pick USE_CLOUD_PKG by default even for mainline if USE_CLOUD_PKG is set to 0 by the user
+	    if [ $USE_CLOUD_PKG -ne 0 ];then
+                export USE_CLOUD_PKG=1
+	    fi
         fi
     fi
     create_testbed || die "Failed to create required testbed details"

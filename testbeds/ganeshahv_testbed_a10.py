@@ -4,7 +4,7 @@ os_username = 'admin'
 os_password = 'contrail123'
 os_tenant_name = 'demo'
 
-host1 = 'root@10.204.216.5'
+host1 = 'root@10.204.216.48'
 
 
 ext_routers = [('blr-mx2', '10.204.216.245')]
@@ -27,7 +27,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-     'all': ['nodeb12']
+     'all': ['nodea10']
 }
 
 env.passwords = {
@@ -39,7 +39,6 @@ env.ostypes = {
     }
 minimum_diskGB=32
 env.test_repo_dir='/homes/ganeshahv/git-hub/contrail-test'
-#env.test_repo_dir='/homes/ganeshahv/commit_queue/Feb-02/contrail-test'
 env.mail_from='ganeshahv@juniper.net'
 env.mail_to='ganeshahv@juniper.net'
 
