@@ -101,3 +101,4 @@ env.cluster_id='clusterb2'
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
+analytics_aaa_mode = 'cloud-admin'

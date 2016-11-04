@@ -23,7 +23,7 @@ export PUBLIC_NETWORK_RT=${PUBLIC_NETWORK_RT:-10003}
 export ROUTER_ASN=${ROUTER_ASN:-64512}
 export PUBLIC_ACCESS_AVAILABLE=${PUBLIC_ACCESS_AVAILABLE:-0}
 
-export HTTP_IMAGE_PATH=${HTTP_IMAGE_PATH:-http://10.204.216.51/images/cirros/cirros-0.3.1-x86_64-disk.img}
+export HTTP_IMAGE_PATH=${HTTP_IMAGE_PATH:-http://10.204.216.50/images/cirros/cirros-0.3.1-x86_64-disk.img}
 KEYSTONE_SERVICE_HOST_USER=${KEYSTONE_SERVICE_HOST_USER:-root}
 KEYSTONE_SERVICE_HOST_PASSWORD=${KEYSTONE_SERVICE_HOST_PASSWORD:-c0ntrail123}
 export TENANT_ISOLATION=${TENANT_ISOLATION:-true}
@@ -81,3 +81,6 @@ fi
 
 cd $TEMPEST_DIR 
 bash -x $TEMPEST_DIR/run_contrail_tempest.sh -p -V -r $TEMPEST_DIR/result.xml -t -- $tests
+retval=$?
+
+exit $retval
