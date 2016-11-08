@@ -2,9 +2,9 @@ from fabric.api import env
  
 host1 = 'root@10.204.217.61'
 host2 = 'root@10.204.217.73'
-host3 = 'root@10.204.217.98'
-host4 = 'root@10.204.217.23'
-host5 = 'root@10.204.217.57' 
+host3 = 'root@10.204.217.57'
+host4 = 'root@10.204.217.40'
+host5 = 'root@10.204.217.92' 
 
 
 ext_routers = [('mx2', '10.204.216.245')]
@@ -43,7 +43,7 @@ env.physical_routers={
 }
  
 env.hostnames ={
-    'all': ['nodeg21', 'nodeg33', 'nodec58', 'nodec38', 'nodeg17']
+    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodea9', 'nodec52']
 }
 
 env.ostypes = {
@@ -104,5 +104,5 @@ minimum_diskGB=32
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-env.log_scenario='Server Manager Multi-Node Sanity'
+env.log_scenario='Server Manager Multi-Node HA Sanity'
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

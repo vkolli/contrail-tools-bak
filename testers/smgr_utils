@@ -892,6 +892,29 @@ function run_smgr_task() {
        (cd ${TOOLS_WS}/contrail-fabric-utils
         fab add_basic_images)
     fi
+    #Centos needs neutron server to be restarted as workaround after provision due to bug 1586023
+    if [[ ${TEST_SETUP} == "SINGLENODE" ]] && [[ $DISTRO =~ 'centos' ]] && [[ $SKU =~ 'kilo' ]]; then
+    echo "Centos needs neutron server to be restarted as workaround after provision due to bug 1586023"
+    sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
+    set -e
+    set -x
+    openstack-status | grep neutron-server | grep " failed "
+    echo "service neutron-server restart"
+    source /etc/contrail/openstackrc
+    service neutron-server restart
+    sleep 20
+    openstack-status | grep neutron-server | grep " active "
+    sleep 5
+    )"
+
+    fi; ns=$?
+    if [ $ns == 0 ]
+    then
+        echo "neutron server is active"
+    else
+        echo "neutron server is not active"
+    fi
+
     
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package

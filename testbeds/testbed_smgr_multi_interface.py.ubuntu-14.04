@@ -17,13 +17,13 @@ host_build = 'root@10.204.216.4'
 
 env.roledefs = {
     'all': [host1, host2, host3, host4],
-    'cfgm': [host1, host2],
+    'cfgm': [host1],
     'openstack': [host1],
     'control': [host1,host2],
     'compute': [host3,host4],
     'collector': [host2],
     'webui': [host2],
-    'database': [host2],
+    'database': [host1],
     'build': [host_build],
 }
 
