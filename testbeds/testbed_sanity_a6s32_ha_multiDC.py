@@ -127,7 +127,7 @@ esxi_hosts = {
         'datastore': "/vmfs/volumes/datastore2",
         'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-A',
-	'datacenter': 'VC-Compute-Sanity-DC-1'
+	'datacenter': 'VC-Compute-Sanity-DC-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s22',
             'mac' : '00:50:56:a9:1b:66',
@@ -144,7 +144,7 @@ esxi_hosts = {
         'datastore': "/vmfs/volumes/datastore3",
         'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-A',
-	'datacenter': 'VC-Compute-Sanity-DC-1'
+	'datacenter': 'VC-Compute-Sanity-DC-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s44',
             'mac' : '00:50:56:aa:31:7c',
@@ -161,7 +161,7 @@ esxi_hosts = {
         'datastore': "/vmfs/volumes/datastore3",
         'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-B',
-	'datacenter': 'VC-Compute-Sanity-DC-1'
+	'datacenter': 'VC-Compute-Sanity-DC-1',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s41',
             'mac' : '00:50:56:aa:ee:7c',
@@ -178,7 +178,7 @@ esxi_hosts = {
         'datastore': "/vmfs/volumes/datastore3",
         'vcenter_server': 'Datacenter1',
         'cluster': 'cluster-A',
-	'datacenter': 'VC-Compute-Sanity-DC-2'
+	'datacenter': 'VC-Compute-Sanity-DC-2',
         'contrail_vm' : {
             'name' : 'ContrailVM-a6s42',
             'mac' : '00:50:56:aa:ff:7c',
