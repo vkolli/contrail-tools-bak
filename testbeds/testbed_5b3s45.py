@@ -14,7 +14,7 @@ host3 = 'root@10.87.64.158'
 host_build = 'root@10.87.64.147'  # b4s342
 
 # External routers if any
-ext_routers = []
+ext_routers = [('cmbu-lakewood', '10.87.140.181'),('5b4-mx240', '10.87.64.246')]
 
 # Autonomous system number
 router_asn = 64512
@@ -67,9 +67,14 @@ env.passwords = {
     host_build: 'c0ntrail123',
 }
 
+env.vrouter_module_params = {
+host2:{'vr_flow_entries':'4000000'},
+host3:{'vr_flow_entries':'4000000'},
+}
+
 env.dpdk = {
 #    host2: { 'huge_pages' : '75', 'coremask' : '0xff'},
-    host3: { 'huge_pages' : '75', 'coremask' : '0xff'},
+    host3: { 'huge_pages' : '75', 'coremask' : '0xff'}
 #    host4: { 'huge_pages' : '75', 'coremask' : '0xff'},
 }
 
@@ -87,8 +92,10 @@ ipmi_username = 'ADMIN'
 ipmi_password = 'ADMIN'
 
 env.hosts_ipmi = {
+    '10.87.64.157': '10.87.122.116',
+    '10.87.64.158': '10.87.122.117',
 }
 
 
 minimum_diskGB=32
-env.test_repo_dir='/root/contrail-test'
+env.test_repo_dir='/root/contrail-test1'
