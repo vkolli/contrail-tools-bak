@@ -92,7 +92,7 @@ multi_tenancy = True
 #To Enable prallel execution of task in multiple nodes
 #do_parallel = True
 #haproxy = True
-env.encap_priority =  "'VXLAN', 'MPLSoUDP','MPLSoGRE'"
+env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.enable_lbaas = True
 do_parallel = True
 enable_ceilometer = True
