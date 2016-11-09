@@ -1,17 +1,19 @@
 from fabric.api import env
+
+os_username = 'admin'
+os_tenant_name = 'demo'
  
-host1 = 'root@10.204.217.61'
-host2 = 'root@10.204.217.73'
-host3 = 'root@10.204.217.57'
-host4 = 'root@10.204.217.40'
-host5 = 'root@10.204.217.92' 
+host1 = 'root@10.204.217.176'
+host2 = 'root@10.204.217.13'
+host3 = 'root@10.204.217.77'
+host4 = 'root@10.204.217.129'
+host5 = 'root@10.204.217.131' 
+host6 = 'root@10.204.217.132' 
 
 
-ext_routers = [('mx2', '10.204.216.245')]
-#ext_routers = []
+ext_routers = []
 router_asn = 64512
-public_vn_rtgt = 11000
-public_vn_subnet = "10.204.220.216/29"
+database_dir = '/home/cassandra'
 
  
 #Host from which the fab commands are triggered to install and provision
@@ -19,11 +21,11 @@ host_build = 'stack@10.204.216.49'
  
 env.roledefs = {
 
-    'all': [host1, host2, host3, host4, host5],
+    'all': [host1, host2, host3, host4, host5, host6],
     'cfgm': [host1, host2, host3],
     'openstack': [host1, host2, host3],
     'control': [host1, host2, host3],
-    'compute': [host4, host5],
+    'compute': [host4, host5, host6],
     'collector': [host1, host2, host3],
     'webui': [host1, host2, host3],
     'database': [host1, host2, host3],
@@ -31,34 +33,15 @@ env.roledefs = {
 
 
 }
-env.physical_routers={
-'blr-mx2'     : {       'vendor': 'juniper',
-                     'model' : 'mx',
-                     'asn'   : '64512',
-                     'name'  : 'blr-mx2',
-                     'ssh_username' : 'root',
-                     'ssh_password' : 'c0ntrail123',
-                     'mgmt_ip'  : '10.204.216.245',
-             }
-}
  
 env.hostnames ={
-    'all': ['nodeg21', 'nodeg33', 'nodeg17', 'nodea9', 'nodec52']
+    'all': ['nodec10', 'nodec28', 'nodeg37', 'nodei17', 'nodei19', 'nodei20']
 }
 
-env.ostypes = {
-     host1 : 'ubuntu',
-     host2 : 'ubuntu',
-     host3 : 'ubuntu',
-     host4 : 'ubuntu',
-     host5 : 'ubuntu',
-}
- 
 #Openstack admin password
 env.openstack_admin_password = 'contrail123'
 
 env.password = 'c0ntrail123'
-
 
 env.passwords = {
     host1: 'c0ntrail123',
@@ -66,6 +49,7 @@ env.passwords = {
     host3: 'c0ntrail123',
     host4: 'c0ntrail123',
     host5: 'c0ntrail123',
+    host6: 'c0ntrail123',
     host_build: 'stack@123',
 }
 
@@ -75,34 +59,39 @@ env.ostypes = {
     host3:'ubuntu',
     host4:'ubuntu',
     host5:'ubuntu',
+    host6:'ubuntu',
+}
+
+bond= {
+    host6 : { 'name': 'bond0', 'member': ['eth1','eth2','eth3'],'mode':'802.3ad' },
+}
+
+control_data = {
+    host1 : { 'ip': '192.168.100.11/24', 'gw' : '', 'device':'eth1' },
+    host2 : { 'ip': '192.168.100.12/24', 'gw' : '', 'device':'eth1' },
+    host3 : { 'ip': '192.168.100.13/24', 'gw' : '', 'device':'eth1' },
+    host4 : { 'ip': '192.168.100.14/24', 'gw' : '', 'device':'eth1' },
+    host5 : { 'ip': '192.168.100.15/24', 'gw' : '', 'device':'eth1' },
+    host6 : { 'ip': '192.168.100.16/24', 'gw' : '', 'device':'bond0' },
 }
 
 # VIP
 env.ha = {
-    'internal_vip' : '10.204.217.176',
-    #'external_vip' : '10.204.221.17',
+    'internal_vip' : '192.168.100.10',
 }
-
-#To disable installing contrail interface rename package
-env.interface_rename = False
 
 #To enable multi-tenancy feature
 multi_tenancy = True
-
-#To Enable prallel execution of task in multiple nodes
-#do_parallel = True
-#haproxy = True
-env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
+env.xmpp_auth_enable=True
+env.xmpp_dns_auth_enable=True
+env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
 env.enable_lbaas = True
 do_parallel = True
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 minimum_diskGB=32
-env.xmpp_auth_enable=True
-env.xmpp_dns_auth_enable=True
-
 env.test_repo_dir='/home/stack/smgr_github_ubuntu_multi_node/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-env.log_scenario='Server Manager Multi-Node HA Sanity'
+env.log_scenario='Server Manager Multi-Interface HA Sanity'
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
