@@ -4,9 +4,9 @@ os_username = 'admin'
 os_password = 'contrail123'
 os_tenant_name = 'demo'
  
-host1 = 'root@10.204.217.176'
-host2 = 'root@10.204.217.13'
-host3 = 'root@10.204.217.77'
+host1 = 'root@10.204.217.13'
+host2 = 'root@10.204.217.77'
+host3 = 'root@10.204.217.176'
 host4 = 'root@10.204.217.129'
 host5 = 'root@10.204.217.131' 
 host6 = 'root@10.204.217.132' 
@@ -36,7 +36,7 @@ env.roledefs = {
 }
  
 env.hostnames ={
-    'all': ['nodec10', 'nodec28', 'nodeg37', 'nodei17', 'nodei19', 'nodei20']
+    'all': ['nodec28', 'nodeg37', 'nodec10', 'nodei17', 'nodei19', 'nodei20']
 }
 
 #Openstack admin password
