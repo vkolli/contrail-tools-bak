@@ -294,6 +294,7 @@ function run_smgr_task() {
     reimage_using_SM_cliff_client || debug_and_die "reimage failed"
     copy_smlite_pkg || die "copy of sm-lite packages failed"
     provision_using_SMLite || die "provision failed"
+    check_kernel_upgrade || die "kernel upgrade failed"
 
     #add fab basic images.
     if [ $ADD_IMAGES -eq 1 ]; then

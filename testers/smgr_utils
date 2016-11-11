@@ -789,6 +789,29 @@ function reimage_using_SM() {
    
 }
 
+function check_kernel_upgrade() {
+    echo "Checking for kernel version upgrade."
+    sshpass -p $SM_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        /root/sm_files/check_kernel_version.py
+        if [ $? == 0 ]
+        then
+            echo "Kernel version upgrade is sucessful!!!"
+        else
+            echo "Kernel version upgrade failed, aborting the process"
+            exit 1
+        fi
+    ) "
+
+    if [ $? == 0 ]
+    then
+        echo "Kernel version upgrade is sucessful!!!"
+    else
+        echo "Kernel version upgrade failed!!!"
+        exit 1
+    fi
+}
+
 function run_smgr_regression_task() {
     echo "Running tests on $1.."
 
@@ -886,6 +909,7 @@ function run_smgr_task() {
         reimage_using_SM || debug_and_die "reimage failed"
         provision_using_SM || debug_and_die "provision failed"
     fi
+    check_kernel_upgrade || die "kernel upgrade failed"
 
     #add fab basic images.
     if [ $ADD_IMAGES -eq 1 ]; then
