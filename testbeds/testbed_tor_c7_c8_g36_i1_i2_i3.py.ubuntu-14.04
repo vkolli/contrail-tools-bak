@@ -236,17 +236,17 @@ vm_node_details = {
     host1 : {   
                 'name' : 'testbed-1-vm1',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:01'},
-                             { 'bridge': 'br2'}
+                             { 'bridge': 'br0'}
                             ],
             },
     host2 : {   'name' : 'testbed-1-vm2',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:02'},
-                             { 'bridge': 'br2'}
+                             { 'bridge': 'br0'}
                             ],
             },
     host3 : {   'name' : 'testbed-1-vm3',
                 'network' : [{'bridge' : 'br1', 'mac':'52:54:00:01:00:03'},
-                             { 'bridge': 'br2'}
+                             { 'bridge': 'br0'}
                             ],
             }
 
