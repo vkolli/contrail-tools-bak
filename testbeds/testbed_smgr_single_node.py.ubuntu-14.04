@@ -75,5 +75,5 @@ env.xmpp_auth_enable=True
 env.xmpp_dns_auth_enable=True
 
 #enable ceilometer
-enable_ceilometer = False
+enable_ceilometer = True
 ceilometer_polling_interval = 60
