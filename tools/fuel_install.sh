@@ -10,6 +10,7 @@ launch the automation script to deploy the cluster.
 
 set -ex
 
+'''
 sudo apt-get install --yes \
 git \
 libyaml-dev \
@@ -32,9 +33,10 @@ pkg-config
 
 export WORKING_DIR=$HOME/test$( date +%M-%H-%d-%m-%Y )
 mkdir -p ${WORKING_DIR}
+'''
 
-cd $WORKING_DIR
-sudo apt-get install --yes python-virtualenv
+cd $WORK_SPACE
+#sudo apt-get install --yes python-virtualenv
 virtualenv --no-site-packages fuel-devops-venv
 . fuel-devops-venv/bin/activate
 
@@ -45,8 +47,10 @@ export DEVOPS_DB_ENGINE="django.db.backends.sqlite3"
 
 git clone https://github.com/openstack/fuel-qa
 
+pip install --upgrade setuptools
+
 #. $WORKING_DIR/fuel-devops-venv/bin/activate
-pip install -r $WORKING_DIR/fuel-qa/fuelweb_test/requirements.txt --upgrade
+pip install -r $WORK_SPACE/fuel-qa/fuelweb_test/requirements.txt --upgrade
 
 #cd ../
 #git clone https://github.com/ehles/fuel_manage_env.git
@@ -55,8 +59,8 @@ git clone https://github.com/openstack/fuel-devops.git
 
 cd fuel_manage_env/
 export CLUSTER_CONFIG=random_lab_config.yaml
-export PYTHONPATH=$PYTHONPATH:$WORKING_DIR/fuel-qa
-export PYTHONPATH=$PYTHONPATH:$WORKING_DIR/fuel-devops
+export PYTHONPATH=$PYTHONPATH:$WORK_SPACE/fuel-qa
+export PYTHONPATH=$PYTHONPATH:$WORK_SPACE/fuel-devops
 
 
 pip install ipdb
