@@ -10,30 +10,28 @@ launch the automation script to deploy the cluster.
 
 set -ex
 
-'''
-sudo apt-get install --yes \
-git \
-libyaml-dev \
-libffi-dev \
-python-dev \
-python-pip \
-qemu \
-qemu-utils \
-libvirt-bin \
-libvirt-dev \
-vlan \
-bridge-utils \
-ebtables \
-pm-utils \
-genisoimage \
-libsqlite3-0 \
-python-virtualenv \
-libgmp-dev \
-pkg-config
+#sudo apt-get install --yes \
+#git \
+#libyaml-dev \
+#libffi-dev \
+#python-dev \
+#python-pip \
+#qemu \
+#qemu-utils \
+#libvirt-bin \
+#libvirt-dev \
+#vlan \
+#bridge-utils \
+#ebtables \
+#pm-utils \
+#genisoimage \
+#libsqlite3-0 \
+#python-virtualenv \
+#libgmp-dev \
+#pkg-config
 
-export WORKING_DIR=$HOME/test$( date +%M-%H-%d-%m-%Y )
-mkdir -p ${WORKING_DIR}
-'''
+#export WORKING_DIR=$HOME/test$( date +%M-%H-%d-%m-%Y )
+#mkdir -p ${WORKING_DIR}
 
 cd $WORK_SPACE
 #sudo apt-get install --yes python-virtualenv
@@ -41,13 +39,17 @@ virtualenv --no-site-packages fuel-devops-venv
 . fuel-devops-venv/bin/activate
 
 
-export DEVOPS_DB_NAME=$WORKING_DIR/fuel-devops.sqlite
+export DEVOPS_DB_NAME=$WORK_SPACE/fuel-devops.sqlite
 export DEVOPS_DB_ENGINE="django.db.backends.sqlite3"
 
 
 git clone https://github.com/openstack/fuel-qa
 
 pip install --upgrade setuptools
+pip install six
+pip install babel
+pip install imagesize
+pip install jinja2
 
 #. $WORKING_DIR/fuel-devops-venv/bin/activate
 pip install -r $WORK_SPACE/fuel-qa/fuelweb_test/requirements.txt --upgrade
@@ -66,7 +68,7 @@ export PYTHONPATH=$PYTHONPATH:$WORK_SPACE/fuel-devops
 pip install ipdb
 pip install python-dateutil
 pip install cryptography
-apt-get install libssl-dev
+#apt-get install libssl-dev
 pip install cryptography
 pip install django
 pip install jsonfield
