@@ -83,8 +83,8 @@ pip install oslo.config
 pip install oslo.concurrency
 pip install oslo.serialization
 
-export CLUSTER_CONFIG=$WORKING_DIR/fuel_manage_env/conf_samples/conf_auto_contrail.yaml
-python $WORKING_DIR/fuel_manage_env/manage_env.py
+export CLUSTER_CONFIG=$WORK_SPACE/fuel_manage_env/conf_samples/conf_auto_contrail.yaml
+python $WORK_SPACE/fuel_manage_env/manage_env.py
 
 
 
