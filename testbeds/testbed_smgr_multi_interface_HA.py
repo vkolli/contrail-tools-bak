@@ -79,6 +79,7 @@ control_data = {
 # VIP
 env.ha = {
     'internal_vip' : '192.168.100.10',
+    'external_vip' : '10.204.217.246',
 }
 
 #To enable multi-tenancy feature
