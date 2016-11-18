@@ -167,7 +167,7 @@ function provision_using_SMLite() {
     #assumption is by this time, SM is installed on cfgm0 and provision is at kernel upgrade and node reboot.
 
     cluster_name=$(sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
-        server-manager show cluster | grep id | cut -d : -f2 | sed -e 's/^ \"//' -e 's/\"$//'
+        server-manager-client display cluster --json | grep id | cut -d : -f2 | sed -e 's/^ \"//' -e 's/\"$//'
     ) ")
     cluster_name=`echo $cluster_name | tr -d '\r'`
 
