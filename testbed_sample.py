@@ -94,6 +94,10 @@ vm_node_details = {
             }
 }
 
+env.ha = {
+    'internal_vip' : '192.168.10.7'
+}
+ha_setup = True
 
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
