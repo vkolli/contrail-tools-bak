@@ -95,7 +95,7 @@ vm_node_details = {
 }
 
 env.ha = {
-    'internal_vip' : '192.168.10.7'
+    'internal_vip' : '10.204.217.229'
 }
 ha_setup = True
 
