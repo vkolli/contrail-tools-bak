@@ -570,7 +570,11 @@ function setup_and_install_contrail {
             elif [ $USE_NETWORKING_PKG -eq 1 ]; then
                 fab upgrade_kernel_all:$net_tgz_pkg || debug_and_die "Upgrading Kernel failed"
             else
-                fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
+		if [ ! -z $KERNEL_VERSION ];then
+                    fab upgrade_kernel_all:version=$KERNEL_VERSION || debug_and_die "Upgrading Kernel failed"
+		else
+                    fab upgrade_kernel_all || debug_and_die "Upgrading Kernel failed"
+		fi
             fi
         fi
         sleep 60
