@@ -131,7 +131,7 @@ function copy_smlite_pkg() {
     echo $CONTRAIL_PACKAGE
     echo $SERVER_MANAGER_INSTALLER
     sleep 30
-    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} $ABS_PATH_TBFILE /home/stack/smlite/check_provision.sh /home/stack/smlite/sources.list ${API_SERVER_HOST_STRING}:/root/
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /${pkg_dir}/artifacts/${SERVER_MANAGER_INSTALLER} /${pkg_dir}/${CONTRAIL_PACKAGE} $ABS_PATH_TBFILE /home/stack/smlite/check_provision_cliff.sh /home/stack/smlite/sources.list ${API_SERVER_HOST_STRING}:/root/
     if [ $? == 0 ]
     then
         echo "Copy of ${SERVER_MANAGER_INSTALLER} and ${CONTRAIL_PACKAGE} to SMLITE server is successfull"
@@ -175,7 +175,7 @@ function provision_using_SMLite() {
         set -e
         set -x
         #check provisioing status.
-        /root/check_provision.sh $cluster_name
+        /root/check_provision_cliff.sh $cluster_name
         if [ "$?" -eq 0 ]
         then
             echo "Provisioning of the target/cluster is sucessfull!!!"
@@ -195,7 +195,7 @@ function provision_using_SMLite() {
             set -e
             set -x
             #check provisioing status.
-            /root/check_provision.sh $cluster_name
+            /root/check_provision_cliff.sh $cluster_name
             if [ "$?" -eq 0 ]
             then
                 echo "Provisioning of the target/cluster is sucessfull!!!"
