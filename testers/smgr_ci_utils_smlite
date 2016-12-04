@@ -163,7 +163,7 @@ function provision_using_SMLite() {
 
 
     ) "
-    sleep 300 
+    sleep 600 
     #assumption is by this time, SM is installed on cfgm0 and provision is at kernel upgrade and node reboot.
 
     cluster_name=$(sshpass -p "c0ntrail123" ssh -t -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $API_SERVER_HOST_STRING " (
