@@ -12,13 +12,16 @@ host6 ='root@10.87.66.162'
 host7 ='root@10.87.66.163'
 host8 ='root@10.87.66.164'
 host9 ='root@10.87.66.165'
-host10 ='root@10.87.66.147'
-host11 ='root@10.87.66.148'
-host12 ='root@10.87.66.150'
-host13 ='root@10.87.66.151'
-host14 ='root@10.87.66.152'
-##host15 ='root@10.87.66.153'
-host16 ='root@10.87.66.154'
+host10 ='root@10.87.66.166'
+host11 ='root@10.87.66.167'
+host12 ='root@10.87.66.168'
+host13 ='root@10.87.66.147'
+host14 ='root@10.87.66.148'
+host15 ='root@10.87.66.150'
+host16 ='root@10.87.66.151'
+host17 ='root@10.87.66.152'
+#host18 ='root@10.87.66.153'
+host19 ='root@10.87.66.154'
 
 
 kvm_host1 = 'root@10.87.66.144'
@@ -38,21 +41,20 @@ host_build = 'root@10.87.66.157'
 
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1,host2,host3,host4,host5,host6,host7,host8,host9,host10, host11, host12, host13, host14, host16],
-    'cfgm': [host2,host5,host8],
-    'openstack': [host1,host4,host7],
+    'all': [host1,host2,host3,host4,host5,host6,host7,host8,host9,host10, host11, host12, host13, host14, host15, host16, host17, host19],
     'webui': [host1],
-    'control': [host2,host5,host8],
-    'compute': [host10, host11, host12, host13, host14, host16],
-    ##'tsn': [host4,host5,host6,host7],
-    ##'toragent': [host4,host5,host6,host7],
-    'collector': [host3,host6,host9],
-    'database': [host3,host6,host9],
+    'openstack': [host1,host5,host9],
+    'cfgm': [host2,host6,host10],
+    'control': [host2,host6,host10],
+    'collector': [host3,host7,host11],
+    'database': [host4,host8,host12],
+    'compute': [host13, host14, host15, host16],
+    'tsn': [host17, host19],
     'build': [host_build],
 }
 
 env.hostnames = {
-    'all': ['5b8s29-vm1','5b8s29-vm2','5b8s29-vm3','5b8s30-vm1','5b8s30-vm2','5b8s30-vm3','5b8s31-vm1','5b8s31-vm2','5b8s31-vm3','5b8s32','5b8s33','5b8s35','5b8s36','5b8s37','5b8s39']
+    'all': ['5b8s29-vm1','5b8s29-vm2','5b8s29-vm3','5b8s29-vm4','5b8s30-vm1','5b8s30-vm2','5b8s30-vm3','5b8s30-vm4','5b8s31-vm1','5b8s31-vm2','5b8s31-vm3','5b8s31-vm4', '5b8s32','5b8s33','5b8s35','5b8s36','5b8s37','5b8s38','5b8s39']
 }
 #Openstack admin password
 env.openstack_admin_password = 'contrail123'
@@ -75,8 +77,11 @@ env.passwords = {
     host12: 'c0ntrail123',
     host13: 'c0ntrail123',
     host14: 'c0ntrail123',
-    ##host15: 'c0ntrail123',
+    host15: 'c0ntrail123',
     host16: 'c0ntrail123',
+    host17: 'c0ntrail123',
+#    host18: 'c0ntrail123',
+    host19: 'c0ntrail123',
     host_build: 'c0ntrail123',
 }
 
@@ -108,34 +113,50 @@ vm_node_details = {
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:04'}
                             ],
             },
-    host4 : {   'name' : '5b8s30-vm1',
-                'server': kvm_host2,
+    host4 : {  
+                'name' : '5b8s29-vm4',
+                'server': kvm_host1,
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:05'}
-                            ]
+                            ],
             },
-    host5 : {   'name' : '5b8s30-vm2',
+    host5 : {   'name' : '5b8s30-vm1',
                 'server': kvm_host2,
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:06'}
                             ]
             },
-    host6 : {   'name' : '5b8s30-vm3',
+    host6 : {   'name' : '5b8s30-vm2',
                 'server': kvm_host2,
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:07'}
                             ]
             },
-    host7 : {   'name' : '5b8s31-vm1',
-                'server': kvm_host3,
+    host7 : {   'name' : '5b8s30-vm3',
+                'server': kvm_host2,
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:08'}
                             ]
             },
-    host8 : {   'name' : '5b8s31-vm2',
-                'server': kvm_host3,
+    host8 : {   'name' : '5b8s30-vm4',
+                'server': kvm_host2,
                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:09'}
                             ]
             },
-    host9 : {   'name' : '5b8s31-vm3',
+    host9 : {   'name' : '5b8s31-vm1',
                 'server': kvm_host3,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:10'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0A'}
+                            ]
+            },
+    host10 : {   'name' : '5b8s31-vm2',
+                 'server': kvm_host3,
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0B'}
+                             ]
+            },
+    host11 : {   'name' : '5b8s31-vm3',
+                 'server': kvm_host3,
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0C'}
+                            ]
+            },
+    host12 : {   'name' : '5b8s31-vm4',
+                 'server': kvm_host3,
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0D'}
                             ]
             }
 }
@@ -160,8 +181,11 @@ env.ostypes = {
     host12: 'ubuntu',
     host13: 'ubuntu',
     host14: 'ubuntu',
-    ##host15: 'ubuntu',
+    host15: 'ubuntu',
     host16: 'ubuntu',
+    host17: 'ubuntu',
+#    host18: 'ubuntu',
+    host19: 'ubuntu',
 }
 #env.orchestrator = 'openstack' #other values are 'vcenter', 'none' default:openstack
 
@@ -228,7 +252,7 @@ env.ostypes = {
 #analytics_statistics_ttl controls TTL for stats/control_data
 #following parameter allows to specify minimum amount of disk space in the analytics
 #database partition, if configured amount of space is not present, it will fail provisioning
-minimum_diskGB = 128
+minimum_diskGB = 64
 
 #OPTIONAL BONDING CONFIGURATION
 #==============================
@@ -401,9 +425,8 @@ minimum_diskGB = 128
 
 # VIP
 env.ha = {
-    'internal_vip' : '10.87.66.166',
-    'contrail_internal_vip' : '10.87.66.167',
-    ###'contrail_external_vip' : '10.87.66.167',
+    'internal_vip' : '10.87.66.185',
+    'contrail_internal_vip' : '10.87.66.186',
 }
 ##
 ### OPTIONAL vrouter limit parameter
