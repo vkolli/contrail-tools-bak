@@ -16,7 +16,18 @@ public_vn_rtgt = 2225
 public_vn_subnet = '10.204.221.160/28'
 host_build = 'stack@10.204.216.49'
 
-{env_roledefs}
+env.roledefs =  {  
+    'control' : [host1, host3, ],  
+    'all' : [host1, host2, host3, host4, host5, host6, ],  
+    'compute' : [host4, host5, host6, ],  
+    'database' : [host3, ],  
+    'webui' : [host1, host2, host3, ],  
+    'cfgm' : [host1, ],  
+    'openstack' : [host2, ],  
+    'collector' : [host2, ],  
+    'build' : [host_build, ],  
+} 
+
 #env.roledefs = {
 #    'all': [host1,host2,host3,host4,host5,host6],
 #    'cfgm': [host1, host2],
@@ -94,10 +105,6 @@ vm_node_details = {
             }
 }
 
-env.ha = {
-    'internal_vip' : '10.204.217.229'
-}
-ha_setup = True
 
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

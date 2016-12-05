@@ -1,14 +1,14 @@
 from fabric.api import env
 import os
 
-host1 = 'root@10.204.217.31'
-host2 = 'root@10.204.217.32'
-host3 = 'root@10.204.217.33'
-host4 = 'root@10.204.217.34'
-host5 = 'root@10.204.217.36'
-host6 = 'root@10.204.217.37'
+host1 = 'root@10.204.216.115'
+host2 = 'root@10.204.216.116'
+host3 = 'root@10.204.216.117'
+host4 = 'root@10.204.216.118'
+host5 = 'root@10.204.216.119'
+host6 = 'root@10.204.216.125'
 
-kvm_nodel11 = '10.204.217.248'
+kvm_nodel12 = '10.204.216.114'
 
 ext_routers = [('hooper','10.204.217.240')]                                                                                                                                                             
 router_asn = 64512                                                                                                                                                                                        
@@ -41,7 +41,7 @@ env.physical_routers={
 }
 
 env.hostnames = {
-    'all': ['nodel11-vm1', 'nodel11-vm2', 'nodel11-vm3', 'nodel11-vm4', 'nodel11-vm5', 'nodel11-vm6']
+    'all': ['nodel12-vm1', 'nodel12-vm2', 'nodel12-vm3', 'nodel12-vm4', 'nodel12-vm5', 'nodel12-vm6']
 }
 
 env.openstack_admin_password = 'contrail123'
@@ -62,42 +62,38 @@ vm_node_details = {
     'default': {
                 'image_dest' : '/mnt/disk1/images/',
                 'ram' : '32768',
-                'server': kvm_nodel11,
+                'server': kvm_nodel12,
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
                 'image_source' : 'http://10.204.217.158/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
     host1 : {  
-                'name' : 'nodel11-vm1',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:01'}
+                'name' : 'nodel12-vm1',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:01'}
                             ],
             },
-    host2 : {   'name' : 'nodel11-vm2',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:02'}
+    host2 : {   'name' : 'nodel12-vm2',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:02'}
                             ]
             },
-    host3 : {   'name' : 'nodel11-vm3',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:03'}
+    host3 : {   'name' : 'nodel12-vm3',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:03'}
                             ]
             },
-    host4 : {   'name' : 'nodel11-vm4',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:04'}
+    host4 : {   'name' : 'nodel12-vm4',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:04'}
                             ]
             },
-    host5 : {   'name' : 'nodel11-vm5',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:05'}
+    host5 : {   'name' : 'nodel12-vm5',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:05'}
                             ]
             },
-    host6 : {   'name' : 'nodel11-vm6',
-                'network' : [{'bridge' : 'br1', 'mac':'52:53:58:01:00:06'}
+    host6 : {   'name' : 'nodel12-vm6',
+                'network' : [{'bridge' : 'br1', 'mac':'52:53:59:01:00:06'}
                             ]
             }
 }
 
-env.ha = {
-    'internal_vip' : '10.204.217.229'
-}
-ha_setup = True
 
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}

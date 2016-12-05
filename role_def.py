@@ -10,6 +10,28 @@ import errno
 # ARGS = ["""+repr (sys.argv)+"""] 
 # """ 
 
+if ( len (sys.argv)!=3 ): 
+    print """ 
+    Two runtime arguments are mandary. Not more not less. 
+    Argument count found currently = ["""+str (len (sys.argv) - 1)+"""] 
+
+    Format, 
+        python """+sys.argv[ 0 ]+""" filter_name testbed_file_name 
+    """ 
+    exit ( 1 ) 
+
+
+try: 
+    with open(sys.argv[2]) as f:  lines = f.read().splitlines() 
+except IOError: 
+    print """ 
+    Testbed file not found. 
+    """+sys.argv[ 2 ]+""" 
+    """ 
+    exit ( 1 ); 
+
+
+
 role_list   = [
     "cfgm",
     "database",
@@ -28,7 +50,8 @@ MAX_PER_FILTER__MAP = {
     "inclusive"     : 6,
     "exclusive"     : 6,
     "subset"        : 6, 
-    "HA_openstack"  : 3, 
+    "HA_openstack"  : 6, 
+    "HA_contrail"   : 6, 
     # "HA_Contrail"   : 3, 
 } 
 
@@ -58,7 +81,11 @@ def testbed_roledef ( dataset = {}, unique_tag = None ):
         } ) 
         print format_dump ( dataset ) 
 
-        with open('testbed_sample.py') as f:  lines = f.read().splitlines()
+        # if ( filter_name == "HA_openstack" or filter_name == "HA_contrail" ):
+        #     with open('testbed_sample_HA.py') as f:  lines = f.read().splitlines()
+        # else:
+        #     with open('testbed_sample.py') as f:  lines = f.read().splitlines() 
+        with open(sys.argv[2]) as f:  lines = f.read().splitlines()
 
         prepend_dir_part = "" 
         if filter_runtime_arg__found: 
@@ -70,7 +97,8 @@ def testbed_roledef ( dataset = {}, unique_tag = None ):
             prepend_dir_part = sys.argv[1]+"/" 
 
         # with open(sys.argv[1]+'/testbed_sample_'+unique_tag+'.py', 'w') as f: 
-        with open(prepend_dir_part+'testbed_sample_'+unique_tag+'.py', 'w') as f: 
+        # with open(prepend_dir_part+'testbed_sample_'+unique_tag+'.py', 'w') as f: 
+        with open(prepend_dir_part+'testbed_'+unique_tag+'.py', 'w') as f: 
             for line in lines: 
                 if ( re.search (r"^\s*\{\s*env_roledefs\s*\}\s*$", line ) ): 
                     print line.format ( 
@@ -300,7 +328,15 @@ superset_filter_list     = {
     "exclusive"     : exclusive_filter,
     "subset"        : subset_filter, 
     "HA_openstack"  : HA_openstack_filter, 
+    "HA_contrail"   : exclusive_filter, 
 } 
+
+if ( sys.argv[ 1 ] not in superset_filter_list ): 
+    print """ 
+    Filter Name is not recognized. 
+    """+sys.argv[ 1 ]+""" 
+    """ 
+    exit ( 1 ) 
 
 filter_runtime_arg__found = False 
 try: 
@@ -314,6 +350,7 @@ except (KeyError, IndexError):
         "exclusive"     : exclusive_filter,
         "subset"        : subset_filter, 
     	"HA_openstack"  : HA_openstack_filter, 
+        "HA_contrail"   : exclusive_filter, 
     }
 #     print """ Runtime parameter having one of below values should be provided. 
 # inclusive 

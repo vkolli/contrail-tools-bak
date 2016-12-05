@@ -9,7 +9,7 @@ host2 = 'root@10.204.221.59'
 host3 = 'root@10.204.221.60'
 host4 = 'root@10.204.221.61'
 
-ext_routers = []
+ext_routers = [('mx2', '10.204.216.245')]
 router_asn = 64512
 database_dir = '/home/cassandra'
 
@@ -30,6 +30,17 @@ env.roledefs = {
 
 env.hostnames = {
     'all': [ 'nodec35', 'nodec33', 'nodea4', 'nodec57']
+}
+
+env.physical_routers={
+'blr-mx2'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'blr-mx2',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.216.245',
+             }
 }
 
 #Openstack admin password
