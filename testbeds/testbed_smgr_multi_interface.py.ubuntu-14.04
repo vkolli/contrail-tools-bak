@@ -23,7 +23,7 @@ env.roledefs = {
     'compute': [host3,host4],
     'collector': [host2],
     'webui': [host2],
-    'database': [host1],
+    'database': [host2],
     'build': [host_build],
 }
 
