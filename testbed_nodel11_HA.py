@@ -95,7 +95,8 @@ vm_node_details = {
 }
 
 env.ha = {
-    'internal_vip' : '10.204.217.229'
+    'contrail_internal_vip' : '10.204.217.229',
+    'contrail_internal_virtual_router_id' :  201
 }
 ha_setup = True
 
