@@ -912,10 +912,10 @@ function run_smgr_task() {
     check_kernel_upgrade || die "kernel upgrade failed"
 
     #add fab basic images.
-    if [ $ADD_IMAGES -eq 1 ]; then
-       (cd ${TOOLS_WS}/contrail-fabric-utils
-        fab add_basic_images)
-    fi
+   # if [ $ADD_IMAGES -eq 1 ]; then
+   #    (cd ${TOOLS_WS}/contrail-fabric-utils
+   #     fab add_basic_images)
+   # fi
     #Centos needs neutron server to be restarted as workaround after provision due to bug 1586023
     if [[ ${TEST_SETUP} == "SINGLENODE" ]] && [[ $DISTRO =~ 'centos' ]] && [[ $SKU =~ 'kilo' ]]; then
     echo "Centos needs neutron server to be restarted as workaround after provision due to bug 1586023"
