@@ -198,11 +198,11 @@ env.hosts_ipmi = {
 }
 
 env.keystone = {
-    'version': 'v3'
-    'auth_protocol'   : 'https'
+    'version': 'v3',
+    'auth_protocol': 'https'
 }
 env.cfgm = {
-    'auth_protocol'   : 'https'
+    'auth_protocol': 'https'
 }
 # RBAC
 cloud_admin_role = 'admin'
