@@ -4,7 +4,7 @@ import re
 import sys 
 import os 
 import errno 
-# import json 
+import json 
 
 # print """ 
 # ARGS = ["""+repr (sys.argv)+"""] 
@@ -47,8 +47,8 @@ compute_host_upper_index = 6
 MIN_ROLE_COUNT_IN_ONE_HOST  = 3
 # MAX_PER_FILTER  = 6 
 MAX_PER_FILTER__MAP = { 
-    "inclusive"     : 6,
     "exclusive"     : 6,
+    "inclusive"     : 6,
     "subset"        : 6, 
     "HA_openstack"  : 6, 
     "HA_contrail"   : 6, 
@@ -79,7 +79,7 @@ def testbed_roledef ( dataset = {}, unique_tag = None ):
             "compute" : [ "host"+str (x) for x in range ( host_count+1, compute_host_upper_index+1) ], 
             "build"   : [ "host_build" ], 
         } ) 
-        print format_dump ( dataset ) 
+        #print format_dump ( dataset ) 
 
         # if ( filter_name == "HA_openstack" or filter_name == "HA_contrail" ):
         #     with open('testbed_sample_HA.py') as f:  lines = f.read().splitlines()
@@ -101,12 +101,17 @@ def testbed_roledef ( dataset = {}, unique_tag = None ):
         with open(prepend_dir_part+'testbed_'+unique_tag+'.py', 'w') as f: 
             for line in lines: 
                 if ( re.search (r"^\s*\{\s*env_roledefs\s*\}\s*$", line ) ): 
-                    print line.format ( 
-                        env_roledefs = "env.roledefs = "+format_dump ( dataset ) 
-                    ) 
+                    #print line.format ( 
+                    #    env_roledefs = "env.roledefs = "+format_dump ( dataset ) 
+                    #) 
                     line = line.format ( 
                         env_roledefs = "env.roledefs = "+format_dump ( dataset ) 
                     ) 
+                #if ( re.search (r"^\s*\{\s*log_scenario\s*\}\s*$", line ) ):
+                searchExp = "Multi-Node Virtual Testbed Sanity"
+                replaceExp = "Multi-Node Virtual "+unique_tag+" Testbed Sanity" 
+                if searchExp in line:
+                    line = line.replace(searchExp,replaceExp)
                 f.write(line+"\n") 
 
 
@@ -156,7 +161,7 @@ def HA_openstack_filter (input_list):
 # 
 #     return check_min_member_count (input_list)
 
-def inclusive_filter (input_list):
+def exclusive_filter (input_list):
     cfgm_found    = False
     database_found        = False
 
@@ -177,11 +182,11 @@ def inclusive_filter (input_list):
     return check_min_member_count (input_list)
     # return True
 
-def exclusive_filter (input_list):
+def inclusive_filter (input_list):
     # print "input_list = [" + repr( input_list ) + "] "
 
     cfgm_found    = False
-    database_found        = False
+    database_found = False
 
     role_count  = 0
 
@@ -233,12 +238,15 @@ def count_filter( input_list = [], filter_name = "" ) :
 
     cfgm_count    = 0
     database_count        = 0
+    openstack_count = 0
 
     for item in xrange( len( input_list ) ) :
         if (input_list[ item ] == "cfgm") :
             cfgm_count += 1
         if (input_list[ item ] == "database") :
             database_count += 1
+        if ( input_list[item] == "openstack" ):
+            openstack_count += 1 
 
     # print "database_count = [" + str( database_count ) + "] cfgm_count = [" + str( cfgm_count ) + "] "
 
@@ -246,6 +254,13 @@ def count_filter( input_list = [], filter_name = "" ) :
     if (database_count % 2 == 0) :
         # print "False | database_count % 2 == 0 "
         return False
+
+    if ( filter_name == "inclusive" ):
+        #if ( input_list[item] == "openstack" ):
+        #   openstack_count += 1
+
+        if (openstack_count > 2) :
+            return False
 
     if ( filter_name == "subset" ):
         # print "database_count = ["+str(database_count)+"] cfgm_count = ["+str (cfgm_count)+"] "
@@ -324,11 +339,11 @@ def is_openstack_on_odd_number_of_hosts ( input_list ):
 
 
 superset_filter_list     = {
-    "inclusive"     : inclusive_filter,
     "exclusive"     : exclusive_filter,
+    "inclusive"     : inclusive_filter,
     "subset"        : subset_filter, 
     "HA_openstack"  : HA_openstack_filter, 
-    "HA_contrail"   : exclusive_filter, 
+    "HA_contrail"   : inclusive_filter, 
 } 
 
 if ( sys.argv[ 1 ] not in superset_filter_list ): 
@@ -346,23 +361,45 @@ try:
     filter_runtime_arg__found = True 
 except (KeyError, IndexError): 
     filter_list     = {
-        "inclusive"     : inclusive_filter,
         "exclusive"     : exclusive_filter,
+        "inclusive"     : inclusive_filter,
         "subset"        : subset_filter, 
     	"HA_openstack"  : HA_openstack_filter, 
-        "HA_contrail"   : exclusive_filter, 
+        "HA_contrail"   : inclusive_filter, 
     }
 #     print """ Runtime parameter having one of below values should be provided. 
-# inclusive 
 # exclusive 
+# inclusive 
 # subset 
 # """ 
 #     exit ( 1 ) 
 # filter_list     = {
-#     "inclusive"     : inclusive_filter,
 #     "exclusive"     : exclusive_filter,
+#     "inclusive"     : inclusive_filter,
 #     "subset"        : subset_filter
 # }
+
+
+def return_specific_values ( master_list, this_filter_name ): 
+    indices_to_pick = MAX_PER_FILTER__MAP[ this_filter_name ] 
+    # print "indices_to_pick = ["+repr (indices_to_pick)+"] " 
+    master_list_length = len (master_list) 
+    # print "master_list_length = ["+repr (master_list_length)+"] " 
+    index_list = (lambda indices_to_pick, master_list_length: [i*master_list_length//indices_to_pick + master_list_length//(2*indices_to_pick) for i in range(indices_to_pick)])( indices_to_pick, master_list_length ) 
+
+    selected_item_list = [] 
+    for this_index in index_list: 
+        selected_item_list.append ( copy.deepcopy (master_list[ this_index ]) )
+    #import pdb;pdb.set_trace() 
+    print "selected_item_list = ["+repr (selected_item_list)+"] " 
+    print "selected_item_list = ["+json.dumps ( selected_item_list, sort_keys=True, indent=4 )+"] " 
+    #outer_key_list    = len (selected_item_list)
+    #print "outer_key_list = [" + repr( outer_key_list ) + "] "
+    #for i in xrange ( outer_key_list ) :
+    #    inner_key_list = len(selected_item_list[i])
+    #    #inner_key_list = len (selected_item_list [outer_key_list][i].keys( ))
+    #    print "inner_key_list = [" + repr( inner_key_list ) + "] "
+    return selected_item_list 
 
 
 all_combinations_list   = []
@@ -399,100 +436,41 @@ for filter_name in filter_list:
     #     for j in xrange ( len ( list (filtered_list_final[i]) ) ):
     #         print "N"+str (j+1)+" = " + repr ( filtered_list_final[i][j] )
 
-    # print "FLATTEN "
-    length_based_dict   = {}
-    for i in xrange( len( filtered_list_final ) ) :
-        flattened_list  = list( set (itertools.chain.from_iterable( filtered_list_final[i] ) ) )
-        # print filtered_list_final[i]
-        # print flattened_list
-        this_len_flat   = len ( flattened_list )
-        # print "this_len = ["+str (this_len_flat)+"] "
-        if ( this_len_flat not in length_based_dict ):
-            length_based_dict[ this_len_flat ]  = {}
 
-        this_len    = 0
-        for j in xrange( len( list( filtered_list_final[ i ] ) ) ) :
-            # print "list (filtered_list_final[i][j]) = ["+repr (list (filtered_list_final[i][j]))+"] "
-            if ( this_len < len ( list (filtered_list_final[i][j]) ) ):
-                this_len    = len ( list (filtered_list_final[i][j]) )
-        # print "this_len = [" + str( this_len ) + "] "
-        if (this_len not in length_based_dict[ this_len_flat ]) :
-            length_based_dict[ this_len_flat ][ this_len ]  = []
 
-        # length_based_dict[ this_len_flat ][ this_len ].append ( list (filtered_list_final[i]) )
-        length_based_dict[ this_len_flat ][ this_len ].append( copy.deepcopy( list( filtered_list_final[ i ] ) ) )
+    # print "filtered_list_final = ["+repr (filtered_list_final)+"] " 
+    selected_item_list = return_specific_values ( 
+        master_list = filtered_list_final, 
+        this_filter_name = filter_name, 
+    ) 
 
-    # print "length_based_dict = ["+repr (length_based_dict)+"] "
-
-    outer_key_list    = length_based_dict.keys()
-    # print "outer_key_list = [" + repr( outer_key_list ) + "] "
-    outer_key_list.sort( reverse=True )
-    # print "outer_key_list = ["+repr (outer_key_list)+"] "
 
     testbed = {} 
+    print "Filter = [" + filter_name + "] "
+    for i in xrange (len (selected_item_list)):
+        outer_key_list = list (selected_item_list[i])
+        #print "outer_key_list = [" + repr( outer_key_list ) + "] "
+        print "SET [" + str( i + 1 ) + "] "
+        
+        for j in xrange (len (outer_key_list) ):      
+            inner_key_list = outer_key_list[j]
+            #print "inner_key_list = [" + repr( inner_key_list ) + "] "
+            print "host"+str (j+1)+" = " + repr ( selected_item_list[i] [j] )
+                
+            for y in range ( len ( selected_item_list[i] [j] ) ):
+                    role_item = selected_item_list[i] [j] [y]
+                    host_name = "host"+str (j+1)
+                    try:
+                        testbed[ role_item ].append ( host_name )
+                    except KeyError:
+                        testbed[ role_item ]        = [ host_name ]
 
-    c = 0
-    for i in xrange( len( outer_key_list ) ) :
+        testbed_roledef( dataset = testbed, unique_tag = filter_name + str (i) )
+        testbed.clear()
 
-        inner_key_list = length_based_dict[ outer_key_list[i] ].keys( )
-        # print "inner_key_list = [" + repr( inner_key_list ) + "] "
-        inner_key_list.sort( reverse=True )
-        # print "inner_key_list = [" + repr( inner_key_list ) + "] "
+    #exit ()
 
-        if ( len (inner_key_list) > 2 ): # Implies there is an item apart from the lowest and highest.
-            inner_key_list.pop (0)
 
-        for j in xrange( len( inner_key_list ) ) :
-            # print "One set = ["+repr ( length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ] )+"] "
-            print "Filter = [" + filter_name + "] "
-
-            for o in xrange ( len (length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ]) ):
-                print "SET [" + str( o + 1 ) + "] "
-
-                # webui_role_found    = False
-                # for k in xrange( len( length_based_dict[ outer_key_list[ i ] ][ inner_key_list[ j ] ][ o ] ) ) :
-                #     if ( "webui" in length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o] ):
-                #         webui_role_found    = True
-                webui_role_added_flag   = False
-                for k in xrange ( len ( length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o] ) ):
-                    # print "\nN" + str( k + 1 )
-                    # print length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o][k]
-                    if ("webui" in length_based_dict[ outer_key_list[ i ] ][ inner_key_list[ j ] ][ o ][ k ]) :
-                        # print "webui found. "
-                        webui_role_added_flag = True
-                    if not webui_role_added_flag: # and not webui_role_found:
-                        if ( "collector" not in length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o][k] ):
-                            # print "collector not found"
-                            length_based_dict[ outer_key_list[ i ] ][ inner_key_list[ j ] ][ o ][ k ].append ( "webui" )
-                            webui_role_added_flag   = True
-                            # print "AFTER "
-                        # print length_based_dict[ outer_key_list[ i ] ][ inner_key_list[ j ] ][ o ][ k ]
-
-                    print "host"+str (k+1)+" = " + repr ( length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o][k] )
-                    ## start 
-                    for y in range ( len (length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o][k]) ): 
-                        role_item = length_based_dict[ outer_key_list[i] ][ inner_key_list[j] ][o][k][ y ] 
-                        host_name = "host"+str (k+1) 
-                        try: 
-                            testbed[ role_item ].append ( host_name ) 
-                        except KeyError: 
-                            testbed[ role_item ] 	= [ host_name ] 
-                    ## end
-		#import pdb;pdb.set_trace()
-                testbed_roledef( dataset = testbed, unique_tag = filter_name + str (o) ) 
-                testbed.clear()      
-                # at this level, pass testbed to that function and empty testbed after that. 
-                c += 1
-                # if (c >= MAX_PER_FILTER) :
-                if (c >= MAX_PER_FILTER__MAP[ filter_name ]) :
-                    break
-
-            # if ( c >= MAX_PER_FILTER ):
-            if ( c >= MAX_PER_FILTER__MAP[ filter_name ] ):
-                break
-        # if (c >= MAX_PER_FILTER) :
-        if (c >= MAX_PER_FILTER__MAP[ filter_name ]) :
-            break
 
 
 
