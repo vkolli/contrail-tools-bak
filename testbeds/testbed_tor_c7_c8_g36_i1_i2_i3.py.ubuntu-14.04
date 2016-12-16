@@ -65,9 +65,9 @@ control_data = {
     host1 : { 'ip': '192.168.192.60/24', 'gw' : '192.168.192.254', 'device':'eth1' },
     host2 : { 'ip': '192.168.192.50/24', 'gw' : '192.168.192.254', 'device':'eth1' },
     host3 : { 'ip': '192.168.192.40/24', 'gw' : '192.168.192.254', 'device':'eth1' },
-    host4 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'p6p2' },
-    host5 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'p6p2' },
-    host6 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'p6p2' },
+    host4 : { 'ip': '192.168.192.1/24', 'gw' : '192.168.192.254', 'device':'p6p2' , 'vlan': '128'},
+    host5 : { 'ip': '192.168.192.2/24', 'gw' : '192.168.192.254', 'device':'p6p2' ,'vlan': '128'},
+    host6 : { 'ip': '192.168.192.3/24', 'gw' : '192.168.192.254', 'device':'p6p2' ,'vlan': '128'},
     host7 : { 'ip': '192.168.192.7/24', 'gw' : '192.168.192.254', 'device':'p1p2' },
 }
 
@@ -77,7 +77,6 @@ env.ha = {
 }
 env.cluster_id='clusterc7c8g36i1i2i3'
 minimum_diskGB=32
-env.test_repo_dir='/home/stack/multi_interface_parallel/ubuntu-14.04/icehouse/contrail-test'
 env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
@@ -205,23 +204,21 @@ static_route  = {
     host3 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' },
             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'eth1' },
              { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'eth1' }],
-    host4 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' },
-            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2' },
-             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' }],
-    host5 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' },
-            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2' },
-             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' }],
-    host6 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' },
-            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2' },
-            { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2' }],
+    host4 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' },
+            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2.128' },
+             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' }],
+    host5 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' },
+            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2.128' },
+             { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' }],
+    host6 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' },
+            { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p6p2.128' },
+            { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p6p2.128' }],
     host7 : [{ 'ip': '192.168.191.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p1p2' },
             { 'ip': '7.7.7.78', 'netmask' : '255.255.255.255', 'gw':'192.168.192.252', 'intf': 'p1p2' },
              { 'ip': '99.99.99.0', 'netmask' : '255.255.255.0', 'gw':'192.168.192.254', 'intf': 'p1p2' }],
 }
 
 ha_setup = True
-env.ca_cert_file='/homes/vjoshi/github/mine/tor/contrail-test-verify-on-setup/tools/tor/cacert.pem'
-env.test_repo_dir='/root/contrail-test'
 
 reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
 vm_node_details = {
@@ -252,3 +249,5 @@ vm_node_details = {
 
 }
 env.ntp_server='ntp.juniper.net'
+env.test_repo_dir='/root/contrail-test'
+env.ca_cert_file='/contrail-test/tools/tor/cacert.pem'
