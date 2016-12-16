@@ -255,10 +255,11 @@ def count_filter( input_list = [], filter_name = "" ) :
         # print "False | database_count % 2 == 0 "
         return False
 
-    if ( filter_name == "inclusive" ):
+    #if ( filter_name == "inclusive" ):
         #if ( input_list[item] == "openstack" ):
         #   openstack_count += 1
 
+    if ( filter_name != "HA_openstack" ):
         if (openstack_count > 2) :
             return False
 
@@ -421,11 +422,11 @@ for filter_name in filter_list:
     filtered_list_final     = []
     for i in xrange( len( filtered_list ) ) :
         if check_all_present ( list (itertools.chain.from_iterable (filtered_list[i]) ) ):
-            if not is_collector_in_all ( list (filtered_list[i]) ):
-                if is_openstack_on_odd_number_of_hosts ( list (filtered_list[i]) ): 
+            #if not is_collector_in_all ( list (filtered_list[i]) ):
+            if is_openstack_on_odd_number_of_hosts ( list (filtered_list[i]) ): 
                     # filtered_list_final.append ( filtered_list[i]  )
                     # x = filtered_list[ i ].deepcopy ()
-                    filtered_list_final.append( copy.deepcopy ( filtered_list[ i ] ) )
+                filtered_list_final.append( copy.deepcopy ( filtered_list[ i ] ) )
 
     print "\n\n\n\n"
     # for i in xrange ( len (filtered_list_final) ):
