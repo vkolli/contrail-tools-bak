@@ -42,6 +42,17 @@ env.hostnames = {
     host7: '5b7s17',
 }
 
+env.keystone = {
+    'version': 'v3',
+    'auth_protocol': 'https'
+}
+env.cfgm = {
+    'auth_protocol': 'https'
+}
+# RBAC
+cloud_admin_role = 'admin'
+aaa_mode = 'rbac'
+
 #Openstack admin password
 env.openstack_admin_password = 'c0ntrail123'
 
