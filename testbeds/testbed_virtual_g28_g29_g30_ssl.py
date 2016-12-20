@@ -21,7 +21,7 @@ host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3, host4, host5, host6],
-    'cfgm': [host1, host3],
+    'cfgm': [host1],
     'webui': [host2],
     'openstack': [host3],
     'control': [host1, host3],
@@ -42,10 +42,12 @@ env.physical_routers={
 }
 
 env.keystone = {
-    'auth_protocol': 'https'
+    'auth_protocol': 'https',
+    'insecure': 'True'
 }
 env.cfgm = {
     'auth_protocol': 'https'
+    'insecure': 'True'
 }
 # RBAC
 cloud_admin_role = 'admin'
