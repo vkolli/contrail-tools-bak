@@ -45,10 +45,10 @@ env.keystone = {
     'auth_protocol': 'https',
     'insecure': 'True'
 }
-env.cfgm = {
-    'auth_protocol': 'https'
-    'insecure': 'True'
-}
+#env.cfgm = {
+#    'auth_protocol': 'https'
+#    'insecure': 'True'
+#}
 # RBAC
 cloud_admin_role = 'admin'
 aaa_mode = 'rbac'
