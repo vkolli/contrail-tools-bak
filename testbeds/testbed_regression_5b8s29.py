@@ -31,10 +31,13 @@ kvm_host3 = 'root@10.87.66.146'
 #External routers if any
 #for eg.
 ##ext_routers = [('5b8-mx-80-3', '7.7.7.77'), ('5b8-mx-80-4', '7.7.7.78')]
-ext_routers = []
+#ext_routers = []
+ext_routers = [('5b8-mx80-3','10.87.120.97'), ('5b8-mx80-4','10.87.120.98')]                                                                                                                                                             
 
 #Autonomous system number
 router_asn = 64513
+public_vn_rtgt = 5289
+public_vn_subnet = '10.87.120.96/27'
 
 #Host from which the fab commands are triggered to install and provision
 host_build = 'root@10.87.66.157'
@@ -90,8 +93,8 @@ reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
 vm_node_details = {
     'default': {
                 'image_dest' : '/mnt/disk1/images/',
-                'ram' : '81920',
-                'vcpus' : '8',
+                'ram' : '65536',
+                'vcpus' : '32',
                 'disk_format' : 'qcow2',
                 'image_source' : 'http://10.84.5.120/cs-shared/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
@@ -428,6 +431,10 @@ env.ha = {
     'internal_vip' : '10.87.66.185',
     'contrail_internal_vip' : '10.87.66.186',
 }
+env.openstack = {
+    'amqp_host' : '10.87.66.185',
+    'manage_amqp' : 'yes',
+}
 ##
 ### OPTIONAL vrouter limit parameter
 ### ==================================
@@ -630,3 +637,7 @@ env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
 env.enable_lbaas = True
 env.test_repo_dir='/root/contrail-test'
 env.ca_cert_file='/root/cacert.pem'
+env.mx_gw_test=True
+env.image_web_server = '10.84.5.120'
+env.ntp_server='66.129.255.62'
+
