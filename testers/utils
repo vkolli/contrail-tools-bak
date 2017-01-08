@@ -518,6 +518,7 @@ function bringup_setup {
     then
         return 0
     fi
+    initialize_any_vms
     search_package
     copy_fabric_test_artifacts || die "Failed to copy fab/test code from artifacts to destination"
     cd ${TOOLS_WS}/contrail-fabric-utils

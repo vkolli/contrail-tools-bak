@@ -5,7 +5,7 @@ from fabric.api import run,put,env,parallel, cd
 from fabric.operations import get, put
 from fabric.context_managers import settings, hide
 import re
-import random
+import random, time
 
 #env.hosts  = ['nodei12', 'nodei13','nodei14','nodei15']
 env.user = 'root'
@@ -103,6 +103,9 @@ def create_vms_from_testbed(contrail_fab_path='/opt/contrail/utils'):
                       vm_detail['network'],
                       vm_detail['vcpus'],
                       vm_detail['disk_format'])
+            time.sleep(30)
+        with settings(host_string=key):
+            change_host_name_of_vm(vm_detail['name'])
 
 def delete_vm( vm_id ):
     cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
@@ -146,14 +149,14 @@ def generate_etc_hostname(hostname):
 def generate_etc_hosts(hostname):
     file_name = "hosts"
     text = "127.0.0.1       localhost\n127.0.1.1       \
-            %s.englab.juniper.net    %s"%(hostname,hostname)   
+            %s.englab.juniper.net    %s \n\n"%(hostname,hostname)
     create_file(file_name , text)
     
 def change_host_name_of_vm(hostname):
     host = hostname
     generate_etc_hostname(host)
     generate_etc_hosts(host)
-    run("cp /etc/hostname /etc/hostname.old")
+    #run("cp /etc/hostname /etc/hostname.old")
     run("cp /etc/hosts /etc/hosts.old")
     put("hostname", "/etc/")
     put("hosts", "/etc/")

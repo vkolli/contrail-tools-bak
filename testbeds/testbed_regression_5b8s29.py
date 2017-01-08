@@ -51,8 +51,9 @@ env.roledefs = {
     'control': [host2,host6,host10],
     'collector': [host3,host7,host11],
     'database': [host4,host8,host12],
-    'compute': [host13, host14, host15, host16],
+    'compute': [host13, host14, host15, host16, host17, host19],
     'tsn': [host17, host19],
+    'toragent': [host17, host19],
     'build': [host_build],
 }
 
@@ -101,65 +102,77 @@ vm_node_details = {
     host1 : {  
                 'name' : '5b8s29-vm1',
                 'server': kvm_host1,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:02'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:02'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:02'}
                             ],
             },
     host2 : {  
                 'name' : '5b8s29-vm2',
                 'server': kvm_host1,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:03'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:03'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:03'}
                             ],
             },
     host3 : {  
                 'name' : '5b8s29-vm3',
                 'server': kvm_host1,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:04'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:04'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:04'}
                             ],
             },
     host4 : {  
                 'name' : '5b8s29-vm4',
                 'server': kvm_host1,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:05'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:05'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:05'}
                             ],
             },
     host5 : {   'name' : '5b8s30-vm1',
                 'server': kvm_host2,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:06'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:06'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:06'}
                             ]
             },
     host6 : {   'name' : '5b8s30-vm2',
                 'server': kvm_host2,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:07'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:07'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:07'}
                             ]
             },
     host7 : {   'name' : '5b8s30-vm3',
                 'server': kvm_host2,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:08'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:08'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:08'}
                             ]
             },
     host8 : {   'name' : '5b8s30-vm4',
                 'server': kvm_host2,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:09'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:09'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:09'}
                             ]
             },
     host9 : {   'name' : '5b8s31-vm1',
                 'server': kvm_host3,
-                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0A'}
+                'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0A'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:0A'}
                             ]
             },
     host10 : {   'name' : '5b8s31-vm2',
                  'server': kvm_host3,
-                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0B'}
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0B'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:0B'}
                              ]
             },
     host11 : {   'name' : '5b8s31-vm3',
                  'server': kvm_host3,
-                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0C'}
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0C'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:0C'}
                             ]
             },
     host12 : {   'name' : '5b8s31-vm4',
                  'server': kvm_host3,
-                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0D'}
+                 'network' : [{'bridge' : 'br0', 'mac':'52:53:55:01:00:0D'},
+                             {'bridge' : 'br1', 'mac':'52:53:55:02:00:0D'}
                             ]
             }
 }
@@ -277,19 +290,34 @@ minimum_diskGB = 64
 ##
 ###OPTIONAL SEPARATION OF MANAGEMENT AND CONTROL + DATA and OPTIONAL VLAN INFORMATION
 ###==================================================================================
-##control_data = {
-##    host1 : { 'ip': '172.17.90.1/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host2 : { 'ip': '172.17.90.2/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host3 : { 'ip': '172.17.90.3/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host4 : { 'ip': '172.17.90.4/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host5 : { 'ip': '172.17.90.5/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host6 : { 'ip': '172.17.90.6/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host7 : { 'ip': '172.17.90.7/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host8 : { 'ip': '172.17.90.8/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host9 : { 'ip': '172.17.90.9/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##    host10 : { 'ip': '172.17.90.10/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
-##}
-##
+control_data = {
+    host1 : { 'ip': '172.17.90.1/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host2 : { 'ip': '172.17.90.2/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host3 : { 'ip': '172.17.90.3/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host4 : { 'ip': '172.17.90.4/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host5 : { 'ip': '172.17.90.5/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host6 : { 'ip': '172.17.90.6/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host7 : { 'ip': '172.17.90.7/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host8 : { 'ip': '172.17.90.8/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host9 : { 'ip': '172.17.90.9/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host10 : { 'ip': '172.17.90.10/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host11 : { 'ip': '172.17.90.11/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host12 : { 'ip': '172.17.90.12/24', 'gw' : '172.17.90.254', 'device':'eth1' },
+    host13 : { 'ip': '172.17.90.13/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+    host14 : { 'ip': '172.17.90.14/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+    host15 : { 'ip': '172.17.90.15/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+    host16 : { 'ip': '172.17.90.16/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+    host17 : { 'ip': '172.17.90.17/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+    host19 : { 'ip': '172.17.90.19/24', 'gw' : '172.17.90.254', 'device':'p514p1' },
+}
+###OPTIONAL STATIC ROUTE CONFIGURATION  
+###===================================  
+static_route  = {
+    host17 : [{ 'ip': '174.174.174.174', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
+             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.250', 'intf': 'p514p1' }],
+    host19 : [{ 'ip': '174.174.174.174', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
+             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.250', 'intf': 'p514p1' }],
+}
 ###OPTIONAL STATIC ROUTE CONFIGURATION  
 ###===================================  
 ##static_route  = {
@@ -425,11 +453,63 @@ minimum_diskGB = 64
     #         { 'ip': '31.31.31.31', 'netmask' : '255.255.255.255', 'gw':'172.17.90.254', 'intf': 'p514p1' }],
 #}
 
+env.physical_routers={
+'5b8-mx80-3'          : {
+                     'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64513',
+                     'name'  : '5b8-mx80-3',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'   : '10.87.120.97',
+                     'tunnel_ip' : '3.3.3.3',
+                     'ports' : [],
+                     'type'  : 'router',
+                 },
+'5b8-mx80-4'          : {
+                     'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64513',
+                     'name'  : '5b8-mx80-4',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'   : '10.87.120.98',
+                     'tunnel_ip' : '4.4.4.4',
+                     'ports' : [],
+                     'type'  : 'router',
+},
+'5b8-qfx4'       : {
+                     'vendor': 'juniper',
+                     'model' : 'qfx5100',
+                     'asn'   : '64513',
+                     'name'  : '5b8-qfx4',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.87.66.249',
+                     'tunnel_ip' : '174.174.174.174',
+                     'ports' : ['xe-0/0/40'],
+                     'type'  : 'tor',
+},
+'5b8-qfx5'       : {
+                     'vendor': 'juniper',
+                     'model' : 'qfx5100',
+                     'asn'   : '64513',
+                     'name'  : '5b8-qfx5',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'Embe1mpls',
+                     'mgmt_ip'  : '10.87.66.250',
+                     'tunnel_ip' : '185.185.185.185',
+                     'ports' : ['xe-0/0/1'],
+                     'type'  : 'tor',
+},
+}
 
 # VIP
 env.ha = {
-    'internal_vip' : '10.87.66.185',
-    'contrail_internal_vip' : '10.87.66.186',
+    'external_vip' : '10.87.66.185',
+    'internal_vip' : '172.17.90.185',
+    'contrail_external_vip' : '10.87.66.186',
+    'contrail_internal_vip' : '172.17.90.186',
 }
 env.openstack = {
     'amqp_host' : '10.87.66.185',
@@ -447,69 +527,81 @@ env.openstack = {
 ##     host10:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
 ##}
 ##
-##env.tor_agent = {host4:[{
-##                    'tor_ip':'172.18.90.1',
-##                    'tor_agent_id':'1',
-##                    'tor_type':'ovs',
-##                    'tor_ovs_port':'4321',
-##                    'tor_ovs_protocol':'pssl',
-##                    'tor_tsn_ip':'172.17.90.4',
-##                    'tor_tsn_name':'5b7s4',
-##                    'tor_name':'5b7-qfx2',
-##                    'tor_tunnel_ip':'34.34.34.34',
-##                    'tor_vendor_name':'Juniper',
-##                    'tor_product_name':'QFX5100',
-##                    'tor_agent_http_server_port': '1234',
-##                    'tor_agent_ovs_ka': '10000',
-##                       },
-##                       {
-##                    'tor_ip':'172.18.90.2',
-##                    'tor_agent_id':'2',
-##                    'tor_type':'ovs',
-##                    'tor_ovs_port':'4322',
-##                    'tor_ovs_protocol':'pssl',
-##                    'tor_tsn_ip':'172.17.90.4',
-##                    'tor_tsn_name':'5b7s4',
-##                    'tor_name':'5b7-qfx3',
-##                    'tor_tunnel_ip':'33.33.33.33',
-##                    'tor_vendor_name':'Juniper',
-##                    'tor_product_name':'QFX5100',
-##                    'tor_agent_http_server_port': '1233',
-##                    'tor_agent_ovs_ka': '10000',
-##                       },
-##                       ],
-##                   
-##                 host5:[{
-##                    'tor_ip':'172.18.90.1',
-##                    'tor_agent_id':'1',
-##                    'tor_type':'ovs',
-##                    'tor_ovs_port':'4321',
-##                    'tor_ovs_protocol':'pssl',
-##                    'tor_tsn_ip':'172.17.90.5',
-##                    'tor_tsn_name':'5b7s5',
-##                    'tor_name':'5b7-qfx2',
-##                    'tor_tunnel_ip':'34.34.34.34',
-##                    'tor_vendor_name':'Juniper',
-##                    'tor_product_name':'QFX5100',
-##                    'tor_agent_http_server_port': '1234',
-##                    'tor_agent_ovs_ka': '10000',
-##                       },
-##                       {
-##                    'tor_ip':'172.18.90.2',
-##                    'tor_agent_id':'2',
-##                    'tor_type':'ovs',
-##                    'tor_ovs_port':'4322',
-##                    'tor_ovs_protocol':'pssl',
-##                    'tor_tsn_ip':'172.17.90.5',
-##                    'tor_tsn_name':'5b7s5',
-##                    'tor_name':'5b7-qfx3',
-##                    'tor_tunnel_ip':'33.33.33.33',
-##                    'tor_vendor_name':'Juniper',
-##                    'tor_product_name':'QFX5100',
-##                    'tor_agent_http_server_port': '1233',
-##                    'tor_agent_ovs_ka': '10000',
-##                       },
-##                       ],
+# OPTIONAL vrouter limit parameter
+# ==================================
+env.vrouter_module_params = {
+     host13:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host14:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host15:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host16:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host17:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+     host19:{'mpls_labels':'200000', 'nexthops':'512000', 'vrfs':'65536', 'macs':'1000000'},
+}
+
+env.tor_agent = {host17:[{
+                    'tor_ip':'172.17.90.249',
+                    'tor_agent_id':'1',
+                    'tor_type':'ovs',
+                    'tor_ovs_port':'4321',
+                    'tor_ovs_protocol':'pssl',
+                    'tor_tsn_ip':'172.17.90.17',
+                    'tor_tsn_name':'5b8s37',
+                    'tor_name':'5b8-qfx4',
+                    'tor_tunnel_ip':'174.174.174.174',
+                    'tor_vendor_name':'Juniper',
+                    'tor_product_name':'QFX5100',
+                    'tor_agent_http_server_port': '1233',
+                    'tor_agent_ovs_ka': '10000',
+                       },
+                       {
+                    'tor_ip':'172.17.90.250',
+                    'tor_agent_id':'2',
+                    'tor_type':'ovs',
+                    'tor_ovs_port':'4322',
+                    'tor_ovs_protocol':'pssl',
+                    'tor_tsn_ip':'172.17.90.17',
+                    'tor_tsn_name':'5b8s37',
+                    'tor_name':'5b8-qfx5',
+                    'tor_tunnel_ip':'185.185.185.185',
+                    'tor_vendor_name':'Juniper',
+                    'tor_product_name':'QFX5100',
+                    'tor_agent_http_server_port': '1234',
+                    'tor_agent_ovs_ka': '10000',
+                       },
+                       ],
+                   
+                 host19:[{
+                    'tor_ip':'172.17.90.249',
+                    'tor_agent_id':'1',
+                    'tor_type':'ovs',
+                    'tor_ovs_port':'4321',
+                    'tor_ovs_protocol':'pssl',
+                    'tor_tsn_ip':'172.17.90.19',
+                    'tor_tsn_name':'5b8s39',
+                    'tor_name':'5b8-qfx4',
+                    'tor_tunnel_ip':'174.174.174.174',
+                    'tor_vendor_name':'Juniper',
+                    'tor_product_name':'QFX5100',
+                    'tor_agent_http_server_port': '1233',
+                    'tor_agent_ovs_ka': '10000',
+                       },
+                       {
+                    'tor_ip':'172.17.90.250',
+                    'tor_agent_id':'2',
+                    'tor_type':'ovs',
+                    'tor_ovs_port':'4322',
+                    'tor_ovs_protocol':'pssl',
+                    'tor_tsn_ip':'172.17.90.19',
+                    'tor_tsn_name':'5b8s39',
+                    'tor_name':'5b8-qfx5',
+                    'tor_tunnel_ip':'185.185.185.185',
+                    'tor_vendor_name':'Juniper',
+                    'tor_product_name':'QFX5100',
+                    'tor_agent_http_server_port': '1234',
+                    'tor_agent_ovs_ka': '10000',
+                       },
+                       ]
+                }
 ##                 host6:[{
 ##                    'tor_ip':'172.18.90.3',
 ##                    'tor_agent_id':'3',
@@ -576,20 +668,20 @@ env.openstack = {
 ##                }                
 ##                   
 ##
-##env.tor_hosts={
-##'172.18.90.1': [{'tor_port': 'xe-0/0/46',
-##                    'host_port' : 'p2p2',
-##                    'mgmt_ip' : '10.87.65.143',
-##                    'username' : 'root',
-##                    'password' : 'c0ntrail123',
-##                  }],
-##'172.18.90.2': [{'tor_port': 'xe-0/0/46',
-##                    'host_port' : 'p2p1',
-##                    'mgmt_ip' : '10.87.65.143',
-##                    'username' : 'root',
-##                    'password' : 'c0ntrail123',
-##                  }]
-##}
+env.tor_hosts={
+'10.87.66.249': [{'tor_port': 'xe-0/0/40',
+                    'host_port' : 'p514p1',
+                    'mgmt_ip' : '10.87.66.155',
+                    'username' : 'root',
+                    'password' : 'c0ntrail123',
+                  }],
+'10.87.66.250': [{'tor_port': 'xe-0/0/1',
+                    'host_port' : 'p513p2',
+                    'mgmt_ip' : '10.87.66.155',
+                    'username' : 'root',
+                    'password' : 'c0ntrail123',
+                  }]
+}
 ##
 ##env.physical_routers={
 ##'5b7-mx80-2'          : {     
