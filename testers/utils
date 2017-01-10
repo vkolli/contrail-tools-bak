@@ -976,7 +976,11 @@ function set_other_test_params {
          export CT_CONTROL_PORT=\"$CONTROL_PORT\";
          export CT_DNS_PORT=\"$DNS_PORT\";
          export CT_AGENT_PORT=\"$AGENT_PORT\";
-         export CT_USER_ISOLATION=\"$USER_ISOLATION\";"
+         export CT_USER_ISOLATION=\"$USER_ISOLATION\";
+         export CT_HA_TEST=\"$HA_TEST\";
+         export CT_KEYSTONE_VERSION=\"$KEYSTONE_VERSION\";
+         export CT_AUTH_PROTOCOL=\"$AUTH_PROTOCOL\";
+         export CT_ENABLE_RBAC=\"$ENABLE_RBAC\";"
     echo $val
 }
 
