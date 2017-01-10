@@ -30,6 +30,18 @@ env.roledefs = {
     'build': [host_build],
 }
 
+if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    env.keystone = {
+        'auth_protocol': 'https'
+    }
+    env.cfgm = {
+        'auth_protocol': 'https'
+    }
+
+if os.getenv('ENABLE_RBAC',None) == 'true':
+    cloud_admin_role = 'admin'
+    aaa_mode = 'rbac'
+
 env.hostnames = {
     'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec30']
 }
