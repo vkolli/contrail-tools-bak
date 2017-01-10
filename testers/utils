@@ -5,6 +5,7 @@ source $TOOLS_WS/testers/environment.sh
 source $TOOLS_WS/testers/smgr_utils
 declare -A BUILD_MAP
 export BUILD_MAP=( [ubuntu-12-04]=ubuntu-12.04.3 [centos64_os]=centos-6.4 [centos65]=centos-6.5 [ubuntu-14-04]=ubuntu-14.04 [ubuntu-14-04-1]=ubuntu-14.04.1 [redhat70]=redhat-7.1 [centos71]=centos-7.1 )
+export_variables_for_fab="export HA_TEST=$HA_TEST; export AUTH_PROTOCOL=$AUTH_PROTOCOL; export KEYSTONE_VERSION=$KEYSTONE_VERSION; export ENABLE_RBAC=$ENABLE_RBAC"
 ##
 # try
 function try {
@@ -595,16 +596,16 @@ function setup_and_install_contrail {
     if [ $USE_NETWORKING_PKG -eq 1 ]; then
         fab install_contrail_openstack:$cloud_tgz_pkg,reboot=False || debug_and_die "install_contrail_openstack failed"
         pkg_name=`basename $net_tgz_pkg`
-        cmd="export HA_TEST=$HA_TEST;
+        cmd="${export_variables_for_fab};
                cd fabric-utils;
                fab install_without_openstack:${NODEHOME}/$pkg_name"
     elif [ $USE_CLOUD_PKG -eq 1 ]; then
         pkg_name=`basename $cloud_tgz_pkg`
-        cmd="export HA_TEST=$HA_TEST;
+        cmd="${export_variables_for_fab};
                cd fabric-utils;
                fab install_contrail:${NODEHOME}/$pkg_name" 
     else
-        cmd="export HA_TEST=$HA_TEST;
+        cmd="${export_variables_for_fab};
                cd fabric-utils;
                fab install_contrail" 
     fi
@@ -662,7 +663,7 @@ function setup_and_install_contrail {
         # provision contrail
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
             cd fabric-utils;
-            export HA_TEST=$HA_TEST;
+            ${export_variables_for_fab};
             fab setup_interface || exit 1;
             fab add_static_route
             fab setup_without_openstack:False" || debug_and_die "fab setup_interface or setup_all task failed"
@@ -672,7 +673,7 @@ function setup_and_install_contrail {
         # provision contrail
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils; 
-                export HA_TEST=$HA_TEST;
+                ${export_variables_for_fab};
                 fab setup_interface || exit 1;
                 fab add_static_route 
                 fab setup_all:False" || debug_and_die "fab setup_interface or setup_all task failed"
@@ -698,13 +699,13 @@ function setup_and_install_contrail {
         if [[ $SKU =~ 'liberty' ]];then
             exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
-                export HA_TEST=$HA_TEST;
+                ${export_variables_for_fab};
                 fab -R compute -- \"sleep 30;systemctl restart openstack-nova-compute.service\"" || debug_and_die "systemctl restart openstack-nova-compute.service failed"
         fi
     elif [[ $SKU =~ 'liberty' && ( $VCENTER_ONLY_TESTBED -ne 1  && $VCENTER_AS_COMPUTE_TESTBED -ne 1 ) ]];then
         exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
                 cd fabric-utils;
-                export HA_TEST=$HA_TEST;
+                ${export_variables_for_fab};
                 fab -R compute -- \"sleep 30;service nova-compute restart\"" || debug_and_die "service nova-compute restart failed"
     fi
 }
@@ -734,7 +735,7 @@ function reimage_setup {
     if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "
             cd /tmp/$TBFILE_NAME/contrail-fabric-utils;
-            export HA_TEST=$HA_TEST;
+            ${export_variables_for_fab};
             fab all_sm_reimage:$REIMAGE_PARAM ;
             # Wait a minute before checking the status of the servers after issuing reimage command.
             sleep 90
@@ -772,7 +773,7 @@ function run_fab() {
     # setup test environment  
     fab_cmd=$1
     exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "                                               
-        export HA_TEST=$HA_TEST;
+        ${export_variables_for_fab};
         cd ~/fabric-utils;
         fab ${fab_cmd}"
     # check venv exist before running test   
@@ -978,7 +979,11 @@ function set_other_test_params {
          export CT_CONTROL_PORT=\"$CONTROL_PORT\";
          export CT_DNS_PORT=\"$DNS_PORT\";
          export CT_AGENT_PORT=\"$AGENT_PORT\";
-         export CT_USER_ISOLATION=\"$USER_ISOLATION\";"
+         export CT_USER_ISOLATION=\"$USER_ISOLATION\";
+         export CT_HA_TEST=\"$HA_TEST\";
+         export CT_KEYSTONE_VERSION=\"$KEYSTONE_VERSION\";
+         export CT_AUTH_PROTOCOL=\"$AUTH_PROTOCOL\";
+         export CT_ENABLE_RBAC=\"$ENABLE_RBAC\";"
     echo $val
 }
 
@@ -1131,7 +1136,7 @@ function collect_tech_support {
     NODENAME=`echo $NODENAME | sed 's/\\r//g'`
     dest_dir_folder=$DEBUG_LOG_DIR/${NODENAME}/${SCRIPT_TIMESTAMP}
     cp_log_cmd="sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:$CFGM_FAB_PATH/*.log $dest_dir_folder"
-    debug_cmds="export HA_TEST=$HA_TEST && fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} ; $cp_log_cmd ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
+    debug_cmds="${export_variables_for_fab}; fab attach_logs_cores:$DEBUG_LOG_DIR/${NODENAME},${SCRIPT_TIMESTAMP} ; $cp_log_cmd ; cp fabfile/testbeds/testbed.py $dest_dir_folder ;  cp *.log $dest_dir_folder"
           
     if [ $USE_TASK_RUNNER_HOST -eq 1 ]; then
         exec_cmds -s ${TASK_RUNNER_HOST_STRING} -p ${TASK_RUNNER_HOST_PASSWORD} -c "

@@ -10,7 +10,7 @@ export TOOLS_WS=${TOOLS_WS:-$PWD}
 export BRANCH=${BRANCH:-mainline}
 export BUILDID=${BUILDID:-LATEST}
 export DISTRO=${DISTRO:-"ubuntu-12-04"}
-if [  $VCENTER_ONLY_TESTBED -eq 1 ]; then
+if [[  $VCENTER_ONLY_TESTBED -eq 1 ]]; then
     export TEST_SKU=${VCENTER_TEST_SKU:-liberty}
 else
     export TEST_SKU=${SKU:-icehouse}
