@@ -136,6 +136,9 @@ function search_package {
         if [ $IS_UBUNTU_14041 -eq 0 ]; then
             if [ "$BRANCH" \> "R2.22.x" ] || [ "$BRANCH" == "mainline" ]; then
                 export REIMAGE_PARAM="ubuntu-14.04.4"
+		if [ $BRANCH ">" "R3.0.99.99" ];then
+		    export REIMAGE_PARAM="ubuntu-14.04.5"
+		fi
             elif [ "$BRANCH" \> "R2.1" ] && [ "$BRANCH" \< "R3.0" ]; then
                 export REIMAGE_PARAM="ubuntu-14.04.2"
             else
