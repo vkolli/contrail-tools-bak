@@ -1,4 +1,5 @@
 from fabric.api import env
+import os
 
 os_username = 'admin'
 os_password = 'contrail123'
