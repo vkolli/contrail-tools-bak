@@ -1,4 +1,5 @@
 from fabric.api import env
+from os
 
 #Management ip addresses of hosts in the cluster
 host1 = 'root@10.84.29.31'
