@@ -38,6 +38,24 @@ env.roledefs = {
     'build': [host_build],
 }
 
+if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    if os.getenv('KEYSTONE_VERSION',None) == 'v3':
+        env.keystone = {
+            'version': 'v3',
+            'auth_protocol': 'https'
+        }
+    else:
+        env.keystone = {
+            'auth_protocol': 'https'
+        }
+    env.cfgm = {
+        'auth_protocol': 'https'
+    }
+# RBAC
+if os.getenv('ENABLE_RBAC',None) == 'true':
+    cloud_admin_role = 'admin'
+    aaa_mode = 'rbac'
+
 env.hostnames = {
     'all': ['b7s31', 'b7s32','b7s33','b7s34', 'b7s35', 'b7s36', 'b7s37']
 }
