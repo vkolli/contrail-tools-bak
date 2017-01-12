@@ -42,16 +42,23 @@ env.hostnames = {
     host7: '5b7s17',
 }
 
-env.keystone = {
-    'version': 'v3',
-    'auth_protocol': 'https'
-}
-env.cfgm = {
-    'auth_protocol': 'https'
-}
+if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    if os.getenv('KEYSTONE_VERSION',None) == 'v3':
+        env.keystone = {
+            'version': 'v3',
+            'auth_protocol': 'https'
+        }
+    else:
+        env.keystone = {
+            'auth_protocol': 'https'
+        }
+    env.cfgm = {
+        'auth_protocol': 'https'
+    }
 # RBAC
-cloud_admin_role = 'admin'
-aaa_mode = 'rbac'
+if os.getenv('ENABLE_RBAC',None) == 'true':
+    cloud_admin_role = 'admin'
+    aaa_mode = 'rbac'
 
 #Openstack admin password
 env.openstack_admin_password = 'c0ntrail123'
