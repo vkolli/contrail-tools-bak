@@ -1216,20 +1216,27 @@ function run_tempest {
         else
           branch="master"
         fi
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
+        exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "
           apt-get -y install git
           git clone -b $branch https://github.com/Juniper/tempest.git"
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${API_SERVER_HOST_STRING}:tempest/
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${API_SERVER_HOST_STRING}:tempest/
-        exec_cmds -s ${API_SERVER_HOST_STRING} -p ${API_SERVER_HOST_PASSWORD} -c "
-            cd tempest; 
-            source testbed_env
-            bash -x tempest_run.sh"
+        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/testers/tempest/tempest_run.sh  ${TEST_HOST_STRING}:tempest/
+        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT} $TOOLS_WS/contrail-fabric-utils/testbed_env  ${TEST_HOST_STRING}:tempest/
+        if [[ $TEST_RUN_INFRA == 'docker' ]]; then
+            tempest_cmd="bash -x /usr/local/bin/testrunner.sh run -z /root/tempest -t ${HOME}/contrail-test-runs/${SCRIPT_TIMESTAMP}/testbed.py ${TEST_RUN}-${TEST_SKU}:${PACKAGE_VERSION}"
+            exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "
+                ${tempest_cmd}
+            "
+        else
+            exec_cmds -s ${TEST_HOST_STRING} -p ${TEST_HOST_PASSWORD} -c "
+                cd tempest; 
+                source testbed_env
+                bash -x tempest_run.sh"
+        fi
         retval=$?
         # Fetch results.xml 
         mkdir -p $TOOLS_WS/results
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
-        sshpass -p $API_SERVER_HOST_PASSWORD scp ${SSHOPT} ${API_SERVER_HOST_STRING}:tempest/build_id.txt $TOOLS_WS/results
+        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT} ${TEST_HOST_STRING}:tempest/result*.xml $TOOLS_WS/results
+        sshpass -p $TEST_HOST_PASSWORD scp ${SSHOPT} ${TEST_HOST_STRING}:tempest/build_id.txt $TOOLS_WS/results
         return $retval
     fi
 }
