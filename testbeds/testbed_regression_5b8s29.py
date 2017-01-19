@@ -32,7 +32,7 @@ kvm_host3 = 'root@10.87.66.146'
 #for eg.
 ##ext_routers = [('5b8-mx-80-3', '7.7.7.77'), ('5b8-mx-80-4', '7.7.7.78')]
 #ext_routers = []
-ext_routers = [('5b8-mx80-3','10.87.120.97'), ('5b8-mx80-4','10.87.120.98')]                                                                                                                                                             
+ext_routers = [('5b8-mx80-3','172.17.90.243'), ('5b8-mx80-4','172.17.90.244')]                                                                                                                                                             
 
 #Autonomous system number
 router_asn = 64513
@@ -52,6 +52,7 @@ env.roledefs = {
     'collector': [host3,host7,host11],
     'database': [host4,host8,host12],
     'compute': [host13, host14, host15, host16, host17, host19],
+    'vgw': [host13],
     'tsn': [host17, host19],
     'toragent': [host17, host19],
     'build': [host_build],
@@ -89,7 +90,7 @@ env.passwords = {
     host_build: 'c0ntrail123',
 }
 
-reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
+reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.4')
 
 vm_node_details = {
     'default': {
@@ -313,10 +314,10 @@ control_data = {
 ###OPTIONAL STATIC ROUTE CONFIGURATION  
 ###===================================  
 static_route  = {
-    host17 : [{ 'ip': '174.174.174.174', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
-             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.250', 'intf': 'p514p1' }],
-    host19 : [{ 'ip': '174.174.174.174', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
-             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.250', 'intf': 'p514p1' }],
+    host17 : [{ 'ip': '173.173.173.173', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
+             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' }],
+    host19 : [{ 'ip': '173.173.173.173', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' },
+             { 'ip': '185.185.185.185', 'netmask' : '255.255.255.255', 'gw':'172.17.90.249', 'intf': 'p514p1' }],
 }
 ###OPTIONAL STATIC ROUTE CONFIGURATION  
 ###===================================  
@@ -461,7 +462,7 @@ env.physical_routers={
                      'name'  : '5b8-mx80-3',
                      'ssh_username' : 'root',
                      'ssh_password' : 'Embe1mpls',
-                     'mgmt_ip'   : '10.87.120.97',
+                     'mgmt_ip'   : '10.87.66.243',
                      'tunnel_ip' : '3.3.3.3',
                      'ports' : [],
                      'type'  : 'router',
@@ -473,21 +474,21 @@ env.physical_routers={
                      'name'  : '5b8-mx80-4',
                      'ssh_username' : 'root',
                      'ssh_password' : 'Embe1mpls',
-                     'mgmt_ip'   : '10.87.120.98',
+                     'mgmt_ip'   : '10.87.66.244',
                      'tunnel_ip' : '4.4.4.4',
                      'ports' : [],
                      'type'  : 'router',
 },
-'5b8-qfx4'       : {
+'5b8-qfx3'       : {
                      'vendor': 'juniper',
                      'model' : 'qfx5100',
                      'asn'   : '64513',
-                     'name'  : '5b8-qfx4',
+                     'name'  : '5b8-qfx3',
                      'ssh_username' : 'root',
                      'ssh_password' : 'Embe1mpls',
-                     'mgmt_ip'  : '10.87.66.249',
-                     'tunnel_ip' : '174.174.174.174',
-                     'ports' : ['xe-0/0/40'],
+                     'mgmt_ip'  : '10.87.66.248',
+                     'tunnel_ip' : '173.173.173.173',
+                     'ports' : ['xe-0/0/48:3'],
                      'type'  : 'tor',
 },
 '5b8-qfx5'       : {
@@ -499,7 +500,7 @@ env.physical_routers={
                      'ssh_password' : 'Embe1mpls',
                      'mgmt_ip'  : '10.87.66.250',
                      'tunnel_ip' : '185.185.185.185',
-                     'ports' : ['xe-0/0/1'],
+                     'ports' : ['xe-0/0/2'],
                      'type'  : 'tor',
 },
 }
@@ -512,7 +513,7 @@ env.ha = {
     'contrail_internal_vip' : '172.17.90.186',
 }
 env.openstack = {
-    'amqp_host' : '10.87.66.185',
+    'amqp_host' : '172.17.90.185',
     'manage_amqp' : 'yes',
 }
 ##
@@ -539,15 +540,15 @@ env.vrouter_module_params = {
 }
 
 env.tor_agent = {host17:[{
-                    'tor_ip':'172.17.90.249',
+                    'tor_ip':'172.17.90.248',
                     'tor_agent_id':'1',
                     'tor_type':'ovs',
                     'tor_ovs_port':'4321',
                     'tor_ovs_protocol':'pssl',
                     'tor_tsn_ip':'172.17.90.17',
                     'tor_tsn_name':'5b8s37',
-                    'tor_name':'5b8-qfx4',
-                    'tor_tunnel_ip':'174.174.174.174',
+                    'tor_name':'5b8-qfx3',
+                    'tor_tunnel_ip':'173.173.173.173',
                     'tor_vendor_name':'Juniper',
                     'tor_product_name':'QFX5100',
                     'tor_agent_http_server_port': '1233',
@@ -571,15 +572,15 @@ env.tor_agent = {host17:[{
                        ],
                    
                  host19:[{
-                    'tor_ip':'172.17.90.249',
+                    'tor_ip':'172.17.90.248',
                     'tor_agent_id':'1',
                     'tor_type':'ovs',
                     'tor_ovs_port':'4321',
                     'tor_ovs_protocol':'pssl',
                     'tor_tsn_ip':'172.17.90.19',
                     'tor_tsn_name':'5b8s39',
-                    'tor_name':'5b8-qfx4',
-                    'tor_tunnel_ip':'174.174.174.174',
+                    'tor_name':'5b8-qfx3',
+                    'tor_tunnel_ip':'173.173.173.173',
                     'tor_vendor_name':'Juniper',
                     'tor_product_name':'QFX5100',
                     'tor_agent_http_server_port': '1233',
@@ -669,13 +670,13 @@ env.tor_agent = {host17:[{
 ##                   
 ##
 env.tor_hosts={
-'10.87.66.249': [{'tor_port': 'xe-0/0/40',
-                    'host_port' : 'p514p1',
+'10.87.66.248': [{'tor_port': 'xe-0/0/48:3',
+                    'host_port' : 'p513p1',
                     'mgmt_ip' : '10.87.66.155',
                     'username' : 'root',
                     'password' : 'c0ntrail123',
                   }],
-'10.87.66.250': [{'tor_port': 'xe-0/0/1',
+'10.87.66.250': [{'tor_port': 'xe-0/0/2',
                     'host_port' : 'p513p2',
                     'mgmt_ip' : '10.87.66.155',
                     'username' : 'root',
@@ -732,4 +733,6 @@ env.ca_cert_file='/root/cacert.pem'
 env.mx_gw_test=True
 env.image_web_server = '10.84.5.120'
 env.ntp_server='66.129.255.62'
+
+env.vgw = {host13: {'vgw1': {'vn': 'default-domain:admin:public1:public1', 'ipam-subnets': ['10.87.66.96/29', '10.87.66.128/29']}}}
 
