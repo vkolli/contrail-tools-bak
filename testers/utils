@@ -911,7 +911,8 @@ enabled=1
 gpgcheck=1
 gpgkey=https://yum.dockerproject.org/gpg
 EOF
-        yum install -y docker-engine ;\
+
+        yum install -y docker-engine-1.8.3 ;\
         service docker start
         "
     elif [[ $DISTRO =~ 'ubuntu' ]]; then
