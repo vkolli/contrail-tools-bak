@@ -20,6 +20,7 @@ public_vn_subnet = '10.204.221.144/28'
 host_build = 'stack@10.204.216.49'
 
 if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    env.log_scenario='MultiNode Multi-Interface Virtual Testbed Sanity [SSL]'
     env.roledefs = {
         'all': [host1, host2, host3, host4, host5, host6],
         'cfgm': [host1, host3],
@@ -38,6 +39,7 @@ if os.getenv('AUTH_PROTOCOL',None) == 'https':
         'auth_protocol': 'https'
     }
 else:
+    env.log_scenario='MultiNode Multi-Interface Virtual Testbed Sanity'
     env.roledefs = {
         'all': [host1, host2, host3, host4, host5, host6],
         'cfgm': [host1],
@@ -137,7 +139,6 @@ env.mail_to='dl-contrail-sw@juniper.net'
 env.interface_rename = True
 multi_tenancy=True
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.log_scenario='MultiNode Multi-Interface Virtual Testbed Sanity'
 
 #enable ceilometer
 enable_ceilometer = True

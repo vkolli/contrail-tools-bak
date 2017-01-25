@@ -32,12 +32,15 @@ env.roledefs = {
 }
 
 if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data, SSL]'
     env.keystone = {
         'auth_protocol': 'https'
     }
     env.cfgm = {
         'auth_protocol': 'https'
     }
+else:
+    env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data]'
 
 if os.getenv('ENABLE_RBAC',None) == 'true':
     cloud_admin_role = 'admin'
@@ -98,7 +101,6 @@ env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = True 
 env.encap_priority =  "VXLAN,MPLSoUDP,MPLSoGRE"
-env.log_scenario = 'Multi-Interface HA Sanity[mgmt, ctrl=data]'
 env.enable_lbaas = True
 
 #enable ceilometer

@@ -19,6 +19,7 @@ public_vn_subnet = '10.204.221.160/28'
 host_build = 'stack@10.204.216.49'
 
 if os.getenv('AUTH_PROTOCOL',None) == 'https':
+    env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data, SSL]'
     env.roledefs = {
         'all': [host1,host2,host3,host4,host5,host6],
         'cfgm': [host1],
@@ -37,6 +38,7 @@ if os.getenv('AUTH_PROTOCOL',None) == 'https':
         'auth_protocol': 'https'
     }
 else:
+    env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data]'
     env.roledefs = {
         'all': [host1,host2,host3,host4,host5,host6],
         'cfgm': [host1, host2],
@@ -120,4 +122,3 @@ env.enable_lbaas = True
 enable_ceilometer = True
 ceilometer_polling_interval = 60
 env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.log_scenario='Multi-Node Virtual Testbed Sanity[mgmt, ctrl=data]'
