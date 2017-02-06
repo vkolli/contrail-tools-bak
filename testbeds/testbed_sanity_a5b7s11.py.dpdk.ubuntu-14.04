@@ -2,13 +2,122 @@ from fabric.api import env
 import os
 
 #Management ip addresses of hosts in the cluster
-host1 = 'root@10.87.121.52'
-host2 = 'root@10.87.121.53'
-host3 = 'root@10.87.121.54'
-host4 = 'root@10.87.121.55'
-host5 = 'root@10.87.121.56'
-host6 = 'root@10.87.121.57'
-host7 = 'root@10.87.121.58'
+host1 = 'root@10.87.119.11'
+host2 = 'root@10.87.119.12'
+host3 = 'root@10.87.119.13'
+host4 = 'root@10.87.119.14'
+host5 = 'root@10.87.119.15'
+host6 = 'root@10.87.119.16'
+host7 = 'root@10.87.119.17'
+host8 = 'root@10.87.119.18'
+host9 = 'root@10.87.119.19'
+host10 = 'root@10.87.119.20'
+host11 = 'root@10.87.119.21'
+host12 = 'root@10.87.119.22'
+host13 = 'root@10.87.119.4'
+host14 = 'root@10.87.119.5'
+host15 = 'root@10.87.119.6'
+host16 = 'root@10.87.119.7'
+
+kvm_a5b7s11 = 'root@10.87.119.1'
+kvm_a5b7s12 = 'root@10.87.119.2'
+kvm_a5b7s13 = 'root@10.87.119.3'
+
+reimage_param = os.getenv('REIMAGE_PARAM', 'ubuntu-14.04.2')
+
+vm_node_details = {
+    'default': {
+                'image_dest' : '/mnt/disk1/images/',
+                'ram' : '32768',
+                'vcpus' : '4',
+                'disk_format' : 'qcow2',
+                'image_source' : 'http://10.87.5.120/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
+                },
+    host1 : {
+                'name' : '5b7s11-vm1',
+                'server': kvm_a5b7s11,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:00:01'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host2 : {
+                'name' : '5b7s11-vm2',
+                'server': kvm_a5b7s11,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:00:02'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host3 : {
+                'name' : '5b7s11-vm3',
+                'server': kvm_a5b7s11,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:00:03'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host4 : {
+                'name' : '5b7s11-vm4',
+                'server': kvm_a5b7s11,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:00:04'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host5 : {
+                'name' : '5b7s12-vm1',
+                'server': kvm_a5b7s12,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:01:01'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host6 : {
+                'name' : '5b7s12-vm2',
+                'server': kvm_a5b7s12,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:01:02'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host7 : {
+                'name' : '5b7s12-vm3',
+                'server': kvm_a5b7s12,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:01:03'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host8 : {
+                'name' : '5b7s12-vm4',
+                'server': kvm_a5b7s12,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:01:04'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host9 : {
+                'name' : '5b7s13-vm1',
+                'server': kvm_a5b7s13,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:02:01'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host10 : {
+                'name' : '5b7s13-vm2',
+                'server': kvm_a5b7s13,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:02:02'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host11 : {
+                'name' : '5b7s13-vm3',
+                'server': kvm_a5b7s13,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:02:03'},
+                             {'bridge' : 'br1'}
+                            ],
+            },
+    host12 : {
+                'name' : '5b7s13-vm4',
+                'server': kvm_a5b7s13,
+                'network' : [{'bridge' : 'br0', 'mac':'62:53:55:01:02:04'},
+                             {'bridge' : 'br1'}
+                            ],
+            }
+}
 
 #External routers if any
 ext_routers = [('5b7-mx80-1', '10.87.123.244')]
@@ -21,21 +130,30 @@ host_build = 'root@10.84.24.64'
 
 #Role definition of the hosts.
 env.roledefs = {
-    'all': [host1, host2, host3, host4, host5, host6, host7],
-    'cfgm': [host1, host2, host3],
-    'openstack': [host1, host2, host3],
-    'control': [host1, host2, host3],
-    'compute': [host4, host5, host6, host7],
-    'collector': [host1, host2, host3],
-    'webui': [host1, host2, host3],
-    'database': [host1, host2, host3],
+    'all': [host1, host2, host3, host4, host5, host6, host7, host8, host9, host10, host11, host12, host13, host14, host15, host16],
+    'openstack': [host1, host5, host9],
+    'webui': [host1, host5, host9],
+    'cfgm': [host2, host6, host10],
+    'control': [host3, host7, host11],
+    'collector': [host4, host8, host12],
+    'database': [host4, host8, host12],
+    'compute': [host13, host14, host15, host16],
     'build': [host_build],
 }
 
 env.hostnames = {
-    host1: '5b7s11',
-    host2: '5b7s12',
-    host3: '5b7s13',
+    host1: '5b7s11-vm1',
+    host2: '5b7s11-vm2',
+    host3: '5b7s11-vm3',
+    host3: '5b7s11-vm4',
+    host3: '5b7s12-vm1',
+    host3: '5b7s12-vm2',
+    host3: '5b7s12-vm3',
+    host3: '5b7s12-vm4',
+    host3: '5b7s13-vm1',
+    host3: '5b7s13-vm2',
+    host3: '5b7s13-vm3',
+    host3: '5b7s13-vm4',
     host4: '5b7s14',
     host5: '5b7s15',
     host6: '5b7s16',
@@ -47,14 +165,19 @@ if os.getenv('AUTH_PROTOCOL',None) == 'https':
         env.keystone = {
             'version': 'v3',
             'auth_protocol': 'https'
+            env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'
         }
     else:
         env.keystone = {
             'auth_protocol': 'https'
+            env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2, https]'
         }
     env.cfgm = {
         'auth_protocol': 'https'
     }
+else:
+    env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2]'
+
 # RBAC
 if os.getenv('ENABLE_RBAC',None) == 'true':
     cloud_admin_role = 'admin'
@@ -73,6 +196,15 @@ env.passwords = {
     host5: 'c0ntrail123',
     host6: 'c0ntrail123',
     host7: 'c0ntrail123',
+    host8: 'c0ntrail123',
+    host9: 'c0ntrail123',
+    host10: 'c0ntrail123',
+    host11: 'c0ntrail123',
+    host12: 'c0ntrail123',
+    host13: 'c0ntrail123',
+    host14: 'c0ntrail123',
+    host15: 'c0ntrail123',
+    host16: 'c0ntrail123',
     host_build: 'c0ntrail123',
 }
 
@@ -85,6 +217,15 @@ env.ostypes = {
     host5: 'ubuntu',
     host6: 'ubuntu',
     host7: 'ubuntu',
+    host8: 'ubuntu',
+    host9: 'ubuntu',
+    host10: 'ubuntu',
+    host11: 'ubuntu',
+    host12: 'ubuntu',
+    host13: 'ubuntu',
+    host14: 'ubuntu',
+    host15: 'ubuntu',
+    host16: 'ubuntu',
 }
 
 #OPTIONAL BONDING CONFIGURATION
@@ -94,13 +235,13 @@ env.ostypes = {
 #==============================
 #Inferface Bonding
 bond= {
-    host6 : { 'name': 'bond0', 'member': ['p514p1','p514p2'], 'mode':'802.3ad' },
+    host15 : { 'name': 'bond0', 'member': ['p514p1','p514p2'], 'mode':'802.3ad' },
     #host7 : { 'name': 'bond0', 'member': ['p514p1_0','p514p2_30'], 'mode':'802.3ad' },
     #host7 : { 'name': 'bond0', 'member': ['p514p1_0','p514p2_30'], 'mode':'802.3ad' },
 }
 
 env.sriov = {
-    host7 :[ {'interface' : 'p514p2', 'VF' : 31, 'physnets' : ['physnet1', 'physnet2']} ]
+    host16 :[ {'interface' : 'p514p2', 'VF' : 31, 'physnets' : ['physnet1', 'physnet2']} ]
     #host7 :[ {'interface' : 'p514p1', 'VF' : 7, 'physnets' : ['physnet1', 'physnet3']},{'interface' : 'p514p2', 'VF' : 31, 'physnets' : ['physnet2', 'physnet4']} ]
 }
 
@@ -115,20 +256,29 @@ env.sriov = {
 
 #Data Interface
 control_data = {
-   host1 : { 'ip': '192.16.7.1/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
-   host2 : { 'ip': '192.16.7.2/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
-   host3 : { 'ip': '192.16.7.3/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
-   host4 : { 'ip': '192.16.7.4/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
-   host5 : { 'ip': '192.16.7.5/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
-   host6 : { 'ip': '192.16.7.6/24', 'gw' : '192.16.7.100', 'device':'bond0', 'vlan':'150' },
-   host7 : { 'ip': '192.16.7.7/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
+   host1 : { 'ip': '192.16.7.1/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host2 : { 'ip': '192.16.7.2/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host3 : { 'ip': '192.16.7.3/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host4 : { 'ip': '192.16.7.4/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host5 : { 'ip': '192.16.7.5/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host6 : { 'ip': '192.16.7.6/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host7 : { 'ip': '192.16.7.7/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host8 : { 'ip': '192.16.7.8/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host9 : { 'ip': '192.16.7.9/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host10 : { 'ip': '192.16.7.10/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host11 : { 'ip': '192.16.7.11/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host12 : { 'ip': '192.16.7.12/24', 'gw' : '192.16.7.100', 'device':'eth1', 'vlan':'150' },
+   host13 : { 'ip': '192.16.7.13/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
+   host14 : { 'ip': '192.16.7.14/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
+   host15 : { 'ip': '192.16.7.15/24', 'gw' : '192.16.7.100', 'device':'bond0', 'vlan':'150' },
+   host16 : { 'ip': '192.16.7.16/24', 'gw' : '192.16.7.100', 'device':'p514p1', 'vlan':'150' },
    #host7 : { 'ip': '192.16.7.7/24', 'gw' : '192.16.7.100', 'device':'bond0', 'vlan':'150' },
 
 }
 
 env.dpdk = {
-    host6: { 'huge_pages' : '50', 'coremask' : '0xff'},
-    host7: { 'huge_pages' : '50', 'coremask' : '0xff00'},
+    host15: { 'huge_pages' : '50', 'coremask' : '0xff'},
+    host16: { 'huge_pages' : '50', 'coremask' : '0xff00'},
 }
 
 #To disable installing contrail interface rename package
@@ -169,8 +319,8 @@ env.interface_rename = False
 #}
 #if os.getenv('HA_TEST',None) == 'True':
 env.ha = {
-             'internal_vip' : '192.16.7.60',
-             'external_vip' : '10.87.121.60',
+             'internal_vip' : '192.16.7.28',
+             'external_vip' : '10.87.119.28',
          }
 # HA Test configuration
 ha_setup = 'True'
