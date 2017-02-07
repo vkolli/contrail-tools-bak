@@ -31,7 +31,7 @@ vm_node_details = {
                 'ram' : '32768',
                 'vcpus' : '4',
                 'disk_format' : 'qcow2',
-                'image_source' : 'http://10.87.5.120/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
+                'image_source' : 'http://10.84.5.120/images/node_vm_images/%s-256G.img.gz' % (reimage_param),
                 },
     host1 : {
                 'name' : '5b7s11-vm1',
