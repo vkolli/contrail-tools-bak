@@ -162,15 +162,15 @@ env.hostnames = {
 
 if os.getenv('AUTH_PROTOCOL',None) == 'https':
     if os.getenv('KEYSTONE_VERSION',None) == 'v3':
+        env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'
         env.keystone = {
             'version': 'v3',
             'auth_protocol': 'https'
-            env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'
         }
     else:
+        env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2, https]'
         env.keystone = {
             'auth_protocol': 'https'
-            env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2, https]'
         }
     env.cfgm = {
         'auth_protocol': 'https'
