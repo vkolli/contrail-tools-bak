@@ -321,6 +321,8 @@ env.interface_rename = False
 env.ha = {
              'internal_vip' : '192.16.7.28',
              'external_vip' : '10.87.119.28',
+             'contrail_internal_vip' : '192.16.7.27',
+             'contrail_external_vip' : '10.87.119.27',
          }
 # HA Test configuration
 ha_setup = 'True'
