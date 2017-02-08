@@ -276,10 +276,20 @@ control_data = {
 
 }
 
-env.dpdk = {
-    host15: { 'huge_pages' : '50', 'coremask' : '0xff'},
-    host16: { 'huge_pages' : '50', 'coremask' : '0xff00'},
-}
+if os.getenv('BRANCH',None) > 'R3.1.99.99':
+    env.dpdk = {
+        host13: { 'huge_pages' : '50', 'coremask' : '0-3,8-11', 'uio_driver' : 'uio_pci_generic'},
+        host14: { 'huge_pages' : '50', 'coremask' : '4-7,12-15'},
+        host15: { 'huge_pages' : '50', 'coremask' : '0x0f0f0000', 'uio_driver' : 'uio_pci_generic'},
+        host16: { 'huge_pages' : '50', 'coremask' : '0xf0f00000', 'uio_driver' : 'vfio-pci'},
+    }
+else:
+    env.dpdk = {
+        host13: { 'huge_pages' : '50', 'coremask' : '0-3,8-11'},
+        host14: { 'huge_pages' : '50', 'coremask' : '4-7,12-15'},
+        host15: { 'huge_pages' : '50', 'coremask' : '0x0f0f0000'},
+        host16: { 'huge_pages' : '50', 'coremask' : '0xf0f00000'},
+    }
 
 #To disable installing contrail interface rename package
 env.interface_rename = False
