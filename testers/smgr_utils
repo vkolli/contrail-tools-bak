@@ -909,8 +909,10 @@ function run_smgr_task() {
         reimage_using_SM || debug_and_die "reimage failed"
         provision_using_SM || debug_and_die "provision failed"
     fi
+    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+    then
     check_kernel_upgrade || die "kernel upgrade failed"
-
+    fi
     #add fab basic images.
    # if [ $ADD_IMAGES -eq 1 ]; then
    #    (cd ${TOOLS_WS}/contrail-fabric-utils
