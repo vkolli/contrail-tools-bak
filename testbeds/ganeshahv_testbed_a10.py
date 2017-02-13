@@ -32,7 +32,7 @@ env.hostnames = {
 
 env.passwords = {
     host1: 'c0ntrail123',
-    host_build: 'secret',
+    host_build: 'stack@123',
 }
 env.ostypes = { 
     host1: 'ubuntu',
