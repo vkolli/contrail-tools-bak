@@ -12,7 +12,7 @@ router_asn = 64512
 public_vn_rtgt = 19005
 public_vn_subnet = "10.204.219.96/29"
 
-host_build = 'ganeshahv@10.204.216.3'
+host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1],
