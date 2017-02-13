@@ -103,9 +103,14 @@ def create_vms_from_testbed(contrail_fab_path='/opt/contrail/utils'):
                       vm_detail['network'],
                       vm_detail['vcpus'],
                       vm_detail['disk_format'])
-            time.sleep(30)
-        with settings(host_string=key):
-            change_host_name_of_vm(vm_detail['name'])
+        for i in range(0,3):
+            try:
+                with settings(host_string=key):
+                    change_host_name_of_vm(vm_detail['name'])
+                break
+            except :
+                time.sleep(30)
+        # end for
 
 def delete_vm( vm_id ):
     cmd = "virsh destroy %s;virsh undefine %s"%(vm_id,vm_id)
