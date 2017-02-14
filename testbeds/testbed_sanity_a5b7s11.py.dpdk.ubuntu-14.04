@@ -332,9 +332,11 @@ env.ha = {
     'external_vip' : '10.87.119.28',
     'contrail_external_vip' : '10.87.119.27'
 }
-if os.getenv('AUTH_PROTOCOL',None) != 'https':
-    env.ha['internal_vip'] = '192.16.7.28'
-    env.ha['contrail_internal_vip'] = '192.16.7.27'
+#if os.getenv('AUTH_PROTOCOL',None) != 'https':
+#    env.ha['internal_vip'] = '192.16.7.28'
+#    env.ha['contrail_internal_vip'] = '192.16.7.27'
+env.ha['internal_vip'] = '192.16.7.28'
+env.ha['contrail_internal_vip'] = '192.16.7.27'
 
 # HA Test configuration
 ha_setup = 'True'
