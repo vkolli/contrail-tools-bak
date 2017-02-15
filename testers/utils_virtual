@@ -728,7 +728,7 @@ function launch_testbed_virtual() {
 function run_smgr_virtual_task() {
     echo "Running tests on $1.."
     #New Function
-    export TEMPLATE_DIR="template_"${SCRIPT_TIMESTAMP}
+    export TEMPLATE_DIR=${SCRIPT_TIMESTAMP}
     launch_testbed_virtual || debug_and_die "failed to get server-manager IP"
     echo $SM_SERVER_IP
     if [ ${TEST_SETUP} == "SINGLENODE" ]
@@ -757,11 +757,9 @@ function run_smgr_virtual_task() {
         exit 1
     fi
     
-    #debug
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup"
 
-    #New Function
     add_server_cluster_SM || debug_and_die "Failed to add server and cluster to SM"
 
     if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
