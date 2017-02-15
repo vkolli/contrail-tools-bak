@@ -34,7 +34,7 @@ env.roledefs = {
 }
  
 env.hostnames ={
-    'all': ['nodei17', 'nodei19', ‘nodei20’, 'nodec28', 'nodeg37', ‘nodec10']
+    'all': ['nodei17', 'nodei19', 'nodei20', 'nodec28', 'nodeg37', 'nodec10']
 }
 
 #Openstack admin password
