@@ -812,6 +812,24 @@ function check_kernel_upgrade() {
     fi
 }
 
+function reimage_and_provision_container() {
+    echo "Connect to SM_SERVER to reimage and provision the targets"
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $SM_SERVER_IP " (
+        set -e
+        sed -i s'/[0-9][0-9][0-9][0-9]/${BUILDID}/g' /root/container_sanity/contrail_debian_img.json
+        sed -i s'/[0-9][0-9][0-9][0-9]/${BUILDID}/g' /root/container_sanity/contrail_container_img.json
+        /root/container_sanity/contrail_container_provision.py -u /root/container_sanity/image144.json -d /root/container_sanity/contrail_debian_img.json -c /root/container_sanity/contrail_container_img.json -o /root/container_sanity/os_cluster.json -l /root/container_sanity/contrail_cluster.json -s /root/container_sanity/server.json
+    ) "
+    if [ $? == 0 ]
+    then
+        echo "reimaged and provisioned the target $CLUSTER_NAME successfully"
+        sleep 150
+    else
+        echo "reimage and provisioning of the target $CLUSTER_NAME failed!!!"
+        exit 1
+    fi
+}
+
 function run_smgr_regression_task() {
     echo "Running tests on $1.."
 
@@ -901,17 +919,23 @@ function run_smgr_task() {
     fi
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup" 
-    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+
+    if [ -z "$CONTAINER_SANITY" ]
     then
-        reimage_using_SM_cliff_client || debug_and_die "reimage failed"
-        provision_using_SM_cliff_client || debug_and_die "provision failed"
+        reimage_and_provision_container || debug_and_die "reimage and provision failed"
     else
-        reimage_using_SM || debug_and_die "reimage failed"
-        provision_using_SM || debug_and_die "provision failed"
-    fi
-    if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
-    then
-    check_kernel_upgrade || die "kernel upgrade failed"
+        if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+        then
+            reimage_using_SM_cliff_client || debug_and_die "reimage failed"
+            provision_using_SM_cliff_client || debug_and_die "provision failed"
+        else
+            reimage_using_SM || debug_and_die "reimage failed"
+            provision_using_SM || debug_and_die "provision failed"
+        fi
+        if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
+        then
+            check_kernel_upgrade || die "kernel upgrade failed"
+        fi
     fi
     #add fab basic images.
    # if [ $ADD_IMAGES -eq 1 ]; then
