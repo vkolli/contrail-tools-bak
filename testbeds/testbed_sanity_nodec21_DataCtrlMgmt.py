@@ -9,7 +9,7 @@ host2 = 'root@10.204.217.4'
 host3 = 'root@10.204.217.5'
 host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
-host6 = 'root@10.204.217.15'
+host6 = 'root@10.204.217.98'
 
 ext_routers = [('blr-mx2', '192.168.10.254')]
 router_asn = 64512
@@ -31,7 +31,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec30']
+    'all': ['nodec21', 'nodec19', 'nodec20', 'nodec61', 'nodec60','nodec58']
 }
 
 bond= {
@@ -86,7 +86,7 @@ env.ha = {
 }
 ha_setup = True
 
-env.cluster_id='clusterc19c20c21c30c60c61'
+env.cluster_id='clusterc19c20c21c58c60c61'
 minimum_diskGB=32
 env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'

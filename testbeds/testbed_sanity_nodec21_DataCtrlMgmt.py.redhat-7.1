@@ -5,7 +5,7 @@ host2 = 'root@10.204.217.4'
 host3 = 'root@10.204.217.5'
 host4 = 'root@10.204.217.101'
 host5 = 'root@10.204.217.100'
-host6 = 'root@10.204.217.15'
+host6 = 'root@10.204.217.98'
 
 ext_routers = [('blr-mx1', '10.204.216.253')]
 router_asn = 64005
@@ -27,7 +27,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodec21.englab.juniper.net', 'nodec19.englab.juniper.net', 'nodec20.englab.juniper.net', 'nodec61.englab.juniper.net', 'nodec60.englab.juniper.net','nodec30.englab.juniper.net']
+    'all': ['nodec21.englab.juniper.net', 'nodec19.englab.juniper.net', 'nodec20.englab.juniper.net', 'nodec61.englab.juniper.net', 'nodec60.englab.juniper.net','nodec58.englab.juniper.net']
 }
 ## Disabling bond temporary in redhat. Will enable normal provision works fine.
 #bond= {
@@ -86,7 +86,7 @@ env.openstack = {
     'service_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
     'amqp_host' : '10.204.217.4',
 }
-env.cluster_id='clusterc19c20c21c30c60c61'
+env.cluster_id='clusterc19c20c21c58c60c61'
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/centos_multi_node_github_sanity/contrail-test'
 env.mail_from='contrail-build@juniper.net'
