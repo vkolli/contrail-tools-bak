@@ -922,8 +922,6 @@ function run_smgr_task() {
 
     if [ -z "$CONTAINER_SANITY" ]
     then
-        reimage_and_provision_container || debug_and_die "reimage and provision failed"
-    else
         if [[ ( ${BRANCH} > "R2.23" ) || ( ${BRANCH} == "mainline" ) ]]
         then
             reimage_using_SM_cliff_client || debug_and_die "reimage failed"
@@ -936,6 +934,8 @@ function run_smgr_task() {
         then
             check_kernel_upgrade || die "kernel upgrade failed"
         fi
+    else
+        reimage_and_provision_container || debug_and_die "reimage and provision failed"
     fi
     #add fab basic images.
    # if [ $ADD_IMAGES -eq 1 ]; then
