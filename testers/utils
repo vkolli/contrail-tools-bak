@@ -894,9 +894,17 @@ function set_threshold {
 }
 
 function install_dep_pkgs_for_test {
+    if [[ $BRANCH=~ "R2." ]] ; then
+        return
+    fi
     # For R2.x or lower, fab setup_test_env takes care of these
-    if [[ ( $INSTALL_EXTRA_PKG_ON_NODES -eq 1 ) && ( ! $BRANCH =~ "R2." ) ]] ; then
+    if [[ ( $INSTALL_EXTRA_PKG_ON_NODES -eq 1 ) && ( $BRANCH =~ "R3." ) ]] ; then
         run_build_fab install_pkgs_on_roles:compute,"python-setuptools\,python-ncclient\,tcpdump"
+    fi
+    # This will install fabric v1.8.2 as of now
+    # Installing this on contrail R4.x or higher only 
+    if [[ $INSTALL_EXTRA_PKG_ON_NODES -eq 1 ]] ; then
+        run_build_fab install_pkgs_on_roles:compute,"fabric"
     fi
 }
 
