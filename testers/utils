@@ -894,7 +894,7 @@ function set_threshold {
 }
 
 function install_dep_pkgs_for_test {
-    if [[ $BRANCH=~ "R2." ]] ; then
+    if [[ $BRANCH =~ "R2." ]] ; then
         return
     fi
     # For R2.x or lower, fab setup_test_env takes care of these
