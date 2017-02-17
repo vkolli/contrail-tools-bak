@@ -159,9 +159,13 @@ def create_server_yaml():
 		for k in ip_address_dict:
 			new_key = k+"_"+project_uuid
 			#ip_address_dict[new_key] = ip_address_dict.pop(k)
-		ip_num = 0
 		#print ip_address_dict
+		#ip_num = 0
 		for j in network_dict:
+			if network_dict[j]["role"] == "management":
+                                ip_num = 0
+                        else:
+                                ip_num = 1
 			net_name = network_dict[j]["name"]
 			port_name = name + "_port_" + str(ip_num)
 			server_string = server_string + "  "+port_name+":\n"
@@ -182,7 +186,7 @@ def create_server_yaml():
 					server_string = server_string + "      allowed_address_pairs:\n"
 					server_string = server_string + "        - ip_address: %s\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
 			ip_port_dict[(ip_address_dict[net_name])] = port_name
-			ip_num = ip_num + 1
+			#ip_num += 1
 	# Launch the VMs
 	ip_association_floating = []
 	for i in server_dict:
