@@ -200,7 +200,7 @@ def create_server_yaml():
 		port_for_floating_ip = []
 		ip_address_dict = server_dict[i]["ip_address"]
 		ip_list = ip_address_dict.values()
-		ip_association_floating.append(ip_list[0])
+		ip_association_floating.append(ip_list[1])
 		#print ip_list	
 		for j in ip_list:
 			server_string = server_string + "        - port: { get_resource:  %s}\n"%ip_port_dict[j]
