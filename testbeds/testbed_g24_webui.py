@@ -34,13 +34,11 @@ env.ostypes = {
 
 env.passwords = {
     host1: 'c0ntrail123',
-    host_build: 'c0ntrail123',
+    host_build: 'stack@123',
 }
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/webui_ubuntu_single_node/icehouse/contrail-test'
 env.mail_from='pavanap@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
-env.test = {
-    'log_scenario': 'Single Node Webui Sanity'
-}
+env.log_scenario ='Single Node Webui Sanity'
 
