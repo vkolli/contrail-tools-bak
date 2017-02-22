@@ -89,7 +89,7 @@ env.passwords = {
     host5: 'c0ntrail123',
     host6: 'c0ntrail123',
 
-    host_build: 'c0ntrail123',
+    host_build: 'stack@123',
 }
 
 env.cluster_id='clusterc19c20c21c58c60c61'

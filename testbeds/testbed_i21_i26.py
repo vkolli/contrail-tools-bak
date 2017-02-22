@@ -11,25 +11,35 @@ ext_routers = [('hooper','10.204.217.240')]
 router_asn = 64512
 public_vn_rtgt = 2224
 public_vn_subnet = '10.204.221.192/28'
-use_devicemanager_for_md5 = True
+
 host_build = 'stack@10.204.216.49'
 
 env.roledefs = {
     'all': [host1, host2, host3,host4,host5, host6],
-    'cfgm': [host1, host2, host3],
-    'openstack': [host1, host2, host3],
-    'webui': [host2],
-    'control': [host1, host2, host3],
-    'collector': [host1, host2],
-    'database': [host1, host2, host3],
+    'cfgm': [host1],
+    'webui': [host1],
+    'openstack': [host2],
+    'control': [host1, host3],
+    'collector': [host1],
+    'database': [host1],
     'compute': [host4, host5, host6],
     'build': [host_build]
 }
 
 env.hostnames = {
-    'all': ['nodei21', 'nodei22', 'nodei23', 'nodei24', 'nodei25', 'nodei26']
+    'all': ['nodei21.englab.juniper.net', 'nodei22.englab.juniper.net', 'nodei23.englab.juniper.net', 'nodei24.englab.juniper.net', 'nodei25.englab.juniper.net', 'nodei26.englab.juniper.net']
 }
 env.interface_rename = True
+env.physical_routers={
+'hooper'     : {       'vendor': 'juniper',
+                     'model' : 'mx',
+                     'asn'   : '64512',
+                     'name'  : 'hooper',
+                     'ssh_username' : 'root',
+                     'ssh_password' : 'c0ntrail123',
+                     'mgmt_ip'  : '10.204.217.240',
+             }
+}
 
 #control_data = {
 #    host1 : { 'ip': '192.168.193.1/24', 'gw' : '192.168.193.254', 'device':'eth1' },
@@ -59,21 +69,29 @@ env.ostypes = {
     host5:'centos65',
     host6:'centos65',
 }
-env.physical_routers={
-'hooper'     : {       'vendor': 'juniper',
-                     'model' : 'mx',
-                     'asn'   : '64512',
-                     'name'  : 'hooper',
-                     'ssh_username' : 'root',
-                     'ssh_password' : 'c0ntrail123',
-                     'mgmt_ip'  : '10.204.217.240',
-             }
+
+env.openstack_admin_password = 'c0ntrail123'
+env.keystone = {
+    'keystone_ip'   : '10.204.217.134',
+    'auth_protocol' : 'http',                  #Default is http
+    'auth_port'     : '35357',                 #Default is 35357
+    'admin_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
+    'admin_user'    : 'admin',                 #Default is admin
+    'admin_password': 'c0ntrail123',           #Default is contrail123
+    'nova_password'   : 'contrail123',           #Default is the password set in admin_password
+    'neutron_password': 'contrail123',           #Default is the password set in admin_password
+    'service_tenant': 'service',               #Default is service
+    'admin_tenant'  : 'admin',                 #Default is admin
+    'region_name'   : 'RegionOne',             #Default is RegionOne
+    'insecure'      : 'True',                  #Default = False
+    'manage_neutron'  : 'no',                #Default = 'yes',Does configure neutron user/role in keystone required.
 }
 
-env.ha = {
-    'internal_vip' : '10.204.217.170'
+env.openstack = {
+    'service_token' : 'caa9e2054d04497d87e2d6fb0b1edeea',
+    'amqp_host' : '10.204.217.134',
 }
-ha_setup = True
+
 
 env.cluster_id='i21_i26_cluster'
 minimum_diskGB=32
@@ -83,8 +101,10 @@ env.mail_from='contrail-build@juniper.net'
 env.mail_to='dl-contrail-sw@juniper.net'
 multi_tenancy=True
 env.interface_rename = True
-env.enable_lbaas = True
+env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
+
 enable_ceilometer = True
 ceilometer_polling_interval = 60
-env.encap_priority =  "'VXLAN','MPLSoUDP','MPLSoGRE'"
-env.log_scenario='Multi-Node HA Sanity'
+env.log_scenario='Multi-Node Sanity'
+#env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data]'
+env.enable_lbaas = True
