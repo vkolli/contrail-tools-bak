@@ -40,7 +40,7 @@ env.password = 'c0ntrail123'
 env.passwords = {
     host1: 'c0ntrail123',
 
-    host_build: 'contrail123',
+    host_build: 'stack@123',
 }
 
 env.physical_routers={

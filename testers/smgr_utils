@@ -388,11 +388,20 @@ function reimage_using_SM_cliff_client() {
         iso_type="ubuntu"
         SMID=ubuntu12$SKU${BUILDID}
     elif [[ $DISTRO =~ ubuntu-14.04 ]]; then
+    if [ $BRANCH ">" "R3.0.99.99" ] && [ $BRANCH != "R3.2.0.x" ] && [ $BRANCH != "R3.1.0.x" ] && [ $BRANCH != "R3.1.1.x" ]; then
         image="/cs-shared/images/ubuntu-14.04.5-server-amd64.iso"
         pkg_type="contrail-ubuntu-package"
         iso_type="ubuntu"
         SMID=ubuntu14$SKU${BUILDID}
         isofile="/root/images/image145.json"
+    # for R3.0 and above set ubuntu base os as 14.04.4
+    elif [ "$BRANCH" \> "R2.22.x" ] || [ "$BRANCH" == "mainline" ]; then
+        image="/cs-shared/images/ubuntu-14.04.4-server-amd64.iso"
+        pkg_type="contrail-ubuntu-package"
+        iso_type="ubuntu"
+        SMID=ubuntu14$SKU${BUILDID}
+        isofile="/root/images/image144.json"
+    fi
     elif [[ $DISTRO =~ centos64 ]]; then
         image="/root/images/CentOS-6.4-x86_64-minimal.iso"
         pkg_type="contrail-centos-package"

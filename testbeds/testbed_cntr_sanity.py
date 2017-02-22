@@ -1,15 +1,15 @@
 from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
-host1 = 'root@10.204.217.112'
+host1 = 'root@10.204.217.131'
 
 #External routers if any
 #for eg.
-ext_routers = [('mx2', '10.204.216.245')]
-#ext_routers = []
-router_asn = 64512
-public_vn_rtgt = 11000
-public_vn_subnet = "10.204.220.208/29"
+#ext_routers = [('mx1', '10.204.216.253')]
+ext_routers = [('blr-mx1', '10.204.216.253')]
+router_asn = 64002
+public_vn_rtgt = 10003
+public_vn_subnet = "10.204.219.184/29"
 
 
 #Host from which the fab commands are triggered to install and provision
@@ -29,21 +29,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodeh8']
-}
-env.physical_routers={
-'blr-mx2'     : {       'vendor': 'juniper',
-                     'model' : 'mx',
-                     'asn'   : '64512',
-                     'name'  : 'blr-mx2',
-                     'ssh_username' : 'root',
-                     'ssh_password' : 'c0ntrail123',
-                     'mgmt_ip'  : '10.204.216.245',
-             }
-}
-
-env.ostypes = {
-    host1:'ubuntu',
+    'all': ['nodei19']
 }
 
 #Openstack admin password
@@ -53,27 +39,35 @@ env.password = 'c0ntrail123'
 #Passwords of each host
 env.passwords = {
     host1: 'c0ntrail123',
-
-    host_build: 'contrail123',
+    host_build: 'stack@123',
 }
+
+
+env.ostypes = {
+    host1:'ubuntu',
+}
+
+control_data = {
+    host1 : { 'ip': '192.168.100.15/24', 'gw' : '', 'device':'em2' },
+}
+
 
 #To disable installing contrail interface rename package
 env.interface_rename = True
 minimum_diskGB=32
-
 #To enable multi-tenancy feature
 multi_tenancy = True
 
-#To Enable prallel execution of task in multiple nodes
-#do_parallel = True
-#haproxy = True
-env.test_repo_dir='/home/stack/smgr_github_ubuntu_single_node/contrail-test'
-env.mail_to='dl-contrail-sw@juniper.net'
-env.log_scenario='Server Manager Single-Node Sanity'
-env.enable_lbaas = True
 env.xmpp_auth_enable=True
 env.xmpp_dns_auth_enable=True
+env.encap_priority =  "'MPLSoUDP','MPLSoGRE','VXLAN'"
+env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
+env.test_repo_dir='/home/stack/github_ubuntu_single_node/havana/contrail-test'
+env.mail_to='dl-contrail-sw@juniper.net'
+env.log_scenario='Container Single Node Sanity'
+env.enable_lbaas = True
 
 #enable ceilometer
 enable_ceilometer = True
 ceilometer_polling_interval = 60
+
