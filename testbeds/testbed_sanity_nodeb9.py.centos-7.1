@@ -27,7 +27,7 @@ env.hostnames = {
 
 env.passwords = {
     host1: 'c0ntrail123',
-    host_build: 'contrail123',
+    host_build: 'stack@123',
 }
 minimum_diskGB=32
 env.test_repo_dir='/home/stack/centos_github_sanity/contrail-test'
