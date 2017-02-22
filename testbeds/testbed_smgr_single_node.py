@@ -1,7 +1,7 @@
 from fabric.api import env
 
 #Management ip addresses of hosts in the cluster
-host1 = 'root@10.204.217.77'
+host1 = 'root@10.204.217.112'
 
 #External routers if any
 #for eg.
@@ -29,7 +29,7 @@ env.roledefs = {
 }
 
 env.hostnames = {
-    'all': ['nodeg37']
+    'all': ['nodeh8']
 }
 env.physical_routers={
 'blr-mx2'     : {       'vendor': 'juniper',
@@ -77,4 +77,3 @@ env.xmpp_dns_auth_enable=True
 #enable ceilometer
 enable_ceilometer = True
 ceilometer_polling_interval = 60
-env.rsyslog_params = {'port':19876, 'proto':'tcp', 'collector':'dynamic', 'status':'enable'}
