@@ -524,10 +524,9 @@ def create_cluster_json():
                         "database": {
                             "minimum_diskGB": %d
                         },
-                        "kernel_upgrade": %s,
-                        "kernel_version": "%s"
+                        "kernel_upgrade": %s
                     },
-        '''%(cluster_dict["cluster_id"], cluster_dict["parameters"]["domain"], cluster_dict["parameters"]["provision"]["contrail"]["minimum_disk_database"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_upgrade"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_version"])
+        '''%(cluster_dict["cluster_id"], cluster_dict["parameters"]["domain"], cluster_dict["parameters"]["provision"]["contrail"]["minimum_disk_database"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_upgrade"])
 
 	if (("external_vip" in cluster_dict["parameters"]["provision"]["openstack"]) and ("internal_vip" in cluster_dict["parameters"]["provision"]["openstack"])):
 		cluster_json_string = cluster_json_string +'''
