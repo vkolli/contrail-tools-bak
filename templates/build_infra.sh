@@ -5,10 +5,18 @@ a="$(openstack project create $1 -f json > /root/$1/uuid.json)"
 openstack_project_uuid=$(python -c 'import json; fd=json.loads(open("/root/'$1'/uuid.json").read()); print fd["id"]')
 dashed_project_uuid=$(python -c 'import uuid; fd=uuid.UUID("'${openstack_project_uuid}'"); print fd')
 echo $dashed_project_uuid
+ubuntu_image_name=$2
 sleep 5
+echo "The Contents of the input.json file before modification "
+cat /root/$1/input.json
 
 sed -i 's/project_uuid_val/'${dashed_project_uuid}'/' /root/$1/input.json
+python /root/$1/change_testbed_params.py /root/$1/input.json $ubuntu_image_name parse_openstack_image_list_command
+sleep 5
+sed -i 's/image_val/'${ubuntu_image_name}'/' /root/$1/input.json
 echo "/root/$1/input.json  --- Changed"
+echo "The New imput.json :- \n"
+cat /root/$1/input.json
 
 python /root/$1/inp_to_yaml.py /root/$1/input.json create_network_yaml > /root/$1/final_network.yaml
 python /root/$1/inp_to_yaml.py /root/$1/input.json create_server_yaml > /root/$1/final_server.yaml
@@ -33,8 +41,13 @@ sleep 150
 echo " Final List of all Heat Stacks "
 heat stack-list 
 python /root/$1/inp_to_yaml.py /root/$1/input.json create_cluster_json > /root/$1/cluster.json
+echo "cluster.json now Created"
 python /root/$1/inp_to_yaml.py /root/$1/input.json create_server_json > /root/$1/server.json
+echo "server.json now Created"
 python /root/$1/inp_to_yaml.py /root/$1/input.json get_sm_ip > /root/$1/server-manager-file
+echo "server-manager-file now created that conatins server manager IP"
 python /root/$1/inp_to_yaml.py /root/$1/input.json get_config_node_ip > /root/$1/config-node-ip
+echo "config-node-ip file now created that contains config node IP"
 python /root/$1/inp_to_yaml.py /root/$1/input.json create_testbedpy_file > /root/$1/testbed.py
+echo "Testbed.py file created that will be used for running the tests on the overlay cluster"
 echo " -----   DONE  -----"

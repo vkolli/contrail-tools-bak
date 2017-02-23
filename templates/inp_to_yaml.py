@@ -585,10 +585,15 @@ def create_testbedpy_file():
                                                 build_ip = server_dict[i]["ip_address"][j]
                                         manag_ip = server_dict[i]["ip_address"][j]
                                 else:
-                                        # control data ip that will be used in the control-data section of the testbed.py file
-                                        control_ip = server_dict[i]["ip_address"][j]
-                                        gateway = network_dict[j]["default_gateway"]
-                        control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
+					if network_dict[j]["role"] == "control-data":
+						# control data ip that will be used in the control-data section of the testbed.py file
+						control_ip = server_dict[i]["ip_address"][j]
+						gateway = network_dict[j]["default_gateway"]
+					else:
+						continue
+                        for net in network_dict:
+				if network_dict[net]["role"] == 'control-data':
+					control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
                         file_str = file_str + "host%s = 'root@%s'\n"%(str(itr),manag_ip)
 			if "env_password" in testbed_py_dict:
 				env_password_string = env_password_string + "   host%s: '%s',\n"%(str(itr), testbed_py_dict["env_password"])
@@ -637,7 +642,9 @@ def create_testbedpy_file():
 	file_str = file_str + "env.hostnames = {\n"
 	file_str = file_str + hostname_string + "}\n\n"
 	file_str = file_str + "env.interface_rename = False\n\n"
-	file_str = file_str + control_data_string
+	for net in network_dict:
+		if network_dict[net]["role"] == "control-data":
+			file_str = file_str + control_data_string
 	# Print all the role defs referenced from the 'role_per_server_mapping' dict mention above 	
         file_str = file_str + "env.roledefs = {\n"
 	#itr = len(role_per_server_mapping)
