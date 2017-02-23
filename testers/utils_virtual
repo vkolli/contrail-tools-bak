@@ -683,8 +683,6 @@ function add_server_cluster_SM() {
                 echo "Adding server to server-manager failed, aborting the process"
                 exit 1
             fi
-            #debug
-            exit 1
             echo "Preconfigure the servers"
             python /opt/contrail/server_manager/client/preconfig.py --server-json $server_json  --server-manager-ip $SM_SERVER_IP --server-manager-repo-port 80    
             if [ $? == 0 ]
