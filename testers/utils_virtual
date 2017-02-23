@@ -415,7 +415,7 @@ function reimage_using_SM_cliff_client() {
         server-manager-client delete image --image_id ${DISTRO}
 
         echo "add base ISO image to server manager database"
-        server-manager-client add image -f  $isofile 
+        server-manager-client upload-image --id ${DISTRO} --version ${BUILDID} --category image --type $iso_type --file_name ${isofile}
         if [ $? == 0 ]
         then
             echo "Server-manager adding image command is successful"
@@ -539,10 +539,12 @@ function add_server_cluster_SM() {
             iso_type="ubuntu"
             SMID=ubuntu12$SKU${BUILDID}
         elif [[ $DISTRO =~ ubuntu-14.04 ]]; then 
-            image="/cs-shared/images/ubuntu-14.04.2-server-amd64.iso"
+            image="/cs-shared/images/ubuntu-14.04.5-server-amd64.iso"
             pkg_type="contrail-ubuntu-package"
             iso_type="ubuntu"
             SMID=ubuntu14$SKU${BUILDID}
+            iso_name="ubuntu-14-04"
+            isofile="/root/sm_files/image145.iso"
         elif [[ $DISTRO =~ centos64 ]]; then 
             image="/root/images/CentOS-6.4-x86_64-minimal.iso"
             pkg_type="contrail-centos-package"
@@ -553,19 +555,21 @@ function add_server_cluster_SM() {
             pkg_type="contrail-centos-package"
             iso_type="centos"
             SMID=centos65$SKU${BUILDID}
-    	elif [[ ${CENTOS_72} -eq 1 ]];then
+        elif [[ ${CENTOS_72} -eq 1 ]];then
             image="/root/images/CentOS-7-x86_64-Minimal-1511.iso"
             pkg_type="contrail-centos-package"
             iso_type="redhat"
-            SMID=centos71$SKU${BUILDID}
+            iso_name=${DISTRO}
+            SMID=centos72$SKU${BUILDID}
             contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.rpm`
-    	elif [[ $DISTRO =~ centos71 ]]; then
+            isofile="/root/sm_files/centos72.json"
+        elif [[ $DISTRO =~ centos71 ]]; then
             image="/root/images/CentOS-7-x86_64-Minimal-1503-01.iso"
             pkg_type="contrail-centos-package"
             iso_type="redhat"
             SMID=centos71$SKU${BUILDID}
             contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.rpm`
-            contrail_pkg_name="contrail-install-packages*.rpm"
+            isofile="/root/sm_files/centos71.json"
         fi
     
         pkg_path="/cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/"
@@ -592,6 +596,7 @@ function add_server_cluster_SM() {
         cluster_json="/root/sm_files/cluster.json"
         server_json="/root/sm_files/server.json"
         sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${contrail_pkg} root@$SM_SERVER_IP:/root/sm_files/
+        sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${image} root@$SM_SERVER_IP:${isofile}
     
         echo "Connect to SM_SERVER to reimage and provision the targets"
         sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${TOOLS_WS}/sm_files/preconfig.py root@$SM_SERVER_IP:/opt/contrail/server_manager/client/preconfig.py
@@ -599,6 +604,32 @@ function add_server_cluster_SM() {
             set -e
             echo "add required image/server/cluster for reimage and provision of the target"
             cd /root/sm_files 
+
+            set -e
+            echo "add required image/server/cluster for reimage and provision of the target"
+
+            echo "delete iso image if it exists"
+            server-manager-client delete image --image_id ${iso_name}
+
+            echo "add base ISO image to server manager database"
+            echo "add base ISO image to server manager database"
+            server-manager-client upload-image --id ${iso_name} --version ${BUILDID} --category image --type ${iso_type} --file_name ${isofile}
+            if [ $? == 0 ]
+            then
+                echo "Server-manager adding image command is successful"
+            else
+                echo "Server-manager adding image command failed, aborting the process"
+                exit 1
+            fi
+
+            echo "check if the image was added successfully"
+            server-manager-client display image --json | grep ${iso_name}
+            if [ $? != 0 ]
+            then
+                echo "Adding Base ISO image failed"
+                exit 1
+            fi
+
             echo "delete contrail package if it exists"
             if [ ${BRANCH} == "R1.10" ]
             then
@@ -652,6 +683,8 @@ function add_server_cluster_SM() {
                 echo "Adding server to server-manager failed, aborting the process"
                 exit 1
             fi
+            #debug
+            exit 1
             echo "Preconfigure the servers"
             python /opt/contrail/server_manager/client/preconfig.py --server-json $server_json  --server-manager-ip $SM_SERVER_IP --server-manager-repo-port 80    
             if [ $? == 0 ]
@@ -710,7 +743,7 @@ function launch_testbed_virtual() {
         set -e
         cp /root/${TEMPLATE_DIR}/$TEMPLATE /root/${TEMPLATE_DIR}/input.json
         cd /root/${TEMPLATE_DIR}/
-        ./build_infra.sh ${TEMPLATE_DIR}
+        ./build_infra.sh ${TEMPLATE_DIR} "U14_04_5"
         if [ $? == 0 ]
         then
             echo "Launch of Virtual testbed was successful!!!"
@@ -723,6 +756,13 @@ function launch_testbed_virtual() {
     export SM_SERVER_IP=`cat ${TOOLS_WS}/server-manager-file`
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/config-node-ip ${TOOLS_WS}/
     export API_SERVER_HOST_STRING="root@"`cat ${TOOLS_WS}/config-node-ip`
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/info.txt ${TOOLS_WS}/
+    cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}
+}
+
+function delete_stacks() {
+    cd /root/${TEMPLATE_DIR}/
+    ./delete_stack.sh ${LOCK_FILE_DIR}/$1 
 }
 
 function run_smgr_virtual_task() {
@@ -788,20 +828,51 @@ function run_smgr_virtual_task() {
         cp {TOOLS_WS}/testbeds/${tb_filename} {TOOLS_WS}/testbeds/${tb_filename}_back
         echo `python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${$TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params`
         python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params
-        setup_testnode || die "test node setup failed"
+        setup_testnode || debug_and_die "test node setup failed"
         install_dep_pkgs_for_test
-        run_sanity_simple || die "run_sanity_simple failed"
+        run_sanity_simple || debug_and_die "run_sanity_simple failed"
     else
         add_sourcelist || die "source.list copy failed on all target nodes"
         install_third_party_pkgs || die "installing GDB/ant failed"
         install_dep_pkgs_for_test
-        run_sanity || die "Run_sanity step failed"
+        run_sanity || debug_and_die "Run_sanity step failed"
     fi
 
-#    server_manager_regression_hacks || die "SM regression related hacks failed"
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
-    delete_pkg_from_SM || die "Task to delete package from SM failed"
+    delete_stacks $TBFILE_NAME || die "Failed to delete stacks"
     echo "Ending test on $1"
 }
 
+
+function debug_and_die
+{
+    local message=$1
+    if [ $LOCK_TESTBED_ON_FAILURE = 1 ]; then
+        echo "Testbed is set to be locked on failure"
+        if [[ $message =~ 'Test failures exceed' ]]; then
+            collect_tech_support
+        fi
+        export RELEASE_TESTBED=0
+        lockfile ${LOCK_FILE_DIR}/lockfile1
+
+        set -x
+        echo "Locking testbed $tb_lock_file for debugging"
+        echo "Testbed locked..Unlock when debug complete" >> $tb_lock_file
+        cat $tb_lock_file
+
+        remove_lock_file
+    else
+        collect_tech_support
+        delete_stacks $TBFILE_NAME || die "Failed to delete stacks"
+        if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
+            # deregister the setup from vcenter server
+            run_fab cleanup_vcenter
+        fi
+    fi
+    [ -z "$message" ] && message="Died"
+    echo "${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message." >&2
+    cat $tb_lock_file
+    python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $SCRIPT_TIMESTAMP
+    exit 1
+}
