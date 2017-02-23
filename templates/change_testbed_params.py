@@ -2,15 +2,15 @@ import sys
 import json
 import os
 import subprocess
-
+import paramiko
 
 #with open("floating_ip_test_multiple.json") as json_data:
 if (sys.argv[1]=='-h' or sys.argv[1]=='--help'):
         print '''
         THE CORRECT FORMAT OF USING THIS SCRIPT IS:
-                python inp_to_yaml.py <input_json_file> <function_to_perform>
+                python change_testbed_params.py <input_json_file> <function param>  <function_to_perform>
         EXAMPLE :
-                python inp_to_yaml.py input.json create_network_yaml > network.yaml
+                python inp_to_yaml.py input.json  U14_04_5 parse_openstack_image_list_command 
         '''
         sys.exit()
 
@@ -32,6 +32,7 @@ network_dict = parsed_json["inp_params"]["networks"]
 cluster_dict = parsed_json["inp_params"]["cluster_json_params"]
 floating_ip_network_dict = parsed_json["inp_params"]["floating_ip_network"]
 general_params_dict = parsed_json["inp_params"]["params"]
+
 
 # Method for changing the testbed.py file for the new cluster.
 def change_testbed_params():
@@ -70,6 +71,58 @@ def change_testbed_params():
                 os.system("sed -i 's/%s/%s/' %s"%(i, management_server_ip_mapping[i], path_to_testbed))
         for i in control_server_ip_mapping:
                 os.system("sed -i 's/%s/%s/' %s"%(i, control_server_ip_mapping[i], path_to_testbed))
+
+
+# Method for Downloading the requested image 
+def get_requested_image():
+	if sys.argv[2] == "U14_04_5":	
+		#a = subprocess.Popen("cd /root/heat/final_scripts/new_rev/ ; wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-5.qcow2", shell=True ,stdout=subprocess.PIPE)
+		a = subprocess.Popen("wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-5.qcow2", shell=True ,stdout=subprocess.PIPE)
+		a_tmp = a.stdout.read()
+		a_tmp = str(a_tmp)
+		print a_tmp
+	if sys.argv[2] == 'U14_04_4':
+		#a = subprocess.Popen("cd /root/heat/final_scripts/new_rev/ ; wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-4.qcow2", shell=True ,stdout=subprocess.PIPE)
+                a = subprocess.Popen("wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-4.qcow2", shell=True ,stdout=subprocess.PIPE)
+		a_tmp = a.stdout.read()
+                a_tmp = str(a_tmp)
+                print a_tmp
+
+
+# Method for Checking if the requested image is added to the cluster, if not. It will download the image and add it to the cluster.
+def parse_openstack_image_list_command():
+	if sys.argv[2] == "U14_04_5":
+		a = subprocess.Popen("openstack image list | grep U14_04_5", shell=True ,stdout=subprocess.PIPE)
+		a_tmp = a.stdout.read()
+		if len(a_tmp) == 0:
+			print "The Requested Image is not present in the cluster, Downloading it ----->>\n"
+			get_requested_image()
+			#a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file /root/heat/final_scripts/new_rev/ubuntu14-04-5.qcow2 U14_04_5", shell=True ,stdout=subprocess.PIPE)
+			a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file ubuntu14-04-5.qcow2 U14_04_5", shell=True ,stdout=subprocess.PIPE)
+			a_tmp = a.stdout.read()
+			print a_tmp	
+		else:
+			print "Requested Image already exists in the cluster "
+			a = subprocess.Popen("openstack image list ", shell=True ,stdout=subprocess.PIPE)
+			a_tmp = a.stdout.read()
+			print a_tmp
+
+
+	elif sys.argv[2] == "U14_04_4":
+                a = subprocess.Popen("openstack image list | grep U14_04_4", shell=True ,stdout=subprocess.PIPE)
+                a_tmp = a.stdout.read()
+                if len(a_tmp) == 0:
+                        print "The Requested Image is not present in the cluster, Downloading it ----->>\n"
+                        get_requested_image()
+                        #a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file /root/heat/final_scripts/new_rev/ubuntu14-04-4.qcow2 U14_04_4", shell=True ,stdout=subprocess.PIPE)
+                        a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file ubuntu14-04-4.qcow2 U14_04_4", shell=True ,stdout=subprocess.PIPE)
+			a_tmp = a.stdout.read()
+                        print a_tmp
+                else:
+                        print "Requested Image already exists in the cluster "
+			a = subprocess.Popen("openstack image list ", shell=True ,stdout=subprocess.PIPE)
+                        a_tmp = a.stdout.read()
+                        print a_tmp
 
 
 if __name__ == '__main__':
