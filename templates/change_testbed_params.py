@@ -8,9 +8,9 @@ import paramiko
 if (sys.argv[1]=='-h' or sys.argv[1]=='--help'):
         print '''
         THE CORRECT FORMAT OF USING THIS SCRIPT IS:
-                python change_testbed_params.py <input_json_file> <function param>  <function_to_perform>
+                python inp_to_yaml.py <input_json_file> <path to the testbed.py file>  <function_to_perform>
         EXAMPLE :
-                python inp_to_yaml.py input.json  U14_04_5 parse_openstack_image_list_command 
+                python inp_to_yaml.py input.json /opt/contrail/utils/fabfile/testbeds/testbed.py create_network_yaml > network.yaml
         '''
         sys.exit()
 
@@ -124,6 +124,19 @@ def parse_openstack_image_list_command():
                         a_tmp = a.stdout.read()
                         print a_tmp
 
+
+# Method for checking the status of stacks during their creation phase
+def get_stack_status():
+	stack_name = sys.argv[2]
+	a = subprocess.Popen('heat stack-list | grep %s'%stack_name,shell=True ,stdout=subprocess.PIPE)
+	a_tmp = a.stdout.read()
+        a_tmp = str(a_tmp)
+	if "CREATE_FAILED" in a_tmp:
+                print "failed"
+        elif "CREATE_COMPLETE" in a_tmp:
+                print "success"
+        elif "CREATE_IN_PROGRESS" in a_tmp:
+                print "inprogress"
 
 if __name__ == '__main__':
 	globals()[sys.argv[3]]()
