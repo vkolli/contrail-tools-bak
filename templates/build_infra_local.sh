@@ -66,7 +66,7 @@ else
 fi
 done
 
-
+# Now Lets create the Server Stacks  
 if [ "$net_res" == 'success' ]
 then
         heat stack-create -f /root/$dashed_project_uuid/final_server.yaml $final_server_stack_name
