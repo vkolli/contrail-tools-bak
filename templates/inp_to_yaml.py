@@ -76,6 +76,7 @@ def change_stack_names():
 # A method to create a yaml file to create networks using the heat component of the openstack 
 def create_network_yaml():
 	change_network_dict()
+	project_uuid = general_params_dict["project_uuid"]
 	network_string = ""
 	network_string = network_string+"heat_template_version: 2015-04-30\n\ndescription: "+description+"\n\n" + "resources:\n"
 	for i in network_dict:
@@ -87,11 +88,13 @@ def create_network_yaml():
 		network_name_list.append(name)
 		network_string = network_string + "  "+name+":\n"
 		network_string = network_string + "    type: OS::Neutron::Net\n"
-		network_string = network_string + "    properties:\n      name: "+name+"\n\n"
+		network_string = network_string + "    properties:\n      name: "+name+"\n"
+		network_string = network_string + "      tenant_id: %s\n\n"%project_uuid
 		subnet_name = name+"_subnet_"+str(num)
  		network_string = network_string + "  "+subnet_name+":\n"
 		network_string = network_string + "    type: OS::Neutron::Subnet\n"
 		network_string = network_string + "    properties:\n"
+		network_string = network_string + "      tenant_id: %s\n"%project_uuid
 		network_string = network_string + "      network_id: { get_resource: %s }\n"%name
 		ip_block_with_mask = network_dict[i]["ip_block_with_mask"]
 		network_string = network_string + "      cidr: %s\n"%ip_block_with_mask
@@ -205,12 +208,16 @@ def create_server_yaml():
 			if value in ip_list:
 				if network_dict[key]["role"] == "management":
 					ip_association_floating.append(value)
-		#print ip_association_floating	
-		for j in ip_list:
-			server_string = server_string + "        - port: { get_resource:  %s}\n"%ip_port_dict[j]
-			if len(port_for_floating_ip) == 0:
-				port_for_floating_ip.append(ip_port_dict[j])
-		server_string = server_string + "\n"
+					server_string = server_string + "        - port: { get_resource:  %s}\n"%ip_port_dict[value]
+					ip_list.remove(value)
+		if len(ip_list) > 0:
+			#print ip_association_floating	
+			for j in ip_list:
+				#print ip_list
+				server_string = server_string + "        - port: { get_resource:  %s}\n"%ip_port_dict[j]
+				if len(port_for_floating_ip) == 0:
+					port_for_floating_ip.append(ip_port_dict[j])
+			server_string = server_string + "\n"
 	# If Floating IP Pool present in the given Json tanslate it into the yaml file 
 	if "floating_ip_network" in parsed_json["inp_params"]:
 		# Change the name of the floatingip pool. Add the porject uuid to the name.
