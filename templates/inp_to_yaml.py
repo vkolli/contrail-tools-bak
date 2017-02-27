@@ -531,6 +531,7 @@ def create_cluster_json():
                         "database": {
                             "minimum_diskGB": %d
                         },
+			“amqp_ssl” : true,
                         "kernel_upgrade": %s
                     },
         '''%(cluster_dict["cluster_id"], cluster_dict["parameters"]["domain"], cluster_dict["parameters"]["provision"]["contrail"]["minimum_disk_database"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_upgrade"])
@@ -579,7 +580,7 @@ def create_testbedpy_file():
 	control_data_string = "control_data = {\n"
 	name_mapping = {}
 	if "env_password" in testbed_py_dict:
-		env_password_string = "env.passwords = {\n"
+		env_password_string = "\nenv.passwords = {\n"
 	if "env_ostypes" in testbed_py_dict:
 		env_ostypes_string = "env.ostypes = {\n"
 	for i in server_dict:
@@ -588,7 +589,10 @@ def create_testbedpy_file():
                                 if network_dict[j]["role"] == "management":
                                         if "config" in server_dict[i]["roles"]:
                                                 # Build Ip that will be used in the testbed.py file
-                                                build_ip = server_dict[i]["ip_address"][j]
+						if "host_build" in testbed_py_dict:
+							build_ip = testbed_py_dict["host_build"]
+						else:
+                	                                build_ip = server_dict[i]["ip_address"][j]
                                         manag_ip = server_dict[i]["ip_address"][j]
                                 else:
 					if network_dict[j]["role"] == "control-data":
@@ -622,7 +626,7 @@ def create_testbedpy_file():
 		env_ostypes_string = env_ostypes_string + "}\n\n"
 	if "env_password" in testbed_py_dict:
 		env_password_string = env_password_string + "   host_build: '%s',\n}\n\n"%testbed_py_dict["env_password"]
-		file_str = file_str + "env.password = '%s'\n"%testbed_py_dict["env_password"]
+		file_str = file_str + "\nenv.password = '%s'\n"%testbed_py_dict["env_password"]
 	file_str = file_str + "host_build = 'root@%s'\n\n"%build_ip
 	# Lets Get the role definitions for all the servers in the input file
 	# All the hostnames for env.roles section in testbed.py file
