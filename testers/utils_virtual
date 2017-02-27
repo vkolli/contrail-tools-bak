@@ -884,6 +884,8 @@ function debug_and_die
 function cleanup() {
     if [ $LOCK_TESTBED_ON_FAILURE -eq 0 ]; then
         delete_stacks || die "Failed to delete stacks"
+    else
+        cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}     
     fi
     unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
 }
