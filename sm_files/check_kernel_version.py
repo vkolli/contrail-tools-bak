@@ -8,7 +8,7 @@ import time
 import pdb
 
 CLUSTER='test-cluster'
-KERNEL_VERSION='3.13.0-100'
+KERNEL_VERSION='3.13.0-106'
 cmd='server-manager-client display server --cluster_id ' + CLUSTER + ' -d --json'
 data = subprocess.check_output(cmd, shell=True)
 data_as_json = json.loads(data)
