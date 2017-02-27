@@ -531,7 +531,7 @@ def create_cluster_json():
                         "database": {
                             "minimum_diskGB": %d
                         },
-			“amqp_ssl” : true,
+			"amqp_ssl": true,
                         "kernel_upgrade": %s
                     },
         '''%(cluster_dict["cluster_id"], cluster_dict["parameters"]["domain"], cluster_dict["parameters"]["provision"]["contrail"]["minimum_disk_database"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_upgrade"])
