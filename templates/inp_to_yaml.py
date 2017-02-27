@@ -688,6 +688,31 @@ def create_testbedpy_file():
 	file_str = file_str + "}\n\n"
 	if "openstack_admin_password" in testbed_py_dict:
 		file_str = file_str + "env.openstack_admin_password = '%s'\n"%testbed_py_dict["openstack_admin_password"]
+	if "env.log_scenario" in testbed_py_dict:
+		log_scenario_str = ''
+		if "auth_protocol" in testbed_py_dict["env.log_scenario"]:
+			if testbed_py_dict["env.log_scenario"]["auth_protocol"] == "https":
+				if testbed_py_dict["env.log_scenario"]["keystone_version"] == "v3":
+					log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'\n"
+					log_scenario_str = log_scenario_str + "env.keystone = {\n"
+					log_scenario_str = log_scenario_str+"	'version': 'v3',\n"
+					log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
+					log_scenario_str = log_scenario_str + "}\n"
+				else:
+					log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2, https]'\n"
+					log_scenario_str = log_scenario_str + "env.keystone = {\n"
+					log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
+					log_scenario_str = log_scenario_str + "}\n"
+				log_scenario_str = log_scenario_str + "env.cfgm = {\n"
+				log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
+				log_scenario_str = log_scenario_str + "}\n"
+			else:
+				log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2]'\n"
+			file_str = file_str + log_scenario_str
+	if "enable_rbac" in testbed_py_dict:
+		if testbed_py_dict["enable_rbac"] == "true":
+			file_str = file_str + "cloud_admin_role = 'admin'\n"
+			file_str = file_str + "aaa_mode = 'rbac'\n"
 	if "env_password" in testbed_py_dict:
 		file_str = file_str + env_password_string
 	if "env_ostypes" in testbed_py_dict:
