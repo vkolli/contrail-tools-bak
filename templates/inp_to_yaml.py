@@ -183,11 +183,15 @@ def create_server_yaml():
 			if network_dict[j]["role"] == "management":
 				if ("external_vip" in cluster_dict["parameters"]["provision"]["openstack"]):
 					server_string = server_string + "      allowed_address_pairs:\n"
-					server_string = server_string + "        - ip_address: %s\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]
+					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]
+				if ("contrail_external_vip" in cluster_dict["parameters"]["provision"]["contrail"]):
+					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_vip"]
 			if network_dict[j]["role"] == "control-data":
 				if ("internal_vip" in cluster_dict["parameters"]["provision"]["openstack"]):
 					server_string = server_string + "      allowed_address_pairs:\n"
-					server_string = server_string + "        - ip_address: %s\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
+					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
+				if ("contrail_internal_vip" in cluster_dict["parameters"]["provision"]["contrail"]):
+					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
 			ip_port_dict[(ip_address_dict[net_name])] = port_name
 			#ip_num += 1
 	# Launch the VMs
@@ -572,7 +576,11 @@ def create_cluster_json():
 
 def create_testbedpy_file():
 	file_str = ""
-        file_str = file_str + "from fabric.api import env \n\next_routers = []\nrouter_asn = 64512\n\n"
+        file_str = file_str + "from fabric.api import env \nimport os\n\nnext_routers = []\n"
+	if "router_asn" in testbed_py_dict:
+		file_str = file_str + "router_asn = %s\n\n"%testbed_py_dict["router_asn"]
+	else:
+		file_str = file_str + "router_asn = 64512\n\n"
         itr = 1
         # hostname_string contains the hostanme of all the servers. This would be added to the main string after wards
         hostname_string = "     'all' : [ "
@@ -603,7 +611,10 @@ def create_testbedpy_file():
 						continue
                         for net in network_dict:
 				if network_dict[net]["role"] == 'control-data':
-					control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
+					if "control_data_vlan" in testbed_py_dict:
+						control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1', 'vlan': '%s'},\n"%(str(itr), control_ip, gateway,testbed_py_dict["control_data_vlan"])
+					else:
+						control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
                         file_str = file_str + "host%s = 'root@%s'\n"%(str(itr),manag_ip)
 			if "env_password" in testbed_py_dict:
 				env_password_string = env_password_string + "   host%s: '%s',\n"%(str(itr), testbed_py_dict["env_password"])
@@ -675,7 +686,6 @@ def create_testbedpy_file():
 			file_str = file_str + ",\n"
 		itr += 1
 	file_str = file_str + "}\n\n"
-
 	if "openstack_admin_password" in testbed_py_dict:
 		file_str = file_str + "env.openstack_admin_password = '%s'\n"%testbed_py_dict["openstack_admin_password"]
 	if "env_password" in testbed_py_dict:
@@ -686,6 +696,10 @@ def create_testbedpy_file():
 		file_str = file_str+"ha_setup = True\n"
 		file_str = file_str + "env.ha = {\n"
 		file_str = file_str+"	'internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
+		if "contrail_internal_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
+			file_str = file_str+"	'contrail_internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
+		if "contrail_external_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
+			file_str = file_str+"	'contrail_external_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_vip"]
 		file_str = file_str+"	'external_vip' : '%s'\n}\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]	
 	file_str = file_str + "env.cluster_id='%s'\n"%cluster_dict["cluster_id"]
 	if "minimum_diskGB" in testbed_py_dict:
@@ -696,6 +710,10 @@ def create_testbedpy_file():
 		file_str = file_str + "env.mail_from= '%s'\n"%testbed_py_dict["env.mail_from"]
 	if "env.mail_to" in testbed_py_dict:
 		file_str = file_str + "env.mail_to= '%s'\n"%testbed_py_dict["env.mail_to"]
+	if "env.mail_server" in testbed_py_dict:
+		file_str = file_str + "env.mail_server = '%s'\n"%testbed_py_dict["env.mail_server"]
+	if "env.mail_port" in testbed_py_dict:
+		file_str = file_str + "env.mail_port = '%s'\n"%testbed_py_dict["env.mail_port"]
 	if "multi_tenancy" in testbed_py_dict:
 		file_str = file_str + "multi_tenancy= %s\n"%testbed_py_dict["multi_tenancy"]
 	if "env.interface_rename" in testbed_py_dict:
@@ -709,7 +727,13 @@ def create_testbedpy_file():
 	if "ceilometer_polling_interval" in testbed_py_dict:
 		file_str = file_str + "ceilometer_polling_interval = %d\n"%testbed_py_dict["ceilometer_polling_interval"]
 	if "do_parallel" in testbed_py_dict:
-		file_str = file_str + "do_parallel = %s\n"%testbed_py_dict["do_parallel"]	
+		file_str = file_str + "do_parallel = %s\n"%testbed_py_dict["do_parallel"]
+	if "env.image_web_server" in testbed_py_dict:
+		file_str = file_str + "env.image_web_server = '%s'\n"%testbed_py_dict["env.image_web_server"]
+	if "env.testbed_location" in testbed_py_dict:
+		file_str = file_str + "env.testbed_location = '%s'\n"%testbed_py_dict["env.testbed_location"]
+	if "env.mx_gw_test" in testbed_py_dict:
+		file_str = file_str + "env.mx_gw_test = %s\n"%testbed_py_dict["env.mx_gw_test"]	
 	print file_str	
 		
 			
