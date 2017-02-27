@@ -755,19 +755,24 @@ function launch_testbed_virtual() {
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/config-node-ip ${TOOLS_WS}/
     export API_SERVER_HOST_STRING="root@"`cat ${TOOLS_WS}/config-node-ip`
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/info.txt ${TOOLS_WS}/
-    cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}
+    sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/testbed.py ${TOOLS_WS}/testbeds/$TBFILE
 }
 
 function delete_stacks() {
-    cd /root/${TEMPLATE_DIR}/
-    ./delete_stack.sh ${LOCK_FILE_DIR}/$1 
+    sshpass -p "c0ntrail123" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root $BASE_CLUSTER " (
+        set -e
+        cd /root/${TEMPLATE_DIR}/
+        ./delete_stack.sh info.txt 
+    )"
 }
 
 function run_smgr_virtual_task() {
     echo "Running tests on $1.."
     #New Function
     export TEMPLATE_DIR=${SCRIPT_TIMESTAMP}
-    launch_testbed_virtual || debug_and_die "failed to get server-manager IP"
+    export TBFILE="template_HA.py"    
+    export TBFILE_NAME="template_HA.py"
+    launch_testbed_virtual || debug_and_die "Failed to launch testbed setup"
     echo $SM_SERVER_IP
     if [ ${TEST_SETUP} == "SINGLENODE" ]
     then
@@ -783,7 +788,6 @@ function run_smgr_virtual_task() {
         echo "TEST_SETUP is not defined, abort the process"
         exit 1
     fi
-
     if [ -z "$SM_SERVER_IP" ]
     then
         echo "SM_SERVER_IP is not set, unable to proceede, aborting the process"
@@ -794,7 +798,6 @@ function run_smgr_virtual_task() {
         echo "CLUSTER_NAME env is not set, aborting the process"
         exit 1
     fi
-    
     create_testbed || die "Failed to create required testbed details"
     bringup_SM_setup || debug_and_die "Failed to bringup SM setup"
 
@@ -823,9 +826,10 @@ function run_smgr_virtual_task() {
         export TEST_HOST_IP=`echo $TEST_HOST_STRING | cut -d @ -f2`
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
         #Edit testbed_file
-        cp {TOOLS_WS}/testbeds/${tb_filename} {TOOLS_WS}/testbeds/${tb_filename}_back
-        echo `python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${$TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params`
-        python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params
+        sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/testbed.py ${TOOLS_WS}/testbeds/${tb_filename}
+        #cp {TOOLS_WS}/testbeds/${tb_filename} {TOOLS_WS}/testbeds/${tb_filename}_back
+        #echo `python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${$TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params`
+        #python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params
         setup_testnode || debug_and_die "test node setup failed"
         install_dep_pkgs_for_test
         run_sanity_simple || debug_and_die "run_sanity_simple failed"
@@ -838,7 +842,7 @@ function run_smgr_virtual_task() {
 
     run_tempest || die "Run_Tempest step failed"
     collect_tech_support || die "Task to collect logs/cores failed"
-    delete_stacks $TBFILE_NAME || die "Failed to delete stacks"
+    delete_stacks || die "Failed to delete stacks"
     echo "Ending test on $1"
 }
 
@@ -846,8 +850,9 @@ function run_smgr_virtual_task() {
 function debug_and_die
 {
     local message=$1
-    if [ $LOCK_TESTBED_ON_FAILURE = 1 ]; then
-        echo "Testbed is set to be locked on failure"
+    if [ $LOCK_TESTBED_ON_FAILURE -eq 1 ]; then
+        echo "Testbed is set to be locked on failure and add stack info to lock file"
+        cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}
         if [[ $message =~ 'Test failures exceed' ]]; then
             collect_tech_support
         fi
@@ -862,7 +867,8 @@ function debug_and_die
         remove_lock_file
     else
         collect_tech_support
-        delete_stacks $TBFILE_NAME || die "Failed to delete stacks"
+        echo "Testbed stack delete!!!"
+        delete_stacks || die "Failed to delete stacks"
         if [[ $VCENTER_ONLY_TESTBED -eq 1  || $VCENTER_AS_COMPUTE_TESTBED -eq 1 ]]; then
             # deregister the setup from vcenter server
             run_fab cleanup_vcenter
@@ -873,4 +879,11 @@ function debug_and_die
     cat $tb_lock_file
     python ${TOOLS_WS}/testers/upload.py --pkg_name $PKG_FILE --jenkins_id $SCRIPT_TIMESTAMP
     exit 1
+}
+
+function cleanup() {
+    if [ $LOCK_TESTBED_ON_FAILURE -eq 0 ]; then
+        delete_stacks || die "Failed to delete stacks"
+    fi
+    unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
 }
