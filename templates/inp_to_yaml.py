@@ -582,6 +582,10 @@ def create_testbedpy_file():
 	else:
 		file_str = file_str + "router_asn = 64512\n\n"
         itr = 1
+	if "public_vn_rtgt" in testbed_py_dict:
+		file_str = file_str + "public_vn_rtgt = %s\n\n"%testbed_py_dict["public_vn_rtgt"]
+	if "public_vn_subnet" in testbed_py_dict:
+		file_str = file_str + 'public_vn_subnet = "%s"\n\n'%testbed_py_dict["public_vn_subnet"]
         # hostname_string contains the hostanme of all the servers. This would be added to the main string after wards
         hostname_string = "     'all' : [ "
         build_ip = ""
@@ -692,14 +696,17 @@ def create_testbedpy_file():
 		log_scenario_str = ''
 		if "auth_protocol" in testbed_py_dict["env.log_scenario"]:
 			if testbed_py_dict["env.log_scenario"]["auth_protocol"] == "https":
-				if testbed_py_dict["env.log_scenario"]["keystone_version"] == "v3":
-					log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'\n"
-					log_scenario_str = log_scenario_str + "env.keystone = {\n"
-					log_scenario_str = log_scenario_str+"	'version': 'v3',\n"
-					log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
-					log_scenario_str = log_scenario_str + "}\n"
+				if "keystone_version" in testbed_py_dict["env.log_scenario"]:
+					if testbed_py_dict["env.log_scenario"]["keystone_version"] == "v3":
+						if "description" in testbed_py_dict["env.log_scenario"]:
+							log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
+						log_scenario_str = log_scenario_str + "env.keystone = {\n"
+						log_scenario_str = log_scenario_str+"	'version': 'v3',\n"
+						log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
+						log_scenario_str = log_scenario_str + "}\n"
 				else:
-					log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2, https]'\n"
+					if "description" in testbed_py_dict["env.log_scenario"]:
+						log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
 					log_scenario_str = log_scenario_str + "env.keystone = {\n"
 					log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
 					log_scenario_str = log_scenario_str + "}\n"
@@ -707,7 +714,10 @@ def create_testbedpy_file():
 				log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
 				log_scenario_str = log_scenario_str + "}\n"
 			else:
-				log_scenario_str = log_scenario_str  + "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v2]'\n"
+				if "description" in testbed_py_dict["env.log_scenario"]:
+					log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
+				else:
+					pass
 			file_str = file_str + log_scenario_str
 	if "enable_rbac" in testbed_py_dict:
 		if testbed_py_dict["enable_rbac"] == "true":
@@ -723,9 +733,17 @@ def create_testbedpy_file():
 		file_str = file_str+"	'internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
 		if "contrail_internal_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
 			file_str = file_str+"	'contrail_internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
+		if "contrail_internal_virtual_router_id" in cluster_dict["parameters"]["provision"]["contrail"]:
+			file_str = file_str+"	'contrail_internal_virtual_router_id' : %s,\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_virtual_router_id"]
 		if "contrail_external_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
 			file_str = file_str+"	'contrail_external_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_vip"]
-		file_str = file_str+"	'external_vip' : '%s'\n}\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]	
+		if "contrail_external_virtual_router_id" in cluster_dict["parameters"]["provision"]["contrail"]:
+			file_str = file_str+"	'contrail_external_virtual_router_id' : %s,\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_virtual_router_id"]
+		file_str = file_str+"	'external_vip' : '%s'\n}\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]
+	if "ipmi_username" in testbed_py_dict:
+		file_str = file_str + "ipmi_username = '%s'\n"%testbed_py_dict["ipmi_username"]
+	if "ipmi_password" in testbed_py_dict:
+		file_str = file_str + "ipmi_password = '%s'\n\n"%testbed_py_dict["ipmi_password"]	
 	file_str = file_str + "env.cluster_id='%s'\n"%cluster_dict["cluster_id"]
 	if "minimum_diskGB" in testbed_py_dict:
 		file_str = file_str + "minimum_diskGB = %d\n"%testbed_py_dict["minimum_diskGB"]
@@ -759,6 +777,12 @@ def create_testbedpy_file():
 		file_str = file_str + "env.testbed_location = '%s'\n"%testbed_py_dict["env.testbed_location"]
 	if "env.mx_gw_test" in testbed_py_dict:
 		file_str = file_str + "env.mx_gw_test = %s\n"%testbed_py_dict["env.mx_gw_test"]	
+	if "env.ntp_server" in testbed_py_dict:
+		file_str = file_str + "env.ntp_server = '%s'\n"%testbed_py_dict["env.ntp_server"]
+	if "env.rsyslog_params" in testbed_py_dict:
+		file_str = file_str + "env.rsyslog_params = %s\n"%testbed_py_dict["env.rsyslog_params"]
+	if "storage_replica_size" in testbed_py_dict:
+		file_str = file_str + "storage_replica_size = %s\n"%testbed_py_dict["storage_replica_size"]
 	print file_str	
 		
 			
