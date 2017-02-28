@@ -215,6 +215,12 @@
 			"host_build" : "10.84.24.64",
 			"router_asn": "64522",
 			"control_data_vlan": "150",
+			"env.log_scenario":{
+                                "description": "env.log_scenario='Multi-Interface Sanity[mgmt, ctrl=data, DPDK, Keystone=v3, https]'",
+                                "auth_protocol" : "https",
+                                "keystone_version" : "v3"
+                        },
+                        "enable_rbac": "true",
 			"openstack_admin_password" : "c0ntrail123",
 			"minimum_diskGB" : 32,
 			"env.test_repo_dir": "/root/contrail-test",
