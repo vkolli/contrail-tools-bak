@@ -991,6 +991,7 @@ function set_other_test_params {
          export CT_USER_ISOLATION=\"$USER_ISOLATION\";
          export CT_HA_TEST=\"$HA_TEST\";
          export CT_KEYSTONE_VERSION=\"$KEYSTONE_VERSION\";
+         export CT_OS_INSECURE=\"$OS_INSECURE\";
          export CT_AUTH_PROTOCOL=\"$AUTH_PROTOCOL\";
          export CT_ENABLE_RBAC=\"$ENABLE_RBAC\";"
     echo $val
