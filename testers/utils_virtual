@@ -753,7 +753,6 @@ function launch_testbed_virtual() {
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/server-manager-file ${TOOLS_WS}/
     export SM_SERVER_IP=`cat ${TOOLS_WS}/server-manager-file`
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/config-node-ip ${TOOLS_WS}/
-    export API_SERVER_HOST_STRING="root@"`cat ${TOOLS_WS}/config-node-ip`
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/info.txt ${TOOLS_WS}/
     sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/testbed.py ${TOOLS_WS}/testbeds/$TBFILE
 }
@@ -810,6 +809,7 @@ function run_smgr_virtual_task() {
         provision_using_SM || debug_and_die "provision failed"
     fi
     check_kernel_upgrade || die "kernel upgrade failed"
+    export API_SERVER_HOST_STRING="root@"`cat ${TOOLS_WS}/config-node-ip`
     
     if [[ $TEST_RUN_INFRA == 'docker' ]]; then
         search_package
@@ -827,9 +827,6 @@ function run_smgr_virtual_task() {
         export TEST_HOST_USER=`echo $TEST_HOST_STRING | cut -d @ -f1`
         #Edit testbed_file
         sshpass -p "c0ntrail123" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASE_CLUSTER:/root/${TEMPLATE_DIR}/testbed.py ${TOOLS_WS}/testbeds/${tb_filename}
-        #cp {TOOLS_WS}/testbeds/${tb_filename} {TOOLS_WS}/testbeds/${tb_filename}_back
-        #echo `python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${$TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params`
-        #python ${TOOLS_WS}/templates/change_testbed_params.py ${TOOLS_WS}/templates/${TEMPLATE} ${TOOLS_WS}/testbeds/${tb_filename} change_testbed_params
         setup_testnode || debug_and_die "test node setup failed"
         install_dep_pkgs_for_test
         run_sanity_simple || debug_and_die "run_sanity_simple failed"
@@ -850,9 +847,11 @@ function run_smgr_virtual_task() {
 function debug_and_die
 {
     local message=$1
+    TBFILE_NAME=${AVAILABLE_TESTBEDS}
+    tb_lock_file=${LOCK_FILE_DIR}/${TBFILE_NAME}
     if [ $LOCK_TESTBED_ON_FAILURE -eq 1 ]; then
         echo "Testbed is set to be locked on failure and add stack info to lock file"
-        cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}
+        cat ${TOOLS_WS}/info.txt >> ${tb_lock_file} 
         if [[ $message =~ 'Test failures exceed' ]]; then
             collect_tech_support
         fi
@@ -882,10 +881,12 @@ function debug_and_die
 }
 
 function cleanup() {
+    TBFILE_NAME=${AVAILABLE_TESTBEDS}
+    tb_lock_file=${LOCK_FILE_DIR}/${TBFILE_NAME}
     if [ $LOCK_TESTBED_ON_FAILURE -eq 0 ]; then
         delete_stacks || die "Failed to delete stacks"
     else
-        cat ${TOOLS_WS}/info.txt >> ${LOCK_FILE_DIR}/${TBFILE_NAME}     
+        cat ${TOOLS_WS}/info.txt >> ${tb_lock_file} 
     fi
     unlock_testbed $TBFILE_NAME || die "Failed to unlock testbed $TBFILE_NAME"
 }
