@@ -904,7 +904,7 @@ function run_smgr_task() {
             echo $SM_SERVER_IP
         elif [ ${tb_filename} == "testbed_smgr_multi_interface_c28.py" ]
         then
-            SM_SERVER_IP=10.204.217.159
+            SM_SERVER_IP=10.204.217.153
             echo $SM_SERVER_IP
         else
             echo "Could not get testbed file name for MULTI INTERFACE Setup."
