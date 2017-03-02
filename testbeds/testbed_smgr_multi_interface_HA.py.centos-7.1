@@ -4,12 +4,12 @@ os_username = 'admin'
 os_password = 'contrail123'
 os_tenant_name = 'demo'
  
-host1 = 'root@10.204.217.13'
-host2 = 'root@10.204.217.77'
-host3 = 'root@10.204.217.176'
-host4 = 'root@10.204.217.129'
-host5 = 'root@10.204.217.131'
-host6 = 'root@10.204.217.132'
+host1 = 'root@10.204.217.129'
+host2 = 'root@10.204.217.131'
+host3 = 'root@10.204.217.132'
+host4 = 'root@10.204.217.13'
+host5 = 'root@10.204.217.77'
+host6 = 'root@10.204.217.176'
 
 ext_routers = []
 router_asn = 64512
@@ -34,7 +34,7 @@ env.roledefs = {
 }
  
 env.hostnames ={
-    'all': ['nodec28.englab.juniper.net', 'nodeg37.englab.juniper.net', 'nodec10.englab.juniper.net', 'nodei17.englab.juniper.net', 'nodei19.englab.juniper.net', 'nodei20.englab.juniper.net']
+    'all': ['nodei17.englab.juniper.net', 'nodei19.englab.juniper.net', 'nodei20.englab.juniper.net', 'nodec28.englab.juniper.net', 'nodeg37.englab.juniper.net', 'nodec10.englab.juniper.net']
 }
 
 #Openstack admin password
@@ -62,16 +62,16 @@ env.ostypes = {
 }
 
 bond= {
-    host6 : { 'name': 'bond0', 'member': ['eth1','eth2','eth3'],'mode':'802.3ad' },
+    host3 : { 'name': 'bond0', 'member': ['eth1','eth2','eth3'],'mode':'802.3ad' },
 }
 
 control_data = {
-    host1 : { 'ip': '192.168.100.11/24', 'gw' : '', 'device':'eth1' },
-    host2 : { 'ip': '192.168.100.12/24', 'gw' : '', 'device':'eth1' },
-    host3 : { 'ip': '192.168.100.13/24', 'gw' : '', 'device':'eth1' },
-    host4 : { 'ip': '192.168.100.14/24', 'gw' : '', 'device':'eth1' },
-    host5 : { 'ip': '192.168.100.15/24', 'gw' : '', 'device':'eth1' },
-    host6 : { 'ip': '192.168.100.16/24', 'gw' : '', 'device':'bond0' },
+    host1 : { 'ip': '192.168.100.14/24', 'gw' : '', 'device':'eth1' },
+    host2 : { 'ip': '192.168.100.15/24', 'gw' : '', 'device':'eth1' },
+    host3 : { 'ip': '192.168.100.16/24', 'gw' : '', 'device':'bond0' },
+    host4 : { 'ip': '192.168.100.11/24', 'gw' : '', 'device':'eth1' },
+    host5 : { 'ip': '192.168.100.12/24', 'gw' : '', 'device':'eth1' },
+    host6 : { 'ip': '192.168.100.13/24', 'gw' : '', 'device':'eth1' },
 }
 
 # VIP
