@@ -841,6 +841,8 @@ function run_smgr_virtual_task() {
     collect_tech_support || die "Task to collect logs/cores failed"
     delete_stacks || die "Failed to delete stacks"
     echo "Ending test on $1"
+    TBFILE_NAME=${AVAILABLE_TESTBEDS}
+    tb_lock_file=${LOCK_FILE_DIR}/${TBFILE_NAME}
 }
 
 
