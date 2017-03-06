@@ -1,0 +1,16 @@
+The Basic flow of the code to generate the virtualizaed infrastructure is:
+
+-> We have a input.json file in which we specify all the infrastructure details like, number of servers, number of networks, specific ip addresses to the inetrfaces of the servers.
+-> We start the task by runnig the build_infra.sh file which takes in 2 arguments. (1) is the unique project name and (2) is the OS name for the VMs.
+-> The build_infra.sh file first creates a new openstack project and generates the dashed format of that project UUID.
+-> According to the second parameter to the build_infra.sh file, we will check if that OS image is added to openstack, if yes we go ahead. If no, we first download the image locally and 
+   add to openstack.
+-> We will attach this UUID to heat stack names and network names of that they dont interfere with each other if they run in parallel on the same cluster.
+-> We then create 'network.yaml' and 'server.yaml' file so and then these file are used for launchng the heat stacks. We launch the network stack first and then the server stack.
+-> With all the servers we will also launch a VM that will work as the server-manager.
+-> After the stacks are created, we create various files that are important for our sanity to run. Namely, cluster.json & server.json that will be used for server-manager provisioning.
+-> The server-manager-file and the config-node-ip files contain the floating ip address of the SM and the one of the config nodes so that it can be used by the jenkins job for automation.
+-> We will also create the testbed.py file that will be imp for contrail-test to run properly.
+
+-> All theses file: server.json, cluster.json, testbed.py will be created with combination of inputs. One of the inputs in the stacks that were created and the other major input is the input.json file that
+   contains the parameters that need to go in thses file. 

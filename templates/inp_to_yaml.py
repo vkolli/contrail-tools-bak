@@ -32,17 +32,33 @@ network_name_list=[]
 #parse all the data from the json file into a dict so that it an be used in the script 
 
 # Creating all The Dictionaries from the input json file that are required for all the functions to work properly in a scalable manner
-server_dict = parsed_json["inp_params"]["servers"]
+
+#server_dict = parsed_json["inp_params"]["servers"]
+server_dict  = {}
 network_dict = parsed_json["inp_params"]["networks"]
-cluster_dict = parsed_json["inp_params"]["cluster_json_params"]
+#cluster_dict = parsed_json["inp_params"]["cluster_json_params"]
+cluster_dict = {}
 floating_ip_network_dict = parsed_json["inp_params"]["floating_ip_network"]
 general_params_dict = parsed_json["inp_params"]["params"]
-testbed_py_dict = parsed_json["inp_params"]["testbed_py_params"]
+#testbed_py_dict = parsed_json["inp_params"]["testbed_py_params"]
+testbed_py_dict = {}
+all_cluster_dict = parsed_json["inp_params"]["cluster"]
 
+for clus in all_cluster_dict:
+	server_dict[clus] = all_cluster_dict[clus]["servers"]
+	cluster_dict[clus] = all_cluster_dict[clus]["cluster_json_params"]
+	testbed_py_dict[clus] = all_cluster_dict[clus]["testbed_py_params"]
 
 for i in network_dict:
 	network_name_list.append(network_dict[i]["name"])
 	# A list to maintain all the network names 		
+
+def test():
+	#print network_dict
+	#print server_dict
+	#print all_cluster_dict
+	#print testbed_py_dict
+	print len(server_dict["cluster_1"])
 
 # A method for generating random names for the project name
 def generate_random_name():
@@ -107,26 +123,22 @@ def create_network_yaml():
 
 # A Method for changing the server_dict according to the given 'project_uuid' given in the 'input.json' file so that naming complications can be avoided.
 def change_server_dict():
-	project_uuid = general_params_dict["project_uuid"]
-	#print server_dict	
-	for i in server_dict:
-		if project_uuid not in i:
-			new_key = i+"_"+project_uuid
-			server_dict[new_key] = server_dict.pop(i)
-	'''
-	for i in server_dict:
-		name = server_dict[i]["name"]
-		if project_uuid not in name:
-			new_name = name+"_"+project_uuid
-			server_dict[i]["name"] = new_name
-	'''
-	#print server_dict
-	for i in server_dict:
-		a= server_dict[i]['ip_address']
-		for j in a:
-			if project_uuid not in j:
-				new_key  = j+"_"+project_uuid
-				a[new_key] = a.pop(j)
+	for clus in all_cluster_dict:
+		server_dict = parsed_json["inp_params"]["cluster"][clus]["servers"]
+		project_uuid = general_params_dict["project_uuid"]
+		#print server_dict	
+		for i in server_dict:
+			if project_uuid not in i:
+				new_key = i+"_"+project_uuid
+				server_dict[new_key] = server_dict.pop(i)
+
+		#print server_dict
+		for i in server_dict:
+			a= server_dict[i]['ip_address']
+			for j in a:
+				if project_uuid not in j:
+					new_key  = j+"_"+project_uuid
+					a[new_key] = a.pop(j)
 	#print server_dict	
 
 # A Method for changing the floatingIP pool parameters from the input.json
@@ -140,72 +152,74 @@ def change_floatingip_pool_params():
 
 # A Method to create a yaml file to create servers using the heat component of the openstack 
 def create_server_yaml():
-	port_string = ""
-	server_string = ""
-	server_string = server_string+"heat_template_version: 2015-04-30\n\ndescription: "+description+"\n\n" + "resources:\n"
-	ip_port_dict = {}
-	# Change the contents of the Server_dict 
-	change_server_dict()
-	#Change the contets of the Network_dict 
-	change_network_dict()
-	#Change the contents Cluster Names 
-	change_stack_names()
-	#Change the contents of the floating_ip_network_dict
-	floating_ip_network_dict = change_floatingip_pool_params()
-	# Create required ports for all the VMs
-	for i in server_dict:
+	for clus in server_dict:
+		port_string = ""
+		server_string = ""
+		server_string = server_string+"heat_template_version: 2015-04-30\n\ndescription: "+description+"\n\n" + "resources:\n"
+		ip_port_dict = {}
+		# Change the contents of the Server_dict 
+		change_server_dict()
+		#Change the contets of the Network_dict 
+		change_network_dict()
+		#Change the contents Cluster Names 
+		change_stack_names()
+		#Change the contents of the floating_ip_network_dict
+		floating_ip_network_dict = change_floatingip_pool_params()
+		# Create required ports for all the VMs
+
+		for i in server_dict[clus]:
 		#print server_dict[i]
-		name = server_dict[i]["name"]
-		# The internal dictionary that contains the mapping of the network name to the fixed ip should also be chnaged. The next 5 lines are doing that
-		ip_address_dict = server_dict[i]["ip_address"]
-		project_uuid = general_params_dict["project_uuid"]
-		for k in ip_address_dict:
-			new_key = k+"_"+project_uuid
-			#ip_address_dict[new_key] = ip_address_dict.pop(k)
-		#print ip_address_dict
-		#ip_num = 0
-		for j in network_dict:
-			if network_dict[j]["role"] == "management":
-                                ip_num = 0
-                        else:
-                                ip_num = 1
-			net_name = network_dict[j]["name"]
-			port_name = name + "_port_" + str(ip_num)
-			server_string = server_string + "  "+port_name+":\n"
-			server_string = server_string + "    type: OS::Neutron::Port\n"
-			server_string = server_string + "    properties:\n"
-			server_string = server_string + "      network: %s\n"%net_name
-			server_string = server_string + "      name: %s\n"%port_name
-			if "mac_address" in server_dict[i]:
-				server_string = server_string + "      mac_address: %s\n"%(server_dict[i]["mac_address"][net_name]) 
-			server_string = server_string + "      fixed_ips:\n"
-			server_string = server_string + "        - ip_address: %s\n"%ip_address_dict[net_name]
-			if network_dict[j]["role"] == "management":
-				if ("external_vip" in cluster_dict["parameters"]["provision"]["openstack"]):
-					server_string = server_string + "      allowed_address_pairs:\n"
-					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]
-				if ("contrail_external_vip" in cluster_dict["parameters"]["provision"]["contrail"]):
-					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_vip"]
-			if network_dict[j]["role"] == "control-data":
-				if ("internal_vip" in cluster_dict["parameters"]["provision"]["openstack"]):
-					server_string = server_string + "      allowed_address_pairs:\n"
-					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
-				if ("contrail_internal_vip" in cluster_dict["parameters"]["provision"]["contrail"]):
-					server_string = server_string + "        - ip_address: %s\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
-			ip_port_dict[(ip_address_dict[net_name])] = port_name
+			name = server_dict[clus][i]["name"]
+			# The internal dictionary that contains the mapping of the network name to the fixed ip should also be chnaged. The next 5 lines are doing that
+			ip_address_dict = server_dict[clus][i]["ip_address"]
+			project_uuid = general_params_dict["project_uuid"]
+			for k in ip_address_dict:
+				new_key = k+"_"+project_uuid
+				#ip_address_dict[new_key] = ip_address_dict.pop(k)
+			#print ip_address_dict
+			#ip_num = 0
+			for j in network_dict:
+				if network_dict[j]["role"] == "management":
+	                                ip_num = 0
+	                        else:
+	                                ip_num = 1
+				net_name = network_dict[j]["name"]
+				port_name = name + "_port_" + str(ip_num)
+				server_string = server_string + "  "+port_name+":\n"
+				server_string = server_string + "    type: OS::Neutron::Port\n"
+				server_string = server_string + "    properties:\n"
+				server_string = server_string + "      network: %s\n"%net_name
+				server_string = server_string + "      name: %s\n"%port_name
+				if "mac_address" in server_dict[clus][i]:
+					server_string = server_string + "      mac_address: %s\n"%(server_dict[clus][i]["mac_address"][net_name]) 
+				server_string = server_string + "      fixed_ips:\n"
+				server_string = server_string + "        - ip_address: %s\n"%ip_address_dict[net_name]
+				if network_dict[j]["role"] == "management":
+					if ("external_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"]):
+						server_string = server_string + "      allowed_address_pairs:\n"
+						server_string = server_string + "        - ip_address: %s\n"%cluster_dict[clus]["parameters"]["provision"]["openstack"]["external_vip"]
+					if ("contrail_external_vip" in cluster_dict[clus]["parameters"]["provision"]["contrail"]):
+						server_string = server_string + "        - ip_address: %s\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_external_vip"]
+				if network_dict[j]["role"] == "control-data":
+					if ("internal_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"]):
+						server_string = server_string + "      allowed_address_pairs:\n"
+						server_string = server_string + "        - ip_address: %s\n"%cluster_dict[clus]["parameters"]["provision"]["openstack"]["internal_vip"]
+					if ("contrail_internal_vip" in cluster_dict[clus]["parameters"]["provision"]["contrail"]):
+						server_string = server_string + "        - ip_address: %s\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
+				ip_port_dict[(ip_address_dict[net_name])] = port_name
 			#ip_num += 1
 	# Launch the VMs
 	ip_association_floating = []
-	for i in server_dict:
-		name = server_dict[i]["name"]
+	for i in server_dict[clus]:
+		name = server_dict[clus][i]["name"]
 		server_string = server_string + "  "+name+":\n"
 		server_string = server_string + "    type: OS::Nova::Server\n"
 		server_string = server_string + "    properties:\n      name: "+name+"\n"
-		server_string = server_string + "      flavor: %s\n"%server_dict[i]["flavor"]
-		server_string = server_string + "      image: %s\n"%server_dict[i]["image"]
+		server_string = server_string + "      flavor: %s\n"%server_dict[clus][i]["flavor"]
+		server_string = server_string + "      image: %s\n"%server_dict[clus][i]["image"]
 		server_string = server_string + "      networks:\n"
 		port_for_floating_ip = []
-		ip_address_dict = server_dict[i]["ip_address"]
+		ip_address_dict = server_dict[clus][i]["ip_address"]
 		ip_list = ip_address_dict.values()
 		#print ip_list[1]
 		for key, value in ip_address_dict.items():
@@ -234,9 +248,9 @@ def create_server_yaml():
 		server_string = server_string + "      virtual_network: %s\n\n"%floating_ip_network_dict["param"]["floating_ip_network_uuid"]
 		#server_string = server_string + "      virtual_network: public\n\n"
 	#creating floating IP from the above created pool for the VMs
-	for i in server_dict:
-		if server_dict[i]["floating_ip"] == "true":
-                	name = server_dict[i]["name"]+"_floating_ip"
+	for i in server_dict[clus]:
+		if server_dict[clus][i]["floating_ip"] == "true":
+                	name = server_dict[clus][i]["name"]+"_floating_ip"
 			server_string = server_string + "  "+name+":\n"
 			server_string = server_string + "    type: OS::ContrailV2::FloatingIp\n"
 			server_string = server_string + "    properties:\n"
@@ -280,10 +294,10 @@ def parse_output():
 	#print network_stack_name
 	#print server_stack_name 
 	all_server_names = []
-	for i in server_dict:
-                name = server_dict[i]["name"]
-		#name = name+"_"+ project_uuid
-		all_server_names.append(name)
+	for clus in server_dict:
+		for i in server_dict[clus]:
+        	        name = server_dict[clus][i]["name"]
+			all_server_names.append(name)
 	#print all_server_names
 	#print server_stack_name
 	for i in all_server_names:
@@ -327,65 +341,21 @@ def get_sm_ip():
 	a_tmp = a.stdout.read()
 	a_tmp = str(a_tmp)
 	fip_neutron_dict = eval(a_tmp)
-	floating_ip = ""
+	floating_ip_list = []
 	change_network_dict()
 	net_name = []
 	for i in network_dict:
 		net_name.append(network_dict[i]["name"])
-	for i in server_dict:
-		if server_dict[i]["server_manager"] == "true":
-			for j in server_dict[i]["ip_address"]:
-				for k in range(len(fip_neutron_dict)):
-					if fip_neutron_dict[k]["fixed_ip_address"] == server_dict[i]["ip_address"][j]:
-						b = subprocess.Popen('neutron port-show %s -f json'%fip_neutron_dict[k]["port_id"],shell=True ,stdout=subprocess.PIPE)
-						b_tmp = b.stdout.read()
-						b_tmp = str(b_tmp)
-						current_port_dict = json.loads(b_tmp)
-						current_network_id = current_port_dict["network_id"]
-						c = subprocess.Popen('neutron net-list -f json',shell=True ,stdout=subprocess.PIPE)
-						c_tmp = c.stdout.read()
-						c_tmp = str(c_tmp)
-						all_net_dict  = json.loads(c_tmp)
-						for net in all_net_dict:
-							if current_network_id == net["id"] and net["name"] in net_name:
-								floating_ip = fip_neutron_dict[k]["floating_ip_address"]
-	print floating_ip
-
-# Method for getting the floating ip of the config node so that the testbed.py can be transferred to this server and the tests can run from here.
-def get_config_node_ip():
-	"""
-	parse_output()
-	config_node_ip = ""
-	for i in server_dict:
-		if server_dict[i]["server_manager"] != "true":
-			if "config" in server_dict[i]["roles"]:
-				for j in server_dict[i]["ip_address"]:
-					private_ip = server_dict[i]["ip_address"][j]
-					private_mac = fixed_ip_mac_mapping[private_ip]
-					if private_mac in floating_ip_mac_mapping:
-						config_node_ip = floating_ip_mac_mapping[private_mac]
-	print config_node_ip
-	"""
-	a = subprocess.Popen('neutron floatingip-list -f json',shell=True ,stdout=subprocess.PIPE)
-        a_tmp = a.stdout.read()
-        a_tmp = str(a_tmp)
-        fip_neutron_dict = eval(a_tmp)
-	project_uuid = general_params_dict["project_uuid"]
-        config_node_ip = ""
-	change_network_dict()
-	net_name = []
-	for i in network_dict:
-                net_name.append(network_dict[i]["name"])
-        for i in server_dict:
-		if server_dict[i]["server_manager"] != "true":
-			if "config" in server_dict[i]["roles"]:
-				for j in server_dict[i]["ip_address"]:
+	for clus in server_dict:
+		for i in server_dict[clus]:
+			if server_dict[clus][i]["server_manager"] == "true":
+				for j in server_dict[clus][i]["ip_address"]:
 					for k in range(len(fip_neutron_dict)):
-						if fip_neutron_dict[k]["fixed_ip_address"] == server_dict[i]["ip_address"][j]:
+						if fip_neutron_dict[k]["fixed_ip_address"] == server_dict[clus][i]["ip_address"][j]:
 							b = subprocess.Popen('neutron port-show %s -f json'%fip_neutron_dict[k]["port_id"],shell=True ,stdout=subprocess.PIPE)
-                                                	b_tmp = b.stdout.read()
-                                                	b_tmp = str(b_tmp)
-                                                	current_port_dict  = json.loads(b_tmp)
+							b_tmp = b.stdout.read()
+							b_tmp = str(b_tmp)
+							current_port_dict = json.loads(b_tmp)
 							current_network_id = current_port_dict["network_id"]
 							c = subprocess.Popen('neutron net-list -f json',shell=True ,stdout=subprocess.PIPE)
 							c_tmp = c.stdout.read()
@@ -393,8 +363,44 @@ def get_config_node_ip():
 							all_net_dict  = json.loads(c_tmp)
 							for net in all_net_dict:
 								if current_network_id == net["id"] and net["name"] in net_name:
-									config_node_ip = fip_neutron_dict[k]["floating_ip_address"]
-	print config_node_ip
+									floating_ip_list.append(fip_neutron_dict[k]["floating_ip_address"])
+
+	for fip in floating_ip_list:
+		print fip
+
+# Method for getting the floating ip of the config node so that the testbed.py can be transferred to this server and the tests can run from here.
+def get_config_node_ip():
+	a = subprocess.Popen('neutron floatingip-list -f json',shell=True ,stdout=subprocess.PIPE)
+        a_tmp = a.stdout.read()
+        a_tmp = str(a_tmp)
+        fip_neutron_dict = eval(a_tmp)
+	project_uuid = general_params_dict["project_uuid"]
+        config_node_ip_dict = {}
+	change_network_dict()
+	net_name = []
+	for i in network_dict:
+                net_name.append(network_dict[i]["name"])
+        for clus in server_dict:
+		for i in server_dict[clus]:
+			if server_dict[clus][i]["server_manager"] != "true":
+				if "config" in server_dict[clus][i]["roles"]:
+					for j in server_dict[clus][i]["ip_address"]:
+						for k in range(len(fip_neutron_dict)):
+							if fip_neutron_dict[k]["fixed_ip_address"] == server_dict[clus][i]["ip_address"][j]:
+								b = subprocess.Popen('neutron port-show %s -f json'%fip_neutron_dict[k]["port_id"],shell=True ,stdout=subprocess.PIPE)
+                                                		b_tmp = b.stdout.read()
+                                                		b_tmp = str(b_tmp)
+                                                		current_port_dict  = json.loads(b_tmp)
+								current_network_id = current_port_dict["network_id"]
+								c = subprocess.Popen('neutron net-list -f json',shell=True ,stdout=subprocess.PIPE)
+								c_tmp = c.stdout.read()
+								c_tmp = str(c_tmp)
+								all_net_dict  = json.loads(c_tmp)
+								for net in all_net_dict:
+									if current_network_id == net["id"] and net["name"] in net_name:
+										config_node_ip_dict[clus] = (fip_neutron_dict[k]["floating_ip_address"])
+	for cfgmip in config_node_ip_dict:
+		print config_node_ip_dict[cfgmip]
 					
 # Method for creating the server json required for adding the servers to the server manager 
 def create_server_json():
@@ -421,369 +427,389 @@ def create_server_json():
 		if i in floating_ip_mac_mapping:
 			ipmi_ip = floating_ip_mac_mapping[i]
 	"""
-	#print ipmi_ip
-	total_server_number = len(parsed_json["inp_params"]["servers"]) -1
-	for i in server_dict:
-		if server_dict[i]["server_manager"] != "true":
-			"""
-			for j in server_dict[i]["ip_address"]:
-				private_ip = server_dict[i]["ip_address"][j]
-				private_mac = fixed_ip_mac_mapping[private_ip]
-				if private_mac in floating_ip_mac_mapping:
-					ipmi_ip = floating_ip_mac_mapping[private_mac]
-			"""
-			single_server_string = '''
-			{
-			"cluster_id": "%s",
-			"contrail": {
-				"control_data_interface": "%s"
-			},
-			"host_name": "%s",
-			"id": "%s",
-			"domain": "%s",
-			"network": {
-			'''%(cluster_dict["cluster_id"], cluster_dict["control_data_iterface"], server_dict[i]["name"], server_dict[i]["name"], cluster_dict["parameters"]["domain"])
-			single_server_string = single_server_string + '''       "interfaces": ['''
-			total_server_interfaces = len(parsed_json["inp_params"]["servers"][i]["ip_address"]) 
-			for j in (server_dict[i]["ip_address"]):
-				current_network = j
-				gateway = network_dict[j]["default_gateway"]
-				ip_add = server_dict[i]["ip_address"][j]
-				mask = network_dict[j]["ip_block_with_mask"]
-				mask_list = mask.split("/")
-				mask = mask_list[1]
-				mac_address = fixed_ip_mac_mapping[ip_add]
-				role = network_dict[j]["role"]
-				if role == "management":
-					int_name = cluster_dict["management_interface"]
-				else:
-					int_name = cluster_dict["control_data_iterface"]
-				if total_server_interfaces > 1:
-					single_server_string = single_server_string + '''
-					{
-						"default_gateway": "%s",
-						"dhcp": false,
-						"ip_address": "%s/%s",
-						"mac_address": "%s",
-						"name": "%s"
-					},
-					'''%(gateway, ip_add, mask, mac_address, int_name)
-				else:
-					single_server_string = single_server_string + '''
-	                                {
-	                                        "default_gateway": "%s",
-	                                        "dhcp": false,
-	                                        "ip_address": "%s/%s",
-	                                        "mac_address": "%s",
-	                                        "name": "%s"
-	                                }
-	                                '''%(gateway, ip_add, mask, mac_address, int_name)
-				total_server_interfaces = total_server_interfaces - 1
-			single_server_string = single_server_string +"],"
-			single_server_string = single_server_string +'\n			"management_interface": "%s"\n'%(cluster_dict["management_interface"])
-			server_json_string = server_json_string + single_server_string
-			server_json_string_contd = '''
-			},
-			"password": "%s",
-			"roles": [
-			'''%(cluster_dict["server_password"])
-			roles_string = ''
-			total_number_of_roles = len(server_dict[i]["roles"])
-			for j in server_dict[i]["roles"]:
-				if total_number_of_roles > 1:
-					roles_string = roles_string + '	"%s",\n'%j
-				else:
-					roles_string = roles_string + ' "%s"\n'%j
-				total_number_of_roles = total_number_of_roles - 1
-			server_json_string = server_json_string + server_json_string_contd
-			server_json_string = server_json_string + roles_string
-			#print single_server_string
-			# Is the number of servers in the input.json is more than one then we need commas in the json after every server dict.
-			if total_server_number > 1:	
-				server_json_string_contd = '''
-				]
+	#total_server_number = len(parsed_json["inp_params"]["servers"]) -1
+	total_server_number = 0
+	for clus in server_dict:
+		total_server_number = total_server_number + len(server_dict[clus])
+	total_server_number = total_server_number - 1
+	
+	for clus in server_dict:
+		for i in server_dict[clus]:
+			if server_dict[clus][i]["server_manager"] != "true":
+				single_server_string = '''
+				{
+				"cluster_id": "%s",
+				"contrail": {
+					"control_data_interface": "%s"
 				},
-				'''
-				total_server_number =total_server_number - 1
-			else:
+				"host_name": "%s",
+				"id": "%s",
+				"domain": "%s",
+				"network": {
+				'''%(cluster_dict[clus]["cluster_id"], cluster_dict[clus]["control_data_iterface"], server_dict[clus][i]["name"], server_dict[clus][i]["name"], cluster_dict[clus]["parameters"]["domain"])
+				single_server_string = single_server_string + '''       "interfaces": ['''
+				total_server_interfaces = len(server_dict[clus][i]["ip_address"]) 
+				for j in (server_dict[clus][i]["ip_address"]):
+					current_network = j
+					gateway = network_dict[j]["default_gateway"]
+					ip_add = server_dict[clus][i]["ip_address"][j]
+					mask = network_dict[j]["ip_block_with_mask"]
+					mask_list = mask.split("/")
+					mask = mask_list[1]
+					mac_address = fixed_ip_mac_mapping[ip_add]
+					role = network_dict[j]["role"]
+					if role == "management":
+						int_name = cluster_dict[clus]["management_interface"]
+					else:
+						int_name = cluster_dict[clus]["control_data_iterface"]
+					if total_server_interfaces > 1:
+						single_server_string = single_server_string + '''
+						{
+							"default_gateway": "%s",
+							"dhcp": false,
+							"ip_address": "%s/%s",
+							"mac_address": "%s",
+							"name": "%s"
+						},
+						'''%(gateway, ip_add, mask, mac_address, int_name)
+					else:
+						single_server_string = single_server_string + '''
+	                                	{
+	                                        	"default_gateway": "%s",
+	                                        	"dhcp": false,
+	                                        	"ip_address": "%s/%s",
+	                                        	"mac_address": "%s",
+	                                        	"name": "%s"
+	                                	}
+	                                	'''%(gateway, ip_add, mask, mac_address, int_name)
+					total_server_interfaces = total_server_interfaces - 1
+				single_server_string = single_server_string +"],"
+				single_server_string = single_server_string +'\n			"management_interface": "%s"\n'%(cluster_dict[clus]["management_interface"])
+				server_json_string = server_json_string + single_server_string
 				server_json_string_contd = '''
-	                        ]
-	                        }
-	                        '''
-			# Reduce the number of the total servers by one so that when we insert the last server dict in the json file, it will not include the comma (,) at the end 
-			server_json_string = server_json_string + server_json_string_contd
-	closing_string = '''
-	]
-}
-	'''
-	server_json_string = server_json_string + closing_string
-	print server_json_string
-
+				},
+				"password": "%s",
+				"roles": [
+				'''%(cluster_dict[clus]["server_password"])
+				roles_string = ''
+				total_number_of_roles = len(server_dict[clus][i]["roles"])
+				for j in server_dict[clus][i]["roles"]:
+					if total_number_of_roles > 1:
+						roles_string = roles_string + '	"%s",\n'%j
+					else:
+						roles_string = roles_string + ' "%s"\n'%j
+					total_number_of_roles = total_number_of_roles - 1
+				server_json_string = server_json_string + server_json_string_contd
+				server_json_string = server_json_string + roles_string
+				#print single_server_string
+				# Is the number of servers in the input.json is more than one then we need commas in the json after every server dict.
+				if total_server_number > 1:	
+					server_json_string_contd = '''
+					]
+					},
+					'''
+					total_server_number =total_server_number - 1
+				else:
+					server_json_string_contd = '''
+	                        	]
+	                        	}
+	                        	'''
+				# Reduce the number of the total servers by one so that when we insert the last server dict in the json file, it will not include the comma (,) at the end 
+				server_json_string = server_json_string + server_json_string_contd
+		closing_string = '''
+		]
+	}
+		'''
+		server_json_string = server_json_string + closing_string
+		print server_json_string
 
 # Method for creating cluster json for the server manager
 def create_cluster_json():
-        #Change the Cluster Names 
-        change_stack_names()
-        cluster_json_string = ''' {
-    "cluster": [
-        {
-            "id": "%s",
-            "parameters": {
-                "domain": "%s",
-                "provision": {
-                    "contrail": {
-                        "database": {
-                            "minimum_diskGB": %d
-                        },
-			"amqp_ssl": true,
-                        "kernel_upgrade": %s
-                    },
-        '''%(cluster_dict["cluster_id"], cluster_dict["parameters"]["domain"], cluster_dict["parameters"]["provision"]["contrail"]["minimum_disk_database"], cluster_dict["parameters"]["provision"]["contrail"]["kernel_upgrade"])
+	change_stack_names()
+	clus_json_string = '{\n\t"cluster":[\n'
+	no_of_clusters = len(cluster_dict)
+	for clus in cluster_dict:
+		individual_clus_string = '\t\t{\n'
+		if "cluster_id" in cluster_dict[clus]:
+			individual_clus_string = individual_clus_string + '\t\t"id": "%s",\n'%cluster_dict[clus]["cluster_id"]
+		individual_clus_string = individual_clus_string + '\t\t"parameters":{\n'
+		if "domain" in cluster_dict[clus]["parameters"]:
+			individual_clus_string = individual_clus_string + '\t\t\t"domain": "%s",\n'%cluster_dict[clus]["parameters"]["domain"]
+		individual_clus_string = individual_clus_string + '\t\t\t"provision":{\n'
+		# Lets start the contrail Part 
+		individual_clus_string = individual_clus_string + '\t\t\t\t"contrail":{\n'
+		if "minimum_disk_database" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+			individual_clus_string = individual_clus_string + '\t\t\t\t\t"database":{\n'
+			individual_clus_string = individual_clus_string + '\t\t\t\t\t\t"minimum_diskGB": %d\n'%cluster_dict[clus]["parameters"]["provision"]["contrail"]["minimum_disk_database"]
+			individual_clus_string = individual_clus_string + '\t\t\t\t\t},\n'
+		if "enable_rabbitmq_ssl" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+			individual_clus_string = individual_clus_string + '\t\t\t\t\t"amqp_ssl":"%s",\n'%cluster_dict[clus]["parameters"]["provision"]["contrail"]["enable_rabbitmq_ssl"]
+		if "kernel_upgrade" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+			individual_clus_string = individual_clus_string + '\t\t\t\t\t"kernel_upgrade": "%s"'%cluster_dict[clus]["parameters"]["provision"]["contrail"]["kernel_upgrade"]
+		# Contrail Part Ends here 
+		individual_clus_string = individual_clus_string + '\t\t\t\t},\n'
 
-	if (("external_vip" in cluster_dict["parameters"]["provision"]["openstack"]) and ("internal_vip" in cluster_dict["parameters"]["provision"]["openstack"])):
-		cluster_json_string = cluster_json_string +'''
-		"openstack": {
-			"keystone": {
-				"admin_password" : "c0ntrail123"		
-			},
-                        "ha": {
-                            "external_vip": "%s",
-                            "external_virtual_router_id": %d,
-                            "internal_vip": "%s",
-                            "internal_virtual_router_id": %d
-                        }
-                    }
-                }
-            }
-        }
-    ]
-}		
-		'''%(cluster_dict["parameters"]["provision"]["openstack"]["external_vip"], cluster_dict["parameters"]["provision"]["openstack"]["external_virtual_router_id"], cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"], cluster_dict["parameters"]["provision"]["openstack"]["internal_virtual_router_id"])
-	else:
-		cluster_json_string = cluster_json_string + '''
-			"openstack": {
-				"keystone": {
-					"admin_password": "c0ntrail123"
-				}
-			}
-		 }
-            }
-        }
-    ]
-}
-		'''
-	print cluster_json_string
+		# Now Lets start the openstack part 
+		individual_clus_string = individual_clus_string + '\t\t\t\t"openstack":{\n'
+		if "keystone_admin_password" in cluster_dict[clus]["parameters"]["provision"]["openstack"]:
+			individual_clus_string = individual_clus_string + '					"keystone":{\n'
+			individual_clus_string = individual_clus_string + '						"admin_password": "%s"\n'%cluster_dict[clus]["parameters"]["provision"]["openstack"]["keystone_admin_password"]
+			#individual_clus_string = individual_clus_string + '					},\n'
+		if (("external_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"]) and ("internal_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"])):
+			vip_string = ""
+			individual_clus_string = individual_clus_string + '\t\t\t\t},\n'
+			vip_string = vip_string + '\t\t\t\t"ha":{\n'
+			vip_string = vip_string + '\t\t\t\t\t"external_vip": "%s",\n'%cluster_dict[clus]["parameters"]["provision"]["openstack"]["external_vip"]
+			vip_string = vip_string + '\t\t\t\t\t"internal_vip": "%s",\n'%cluster_dict[clus]["parameters"]["provision"]["openstack"]["internal_vip"]
+			vip_string = vip_string + '\t\t\t\t\t"external_virtual_router_id" : %d,\n'%cluster_dict[clus]["parameters"]["provision"]["openstack"]["external_virtual_router_id"]
+			vip_string = vip_string + '\t\t\t\t\t"internal_virtual_router_id" : %d\n'%cluster_dict[clus]["parameters"]["provision"]["openstack"]["internal_virtual_router_id"]
+			vip_string = vip_string + '\t\t\t\t}\n'
+			vip_string = vip_string + '\t\t\t}\n'
+			vip_string = vip_string + '\t\t}\n'
+			vip_string = vip_string + '\t}\n'
+			no_of_clusters = no_of_clusters -1
+			if no_of_clusters == 0:
+				vip_string = vip_string + '}\n'
+			else:
+				vip_string = vip_string + '},\n'
+			individual_clus_string = individual_clus_string + vip_string
+		else:
+			individual_clus_string = individual_clus_string + '\t\t\t\t}\n'
+			individual_clus_string = individual_clus_string + '\t\t\t}\n'
+			individual_clus_string = individual_clus_string + '\t\t}\n'
+			individual_clus_string = individual_clus_string + '\t}\n'
+			no_of_clusters = no_of_clusters -1
+			if no_of_clusters == 0:
+				individual_clus_string = individual_clus_string + '}\n'
+			else:
+				individual_clus_string = individual_clus_string + '},\n'
+		clus_json_string = clus_json_string + individual_clus_string
+	clus_json_string = clus_json_string + '\t]\n'
+	clus_json_string = clus_json_string + '}'
+	print clus_json_string
+
+
+
+
 
 def create_testbedpy_file():
-	file_str = ""
-        file_str = file_str + "from fabric.api import env \nimport os\n\nnext_routers = []\n"
-	if "router_asn" in testbed_py_dict:
-		file_str = file_str + "router_asn = %s\n\n"%testbed_py_dict["router_asn"]
-	else:
-		file_str = file_str + "router_asn = 64512\n\n"
-        itr = 1
-	if "public_vn_rtgt" in testbed_py_dict:
-		file_str = file_str + "public_vn_rtgt = %s\n\n"%testbed_py_dict["public_vn_rtgt"]
-	if "public_vn_subnet" in testbed_py_dict:
-		file_str = file_str + 'public_vn_subnet = "%s"\n\n'%testbed_py_dict["public_vn_subnet"]
-        # hostname_string contains the hostanme of all the servers. This would be added to the main string after wards
-        hostname_string = "     'all' : [ "
-        build_ip = ""
-	control_data_string = "control_data = {\n"
-	name_mapping = {}
-	if "env_password" in testbed_py_dict:
-		env_password_string = "\nenv.passwords = {\n"
-	if "env_ostypes" in testbed_py_dict:
-		env_ostypes_string = "env.ostypes = {\n"
-	for i in server_dict:
-                if server_dict[i]["server_manager"] != "true":
-                        for j in server_dict[i]["ip_address"]:
-                                if network_dict[j]["role"] == "management":
-                                        if "config" in server_dict[i]["roles"]:
-                                                # Build Ip that will be used in the testbed.py file
-						if "host_build" in testbed_py_dict:
-							build_ip = testbed_py_dict["host_build"]
-						else:
-                	                                build_ip = server_dict[i]["ip_address"][j]
-                                        manag_ip = server_dict[i]["ip_address"][j]
-                                else:
-					if network_dict[j]["role"] == "control-data":
-						# control data ip that will be used in the control-data section of the testbed.py file
-						control_ip = server_dict[i]["ip_address"][j]
-						gateway = network_dict[j]["default_gateway"]
-					else:
-						continue
-                        for net in network_dict:
-				if network_dict[net]["role"] == 'control-data':
-					if "control_data_vlan" in testbed_py_dict:
-						control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1', 'vlan': '%s'},\n"%(str(itr), control_ip, gateway,testbed_py_dict["control_data_vlan"])
-					else:
-						control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
-                        file_str = file_str + "host%s = 'root@%s'\n"%(str(itr),manag_ip)
-			if "env_password" in testbed_py_dict:
-				env_password_string = env_password_string + "   host%s: '%s',\n"%(str(itr), testbed_py_dict["env_password"])
-			if "env_ostypes" in testbed_py_dict:
-				env_ostypes_string = env_ostypes_string + "     host%s: '%s',\n"%(str(itr), testbed_py_dict["env_ostypes"])
-			# logic for not adding ',' (comma) after the last hostname in the env.hostname field of the testbed.py being created.
-                        if itr == len(server_dict) - 1:
-                                hostname_string = hostname_string + "'" +(server_dict[i]["name"]) + "' "
-				testbed_py_name = "host%s"%str(itr)
-				name_mapping[server_dict[i]["name"]] = testbed_py_name
-                        else:
-                                hostname_string = hostname_string + "'" +(server_dict[i]["name"]) + "', "
-				testbed_py_name = "host%s"%str(itr)
-                                name_mapping[server_dict[i]["name"]] = testbed_py_name
-                        itr += 1
-	hostname_string = hostname_string + "]\n"
-	control_data_string = control_data_string + "}\n\n"
-	role_per_server_mapping = {"all":[], "cfgm":[], "openstack":[], "webui":[], "control":[], "collector":[], "database":[], "compute":[], "build":["host_build"]}
-	if "env_ostypes" in testbed_py_dict:
-		env_ostypes_string = env_ostypes_string + "}\n\n"
-	if "env_password" in testbed_py_dict:
-		env_password_string = env_password_string + "   host_build: '%s',\n}\n\n"%testbed_py_dict["env_password"]
-		file_str = file_str + "\nenv.password = '%s'\n"%testbed_py_dict["env_password"]
-	file_str = file_str + "host_build = 'root@%s'\n\n"%build_ip
-	# Lets Get the role definitions for all the servers in the input file
-	# All the hostnames for env.roles section in testbed.py file
-	all_host_list = name_mapping.values()
-	for i in all_host_list:
-		role_per_server_mapping["all"].append(i)
-	for i in server_dict:
-		if server_dict[i]["server_manager"] != "true":
-			if "config" in server_dict[i]["roles"]:
-				role_per_server_mapping["cfgm"].append(name_mapping[server_dict[i]["name"]])
-			if "openstack" in server_dict[i]["roles"]:
-				role_per_server_mapping["openstack"].append(name_mapping[server_dict[i]["name"]])
-			if "webui" in server_dict[i]["roles"]:
-				role_per_server_mapping["webui"].append(name_mapping[server_dict[i]["name"]])
-			if "control" in server_dict[i]["roles"]:
-				role_per_server_mapping["control"].append(name_mapping[server_dict[i]["name"]])		
-			if "collector" in server_dict[i]["roles"]:
-				role_per_server_mapping["collector"].append(name_mapping[server_dict[i]["name"]])
-			if "database" in server_dict[i]["roles"]:
-				role_per_server_mapping["database"].append(name_mapping[server_dict[i]["name"]])	
-			if "compute" in server_dict[i]["roles"]:
-				role_per_server_mapping["compute"].append(name_mapping[server_dict[i]["name"]])
-	file_str = file_str + "env.hostnames = {\n"
-	file_str = file_str + hostname_string + "}\n\n"
-	file_str = file_str + "env.interface_rename = False\n\n"
-	for net in network_dict:
-		if network_dict[net]["role"] == "control-data":
-			file_str = file_str + control_data_string
-	# Print all the role defs referenced from the 'role_per_server_mapping' dict mention above 	
-        file_str = file_str + "env.roledefs = {\n"
-	#itr = len(role_per_server_mapping)
-	itr = 1
-        for i in role_per_server_mapping:
-		#inner_iter = len(role_per_server_mapping[i])
-		inner_iter = 1
-		file_str = file_str +"	'%s' : [ "%i
-		for j in role_per_server_mapping[i]:
-			if inner_iter == len(role_per_server_mapping[i]):
-				file_str = file_str + j + " ]"
-			else:
-				file_str = file_str + "%s, "%j
-			inner_iter += 1
-		if itr == len(role_per_server_mapping):
-			file_str = file_str + "\n"
+	dict_of_testbed_files = {}
+	for clus in testbed_py_dict:
+		file_str = ""
+	        file_str = file_str + "from fabric.api import env \nimport os\n\nnext_routers = []\n"
+		if "router_asn" in testbed_py_dict[clus]:
+			file_str = file_str + "router_asn = %s\n\n"%testbed_py_dict[clus]["router_asn"]
 		else:
-			file_str = file_str + ",\n"
-		itr += 1
-	file_str = file_str + "}\n\n"
-	if "openstack_admin_password" in testbed_py_dict:
-		file_str = file_str + "env.openstack_admin_password = '%s'\n"%testbed_py_dict["openstack_admin_password"]
-	if "env.log_scenario" in testbed_py_dict:
-		log_scenario_str = ''
-		if "auth_protocol" in testbed_py_dict["env.log_scenario"]:
-			if testbed_py_dict["env.log_scenario"]["auth_protocol"] == "https":
-				if "keystone_version" in testbed_py_dict["env.log_scenario"]:
-					if testbed_py_dict["env.log_scenario"]["keystone_version"] == "v3":
-						if "description" in testbed_py_dict["env.log_scenario"]:
-							log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
+			file_str = file_str + "router_asn = 64512\n\n"
+	        itr = 1
+		if "public_vn_rtgt" in testbed_py_dict[clus]:
+			file_str = file_str + "public_vn_rtgt = %s\n\n"%testbed_py_dict[clus]["public_vn_rtgt"]
+		if "public_vn_subnet" in testbed_py_dict[clus]:
+			file_str = file_str + 'public_vn_subnet = "%s"\n\n'%testbed_py_dict[clus]["public_vn_subnet"]
+	        # hostname_string contains the hostanme of all the servers. This would be added to the main string after wards
+	        hostname_string = "     'all' : [ "
+	        build_ip = ""
+		control_data_string = "control_data = {\n"
+		name_mapping = {}
+		if "env_password" in testbed_py_dict[clus]:
+			env_password_string = "\nenv.passwords = {\n"
+		if "env_ostypes" in testbed_py_dict[clus]:
+			env_ostypes_string = "env.ostypes = {\n"
+		for i in server_dict[clus]:
+	                if server_dict[clus][i]["server_manager"] != "true":
+	                        for j in server_dict[clus][i]["ip_address"]:
+	                                if network_dict[j]["role"] == "management":
+	                                        if "config" in server_dict[clus][i]["roles"]:
+	                                                # Build Ip that will be used in the testbed.py file
+							if "host_build" in testbed_py_dict[clus]:
+								build_ip = testbed_py_dict[clus]["host_build"]
+							else:
+	                	                                build_ip = server_dict[clus][i]["ip_address"][j]
+	                                        manag_ip = server_dict[clus][i]["ip_address"][j]
+	                                else:
+						if network_dict[j]["role"] == "control-data":
+							# control data ip that will be used in the control-data section of the testbed.py file
+							control_ip = server_dict[clus][i]["ip_address"][j]
+							gateway = network_dict[j]["default_gateway"]
+						else:
+							continue
+	                        for net in network_dict:
+					if network_dict[net]["role"] == 'control-data':
+						if "control_data_vlan" in testbed_py_dict[clus]:
+							control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1', 'vlan': '%s'},\n"%(str(itr), control_ip, gateway,testbed_py_dict[clus]["control_data_vlan"])
+						else:
+							control_data_string = control_data_string + "   host%s : { 'ip': '%s', 'gw' : '%s', 'device': 'eth1'},\n"%(str(itr), control_ip, gateway)
+	                        file_str = file_str + "host%s = 'root@%s'\n"%(str(itr),manag_ip)
+				if "env_password" in testbed_py_dict[clus]:
+					env_password_string = env_password_string + "   host%s: '%s',\n"%(str(itr), testbed_py_dict[clus]["env_password"])
+				if "env_ostypes" in testbed_py_dict[clus]:
+					env_ostypes_string = env_ostypes_string + "     host%s: '%s',\n"%(str(itr), testbed_py_dict[clus]["env_ostypes"])
+				# logic for not adding ',' (comma) after the last hostname in the env.hostname field of the testbed.py being created.
+	                        if itr == len(server_dict[clus]) - 1:
+	                                hostname_string = hostname_string + "'" +(server_dict[clus][i]["name"]) + "' "
+					testbed_py_name = "host%s"%str(itr)
+					name_mapping[server_dict[clus][i]["name"]] = testbed_py_name
+	                        else:
+	                                hostname_string = hostname_string + "'" +(server_dict[clus][i]["name"]) + "', "
+					testbed_py_name = "host%s"%str(itr)
+	                                name_mapping[server_dict[clus][i]["name"]] = testbed_py_name
+	                        itr += 1
+		hostname_string = hostname_string + "]\n"
+		control_data_string = control_data_string + "}\n\n"
+		role_per_server_mapping = {"all":[], "cfgm":[], "openstack":[], "webui":[], "control":[], "collector":[], "database":[], "compute":[], "build":["host_build"]}
+		if "env_ostypes" in testbed_py_dict[clus]:
+			env_ostypes_string = env_ostypes_string + "}\n\n"
+		if "env_password" in testbed_py_dict[clus]:
+			env_password_string = env_password_string + "   host_build: '%s',\n}\n\n"%testbed_py_dict[clus]["env_password"]
+			file_str = file_str + "\nenv.password = '%s'\n"%testbed_py_dict[clus]["env_password"]
+		file_str = file_str + "host_build = 'root@%s'\n\n"%build_ip
+		# Lets Get the role definitions for all the servers in the input file
+		# All the hostnames for env.roles section in testbed.py file
+		all_host_list = name_mapping.values()
+		for i in all_host_list:
+			role_per_server_mapping["all"].append(i)
+		for i in server_dict[clus]:
+			if server_dict[clus][i]["server_manager"] != "true":
+				if "config" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["cfgm"].append(name_mapping[server_dict[clus][i]["name"]])
+				if "openstack" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["openstack"].append(name_mapping[server_dict[clus][i]["name"]])
+				if "webui" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["webui"].append(name_mapping[server_dict[clus][i]["name"]])
+				if "control" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["control"].append(name_mapping[server_dict[clus][i]["name"]])		
+				if "collector" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["collector"].append(name_mapping[server_dict[clus][i]["name"]])
+				if "database" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["database"].append(name_mapping[server_dict[clus][i]["name"]])	
+				if "compute" in server_dict[clus][i]["roles"]:
+					role_per_server_mapping["compute"].append(name_mapping[server_dict[clus][i]["name"]])
+		file_str = file_str + "env.hostnames = {\n"
+		file_str = file_str + hostname_string + "}\n\n"
+		file_str = file_str + "env.interface_rename = False\n\n"
+		for net in network_dict:
+			if network_dict[net]["role"] == "control-data":
+				file_str = file_str + control_data_string
+		# Print all the role defs referenced from the 'role_per_server_mapping' dict mention above 	
+	        file_str = file_str + "env.roledefs = {\n"
+		#itr = len(role_per_server_mapping)
+		itr = 1
+	        for i in role_per_server_mapping:
+			#inner_iter = len(role_per_server_mapping[i])
+			inner_iter = 1
+			file_str = file_str +"	'%s' : [ "%i
+			for j in role_per_server_mapping[i]:
+				if inner_iter == len(role_per_server_mapping[i]):
+					file_str = file_str + j + " ]"
+				else:
+					file_str = file_str + "%s, "%j
+				inner_iter += 1
+			if itr == len(role_per_server_mapping):
+				file_str = file_str + "\n"
+			else:
+				file_str = file_str + ",\n"
+			itr += 1
+		file_str = file_str + "}\n\n"
+		if "openstack_admin_password" in testbed_py_dict[clus]:
+			file_str = file_str + "env.openstack_admin_password = '%s'\n"%testbed_py_dict[clus]["openstack_admin_password"]
+		if "env.log_scenario" in testbed_py_dict[clus]:
+			log_scenario_str = ''
+			if "auth_protocol" in testbed_py_dict[clus]["env.log_scenario"]:
+				if testbed_py_dict[clus]["env.log_scenario"]["auth_protocol"] == "https":
+					if "keystone_version" in testbed_py_dict[clus]["env.log_scenario"]:
+						if testbed_py_dict[clus]["env.log_scenario"]["keystone_version"] == "v3":
+							if "description" in testbed_py_dict[clus]["env.log_scenario"]:
+								log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict[clus]["env.log_scenario"]["description"]
+							log_scenario_str = log_scenario_str + "env.keystone = {\n"
+							log_scenario_str = log_scenario_str+"	'version': 'v3',\n"
+							log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
+							log_scenario_str = log_scenario_str + "}\n"
+					else:
+						if "description" in testbed_py_dict[clus]["env.log_scenario"]:
+							log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict[clus]["env.log_scenario"]["description"]
 						log_scenario_str = log_scenario_str + "env.keystone = {\n"
-						log_scenario_str = log_scenario_str+"	'version': 'v3',\n"
 						log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
 						log_scenario_str = log_scenario_str + "}\n"
-				else:
-					if "description" in testbed_py_dict["env.log_scenario"]:
-						log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
-					log_scenario_str = log_scenario_str + "env.keystone = {\n"
+					log_scenario_str = log_scenario_str + "env.cfgm = {\n"
 					log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
 					log_scenario_str = log_scenario_str + "}\n"
-				log_scenario_str = log_scenario_str + "env.cfgm = {\n"
-				log_scenario_str = log_scenario_str+"	'auth_protocol': 'https'\n"
-				log_scenario_str = log_scenario_str + "}\n"
-			else:
-				if "description" in testbed_py_dict["env.log_scenario"]:
-					log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict["env.log_scenario"]["description"]
 				else:
-					pass
-			file_str = file_str + log_scenario_str
-	if "enable_rbac" in testbed_py_dict:
-		if testbed_py_dict["enable_rbac"] == "true":
-			file_str = file_str + "cloud_admin_role = 'admin'\n"
-			file_str = file_str + "aaa_mode = 'rbac'\n"
-	if "env_password" in testbed_py_dict:
-		file_str = file_str + env_password_string
-	if "env_ostypes" in testbed_py_dict:
-		file_str = file_str + env_ostypes_string
-	if (("external_vip" in cluster_dict["parameters"]["provision"]["openstack"]) and ("internal_vip" in cluster_dict["parameters"]["provision"]["openstack"])):
-		file_str = file_str+"ha_setup = True\n"
-		file_str = file_str + "env.ha = {\n"
-		file_str = file_str+"	'internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["openstack"]["internal_vip"]
-		if "contrail_internal_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
-			file_str = file_str+"	'contrail_internal_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
-		if "contrail_internal_virtual_router_id" in cluster_dict["parameters"]["provision"]["contrail"]:
-			file_str = file_str+"	'contrail_internal_virtual_router_id' : %s,\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_internal_virtual_router_id"]
-		if "contrail_external_vip" in cluster_dict["parameters"]["provision"]["contrail"]:
-			file_str = file_str+"	'contrail_external_vip' : '%s',\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_vip"]
-		if "contrail_external_virtual_router_id" in cluster_dict["parameters"]["provision"]["contrail"]:
-			file_str = file_str+"	'contrail_external_virtual_router_id' : %s,\n"%cluster_dict["parameters"]["provision"]["contrail"]["contrail_external_virtual_router_id"]
-		file_str = file_str+"	'external_vip' : '%s'\n}\n\n"%cluster_dict["parameters"]["provision"]["openstack"]["external_vip"]
-	if "ipmi_username" in testbed_py_dict:
-		file_str = file_str + "ipmi_username = '%s'\n"%testbed_py_dict["ipmi_username"]
-	if "ipmi_password" in testbed_py_dict:
-		file_str = file_str + "ipmi_password = '%s'\n\n"%testbed_py_dict["ipmi_password"]	
-	file_str = file_str + "env.cluster_id='%s'\n"%cluster_dict["cluster_id"]
-	if "minimum_diskGB" in testbed_py_dict:
-		file_str = file_str + "minimum_diskGB = %d\n"%testbed_py_dict["minimum_diskGB"]
-	if "env.test_repo_dir" in testbed_py_dict:
-		file_str = file_str + "env.test_repo_dir= '%s'\n"%testbed_py_dict["env.test_repo_dir"]
-	if "env.mail_from" in testbed_py_dict:
-		file_str = file_str + "env.mail_from= '%s'\n"%testbed_py_dict["env.mail_from"]
-	if "env.mail_to" in testbed_py_dict:
-		file_str = file_str + "env.mail_to= '%s'\n"%testbed_py_dict["env.mail_to"]
-	if "env.mail_server" in testbed_py_dict:
-		file_str = file_str + "env.mail_server = '%s'\n"%testbed_py_dict["env.mail_server"]
-	if "env.mail_port" in testbed_py_dict:
-		file_str = file_str + "env.mail_port = '%s'\n"%testbed_py_dict["env.mail_port"]
-	if "multi_tenancy" in testbed_py_dict:
-		file_str = file_str + "multi_tenancy= %s\n"%testbed_py_dict["multi_tenancy"]
-	if "env.interface_rename" in testbed_py_dict:
-		file_str = file_str + "env.interface_rename = %s\n"%testbed_py_dict["env.interface_rename"]
-	if "env.encap_priority" in testbed_py_dict:
-		file_str = file_str + 'env.encap_priority = "%s"\n'%testbed_py_dict["env.encap_priority"]
-	if "env.enable_lbaas" in testbed_py_dict:
-		file_str = file_str + "env.enable_lbaas = %s\n"%testbed_py_dict["env.enable_lbaas"]
-	if "enable_ceilometer" in testbed_py_dict:
-		file_str = file_str + "enable_ceilometer = %s\n"%testbed_py_dict["enable_ceilometer"]
-	if "ceilometer_polling_interval" in testbed_py_dict:
-		file_str = file_str + "ceilometer_polling_interval = %d\n"%testbed_py_dict["ceilometer_polling_interval"]
-	if "do_parallel" in testbed_py_dict:
-		file_str = file_str + "do_parallel = %s\n"%testbed_py_dict["do_parallel"]
-	if "env.image_web_server" in testbed_py_dict:
-		file_str = file_str + "env.image_web_server = '%s'\n"%testbed_py_dict["env.image_web_server"]
-	if "env.testbed_location" in testbed_py_dict:
-		file_str = file_str + "env.testbed_location = '%s'\n"%testbed_py_dict["env.testbed_location"]
-	if "env.mx_gw_test" in testbed_py_dict:
-		file_str = file_str + "env.mx_gw_test = %s\n"%testbed_py_dict["env.mx_gw_test"]	
-	if "env.ntp_server" in testbed_py_dict:
-		file_str = file_str + "env.ntp_server = '%s'\n"%testbed_py_dict["env.ntp_server"]
-	if "env.rsyslog_params" in testbed_py_dict:
-		file_str = file_str + "env.rsyslog_params = %s\n"%testbed_py_dict["env.rsyslog_params"]
-	if "storage_replica_size" in testbed_py_dict:
-		file_str = file_str + "storage_replica_size = %s\n"%testbed_py_dict["storage_replica_size"]
-	print file_str	
+					if "description" in testbed_py_dict[clus]["env.log_scenario"]:
+						log_scenario_str = log_scenario_str  + "env.log_scenario= %s\n"%testbed_py_dict[clus]["env.log_scenario"]["description"]
+					else:
+						pass
+				file_str = file_str + log_scenario_str
+		if "enable_rbac" in testbed_py_dict[clus]:
+			if testbed_py_dict[clus]["enable_rbac"] == "true":
+				file_str = file_str + "cloud_admin_role = 'admin'\n"
+				file_str = file_str + "aaa_mode = 'rbac'\n"
+		if "env_password" in testbed_py_dict[clus]:
+			file_str = file_str + env_password_string
+		if "env_ostypes" in testbed_py_dict[clus]:
+			file_str = file_str + env_ostypes_string
+		if (("external_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"]) and ("internal_vip" in cluster_dict[clus]["parameters"]["provision"]["openstack"])):
+			file_str = file_str+"ha_setup = True\n"
+			file_str = file_str + "env.ha = {\n"
+			file_str = file_str+"	'internal_vip' : '%s',\n"%cluster_dict[clus]["parameters"]["provision"]["openstack"]["internal_vip"]
+			if "contrail_internal_vip" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+				file_str = file_str+"	'contrail_internal_vip' : '%s',\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_internal_vip"]
+			if "contrail_internal_virtual_router_id" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+				file_str = file_str+"	'contrail_internal_virtual_router_id' : %s,\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_internal_virtual_router_id"]
+			if "contrail_external_vip" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+				file_str = file_str+"	'contrail_external_vip' : '%s',\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_external_vip"]
+			if "contrail_external_virtual_router_id" in cluster_dict[clus]["parameters"]["provision"]["contrail"]:
+				file_str = file_str+"	'contrail_external_virtual_router_id' : %s,\n"%cluster_dict[clus]["parameters"]["provision"]["contrail"]["contrail_external_virtual_router_id"]
+			file_str = file_str+"	'external_vip' : '%s'\n}\n\n"%cluster_dict[clus]["parameters"]["provision"]["openstack"]["external_vip"]
+		if "ipmi_username" in testbed_py_dict[clus]:
+			file_str = file_str + "ipmi_username = '%s'\n"%testbed_py_dict[clus]["ipmi_username"]
+		if "ipmi_password" in testbed_py_dict[clus]:
+			file_str = file_str + "ipmi_password = '%s'\n\n"%testbed_py_dict[clus]["ipmi_password"]	
+		file_str = file_str + "env.cluster_id='%s'\n"%cluster_dict[clus]["cluster_id"]
+		if "minimum_diskGB" in testbed_py_dict[clus]:
+			file_str = file_str + "minimum_diskGB = %d\n"%testbed_py_dict[clus]["minimum_diskGB"]
+		if "env.test_repo_dir" in testbed_py_dict[clus]:
+			file_str = file_str + "env.test_repo_dir= '%s'\n"%testbed_py_dict[clus]["env.test_repo_dir"]
+		if "env.mail_from" in testbed_py_dict[clus]:
+			file_str = file_str + "env.mail_from= '%s'\n"%testbed_py_dict[clus]["env.mail_from"]
+		if "env.mail_to" in testbed_py_dict[clus]:
+			file_str = file_str + "env.mail_to= '%s'\n"%testbed_py_dict[clus]["env.mail_to"]
+		if "env.mail_server" in testbed_py_dict[clus]:
+			file_str = file_str + "env.mail_server = '%s'\n"%testbed_py_dict[clus]["env.mail_server"]
+		if "env.mail_port" in testbed_py_dict[clus]:
+			file_str = file_str + "env.mail_port = '%s'\n"%testbed_py_dict[clus]["env.mail_port"]
+		if "multi_tenancy" in testbed_py_dict[clus]:
+			file_str = file_str + "multi_tenancy= %s\n"%testbed_py_dict[clus]["multi_tenancy"]
+		if "env.interface_rename" in testbed_py_dict[clus]:
+			file_str = file_str + "env.interface_rename = %s\n"%testbed_py_dict[clus]["env.interface_rename"]
+		if "env.encap_priority" in testbed_py_dict[clus]:
+			file_str = file_str + 'env.encap_priority = "%s"\n'%testbed_py_dict[clus]["env.encap_priority"]
+		if "env.enable_lbaas" in testbed_py_dict[clus]:
+			file_str = file_str + "env.enable_lbaas = %s\n"%testbed_py_dict[clus]["env.enable_lbaas"]
+		if "enable_ceilometer" in testbed_py_dict[clus]:
+			file_str = file_str + "enable_ceilometer = %s\n"%testbed_py_dict[clus]["enable_ceilometer"]
+		if "ceilometer_polling_interval" in testbed_py_dict[clus]:
+			file_str = file_str + "ceilometer_polling_interval = %d\n"%testbed_py_dict[clus]["ceilometer_polling_interval"]
+		if "do_parallel" in testbed_py_dict[clus]:
+			file_str = file_str + "do_parallel = %s\n"%testbed_py_dict[clus]["do_parallel"]
+		if "env.image_web_server" in testbed_py_dict[clus]:
+			file_str = file_str + "env.image_web_server = '%s'\n"%testbed_py_dict[clus]["env.image_web_server"]
+		if "env.testbed_location" in testbed_py_dict[clus]:
+			file_str = file_str + "env.testbed_location = '%s'\n"%testbed_py_dict[clus]["env.testbed_location"]
+		if "env.mx_gw_test" in testbed_py_dict[clus]:
+			file_str = file_str + "env.mx_gw_test = %s\n"%testbed_py_dict[clus]["env.mx_gw_test"]	
+		if "env.ntp_server" in testbed_py_dict[clus]:
+			file_str = file_str + "env.ntp_server = '%s'\n"%testbed_py_dict[clus]["env.ntp_server"]
+		if "env.rsyslog_params" in testbed_py_dict[clus]:
+			file_str = file_str + "env.rsyslog_params = %s\n"%testbed_py_dict[clus]["env.rsyslog_params"]
+		if "storage_replica_size" in testbed_py_dict[clus]:
+			file_str = file_str + "storage_replica_size = %s\n"%testbed_py_dict[clus]["storage_replica_size"]
+		
+		dict_of_testbed_files[clus] = file_str
+	for testbed in dict_of_testbed_files:
+		print dict_of_testbed_files[testbed]
+
+
+
 		
 			
 											
