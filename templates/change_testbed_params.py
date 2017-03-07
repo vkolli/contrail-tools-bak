@@ -120,8 +120,14 @@ def get_requested_image():
 def parse_openstack_image_list_command():
 	if len(sys.argv) == 4:
 		if sys.argv[2] == "ubuntu-14-04":
-			a = subprocess.Popen("openstack image list | grep ubuntu-14-04", shell=True ,stdout=subprocess.PIPE)
+			a = subprocess.Popen("openstack image list -f json", shell=True ,stdout=subprocess.PIPE)
+			#a = subprocess.Popen("openstack image list | grep ubuntu-14-04", shell=True ,stdout=subprocess.PIPE)
 			a_tmp = a.stdout.read()
+			a_tmp_dict = eval(a_tmp)
+			a_tmp = ""
+			for i in a_tmp_dict:
+				if i["Name"] == "ubuntu-14-04":
+					a_tmp = "ubuntu-14-04"
 			if len(a_tmp) == 0:
 				print "The Requested Image is not present in the cluster, Downloading it ----->>\n"
 				get_requested_image()
