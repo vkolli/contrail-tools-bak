@@ -164,16 +164,22 @@ def parse_openstack_image_list_command():
                         	print a_tmp
 		
 		elif sys.argv[2] == 'centos72':
-			a = subprocess.Popen("openstack image list | grep CENTOS_7_2", shell=True ,stdout=subprocess.PIPE)
-                        a_tmp = a.stdout.read()
+			#a = subprocess.Popen("openstack image list | grep CENTOS_7_2", shell=True ,stdout=subprocess.PIPE)
+                        a = subprocess.Popen("openstack image list -f json", shell=True ,stdout=subprocess.PIPE)
+			a_tmp = a.stdout.read()
+			a_tmp_dict = eval(a_tmp)
+			a_tmp = ""
+			for i in a_tmp_dict:
+				if i["Name"] == "centos72":
+					a_tmp = "centos72"
 			if len(a_tmp) == 0:
 				print "The Requested Image is not present in the cluster, Downloading it ----->>\n"
                                 get_requested_image()
-                                a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file centos7-2.qcow2 CENTOS_7_2", shell=True ,stdout=subprocess.PIPE)
+                                a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file centos7-2.qcow2 centos72", shell=True ,stdout=subprocess.PIPE)
                                 a_tmp = a.stdout.read()
                                 print a_tmp
                                 time.sleep(5)
-                                a = subprocess.Popen("openstack image list | grep CENTOS_7_2", shell=True ,stdout=subprocess.PIPE)
+                                a = subprocess.Popen("openstack image list | grep centos72", shell=True ,stdout=subprocess.PIPE)
                                 a_tmp = a.stdout.read()
                                 print a_tmp
                         else:
