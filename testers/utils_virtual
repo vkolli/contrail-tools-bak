@@ -555,8 +555,8 @@ function add_server_cluster_SM() {
             pkg_type="contrail-centos-package"
             iso_type="centos"
             SMID=centos65$SKU${BUILDID}
-        elif [[ ${CENTOS_72} -eq 1 ]];then
-            image="/root/images/CentOS-7-x86_64-Minimal-1511.iso"
+        elif [[ $DISTRO =~ centos72 ]]; then
+            image="/cs-shared/images/CentOS-7-x86_64-Minimal-1511.iso"
             pkg_type="contrail-centos-package"
             iso_type="redhat"
             iso_name=${DISTRO}
