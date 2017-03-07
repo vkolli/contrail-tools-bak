@@ -741,7 +741,7 @@ function launch_testbed_virtual() {
         set -e
         cp /root/${TEMPLATE_DIR}/$TEMPLATE /root/${TEMPLATE_DIR}/input.json
         cd /root/${TEMPLATE_DIR}/
-        ./build_infra.sh ${TEMPLATE_DIR} "U14_04_5"
+        ./build_infra.sh ${TEMPLATE_DIR} ${DISTRO} 
         if [ $? == 0 ]
         then
             echo "Launch of Virtual testbed was successful!!!"
