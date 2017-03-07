@@ -63,7 +63,7 @@ else
 fi
 done
 
-# Now Lets Create The Server Stack 
+
 if [ "$net_res" == 'success' ]
 then
 	heat stack-create -f /root/$1/final_server.yaml $final_server_stack_name
@@ -83,7 +83,8 @@ then
                 if [ "$ser_res" == 'failed' ]
                 then
                         echo "Server Stack Creation Failed"
-                        break
+			heat stack-show $final_server_stack_name
+			exit 0
                 fi
                 if [ "$ser_res" == 'inprogress' ]
                 then
