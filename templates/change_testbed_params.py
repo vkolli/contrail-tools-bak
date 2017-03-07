@@ -97,7 +97,7 @@ def change_testbed_params():
 # Method for Downloading the requested image 
 def get_requested_image():
 	if len(sys.argv) == 4:
-		if sys.argv[2] == "ubuntu-14.04":	
+		if sys.argv[2] == "ubuntu-14-04":	
 			#a = subprocess.Popen("cd /root/heat/final_scripts/new_rev/ ; wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-5.qcow2", shell=True ,stdout=subprocess.PIPE)
 			a = subprocess.Popen("wget http://10.84.5.120/images/soumilk/vm_images/ubuntu14-04-5.qcow2", shell=True ,stdout=subprocess.PIPE)
 			a_tmp = a.stdout.read()
@@ -119,17 +119,17 @@ def get_requested_image():
 # Method for Checking if the requested image is added to the cluster, if not. It will download the image and add it to the cluster.
 def parse_openstack_image_list_command():
 	if len(sys.argv) == 4:
-		if sys.argv[2] == "ubuntu-14.04":
-			a = subprocess.Popen("openstack image list | grep ubuntu-14.04", shell=True ,stdout=subprocess.PIPE)
+		if sys.argv[2] == "ubuntu-14-04":
+			a = subprocess.Popen("openstack image list | grep ubuntu-14-04", shell=True ,stdout=subprocess.PIPE)
 			a_tmp = a.stdout.read()
 			if len(a_tmp) == 0:
 				print "The Requested Image is not present in the cluster, Downloading it ----->>\n"
 				get_requested_image()
-				a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file ubuntu14-04-5.qcow2 ubuntu-14.04", shell=True ,stdout=subprocess.PIPE)
+				a = subprocess.Popen("openstack image create --disk-format qcow2 --container-format bare --public --file ubuntu14-04-5.qcow2 ubuntu-14-04", shell=True ,stdout=subprocess.PIPE)
 				a_tmp = a.stdout.read()
 				print a_tmp
 				time.sleep(5)
-				a = subprocess.Popen("openstack image list | grep ubuntu-14.04", shell=True ,stdout=subprocess.PIPE)
+				a = subprocess.Popen("openstack image list | grep ubuntu-14-04", shell=True ,stdout=subprocess.PIPE)
 				a_tmp = a.stdout.read()
 				print a_tmp	
 			else:
