@@ -564,7 +564,7 @@ function add_server_cluster_SM() {
             contrail_pkg=`ls /cs-shared/github-build/${BRANCH}/${BUILDID}/${DISTRO}/${SKU}/contrail-install-packages*.rpm`
             isofile="/root/sm_files/centos72.json"
         elif [[ $DISTRO =~ centos71 ]]; then
-            image="/root/images/CentOS-7-x86_64-Minimal-1503-01.iso"
+            image="/cs-shared/images/CentOS-7-x86_64-Minimal-1503-01.iso"
             pkg_type="contrail-centos-package"
             iso_type="redhat"
             SMID=centos71$SKU${BUILDID}
