@@ -30,7 +30,7 @@ env.roledefs = {
     'cfgm': [host1,host2,host3],
     'openstack': [host1,host2,host3],
     'control': [host1,host2,host3],
-    'compute': [host4, host5 ],
+    'compute': [host5, host6 ],
     'collector': [host1,host2,host3],
     'webui': [host1,host2,host3],
     'database': [host1,host2,host3],
@@ -45,7 +45,7 @@ bond= {
     host1 : { 'name': 'bond0', 'member': ['em1','em2'], 'mode':'802.3ad' },
     host2 : { 'name': 'bond0', 'member': ['em1','em2'], 'mode':'802.3ad' },
     host3 : { 'name': 'bond0', 'member': ['em1','em2'], 'mode':'802.3ad' },
-    host4 : { 'name': 'bond0', 'member': ['em1','em2','em3','p2p1'], 'mode':'802.3ad' },
+    host4 : { 'name': 'bond0', 'member': ['em1','em2'], 'mode':'802.3ad' },
     host5 : { 'name': 'bond0', 'member': ['em1','em2','em3','p2p1'], 'mode':'802.3ad' },
     host6 : { 'name': 'bond0', 'member': ['em1','em2','em3','p2p1'], 'mode':'802.3ad' },
 }
