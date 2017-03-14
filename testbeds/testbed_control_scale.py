@@ -28,7 +28,7 @@ public_vn_subnet = "10.84.42.0/24"
 env.roledefs = {
     'all': [host1,host2,host3,host4, host5,host6 ],
     'cfgm': [host1,host2,host3],
-    'openstack': [host1,host2,host3],
+    'openstack': [host1],
     'control': [host1,host2,host3],
     'compute': [host5, host6 ],
     'collector': [host1,host2,host3],
@@ -81,10 +81,10 @@ env.passwords = {
 }
 
 env.ha = {
-    'internal_vip' : '10.87.64.250',
-    'external_vip' : '5.5.5.250',
-    'internal_virtual_router_id': 110,
-    'external_virtual_router_id': 111,
+    'contrail_internal_vip' : '5.5.5.250',
+    'contrail_external_vip' : '10.87.64.250',
+    'contrail_internal_virtual_router_id': 110,
+    'contrail_external_virtual_router_id': 111,
 }
 
 #env.dpdk = {
