@@ -17,7 +17,7 @@ host6 = 'root@10.87.64.134'  # b4s344
 host_build = 'root@10.87.64.129'  # b4s342
 
 # External routers if any
-ext_routers = []
+ext_routers = [('mx-240', '6.6.6.10')]
 
 # Autonomous system number
 router_asn = 64512
